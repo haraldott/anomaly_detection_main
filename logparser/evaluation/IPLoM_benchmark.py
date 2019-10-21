@@ -2,7 +2,7 @@
 
 import sys
 sys.path.append('../')
-from logparser.implementations import IPLoM, evaluator
+from logparser import IPLoM, evaluator
 import os
 import pandas as pd
 

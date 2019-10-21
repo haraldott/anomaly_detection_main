@@ -2,10 +2,10 @@
 
 import sys
 sys.path.append('../')
-from logparser.implementations import Spell, evaluator
+from logparser import Spell, evaluator
 import os
 import pandas as pd
-import logparser.execution.Spell_demo as Spell_demo
+import logparser.Spell.Spell_demo as Spell_demo
 
 
 input_dir = '../logs/'  # The input directory of log file

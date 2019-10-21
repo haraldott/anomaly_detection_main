@@ -2,10 +2,10 @@
 
 import sys
 sys.path.append('../')
-from logparser.implementations import Drain, evaluator
+from logparser import Drain, evaluator
 import os
 import pandas as pd
-import logparser.execution.Drain_demo as Drain_demo
+import logparser.Drain.Drain_demo as Drain_demo
 
 input_dir = '../logs/' # The input directory of log file
 output_dir = 'Drain_result/' # The output directory of parsing results
