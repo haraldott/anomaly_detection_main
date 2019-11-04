@@ -1,6 +1,6 @@
 flair
-allennlp
 torch
 pandas
 numpy
 keras
+glove_python
