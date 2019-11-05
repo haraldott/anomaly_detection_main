@@ -38,7 +38,7 @@ class autoencoder(nn.Module):
     def __init__(self):
         super(autoencoder, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(20 * 200, 512),
+            nn.Linear(longest_sent * input_size, 512),
             nn.ReLU(True),
             nn.Linear(512, 256),
             nn.ReLU(True),
@@ -52,7 +52,7 @@ class autoencoder(nn.Module):
             nn.ReLU(True),
             nn.Linear(256, 512),
             nn.ReLU(True),
-            nn.Linear(512, 20 * 200), nn.Tanh())
+            nn.Linear(512, longest_sent * input_size), nn.Tanh())
 
     def forward(self, x):
         x = self.encoder(x)
@@ -63,17 +63,16 @@ model = autoencoder()
 model = model.double()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(
-    model.parameters(), lr=learning_rate, weight_decay=1e-5)
+    model.parameters(), lr=learning_rate, weight_decay=1e-4)
 
 for epoch in range(num_epochs):
     loss = 0
     for sentence in dataloader:
         sentence = sentence.view(sentence.size(0), -1)
-        #sentence = Variable(sentence)
-        # ===================forward=====================
+
         output = model(sentence)
         loss = criterion(output, sentence)
-        # ===================backward====================
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()

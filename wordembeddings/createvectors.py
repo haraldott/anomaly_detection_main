@@ -18,7 +18,7 @@ def create_word_vectors():
     corpus = Corpus()
     new_lines = [line.split(' ') for line in p["EventTemplate"]]
     corpus.fit(new_lines)
-    glove = Glove(no_components=200, learning_rate=0.5)
+    glove = Glove(no_components=100, learning_rate=0.5)
     glove.fit(corpus.matrix, epochs=30, no_threads=4, verbose=True)
     glove.add_dictionary(corpus.dictionary)
     new_lines_as_vectors = []
