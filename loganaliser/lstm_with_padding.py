@@ -1,13 +1,12 @@
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from torch.nn import functional as F
+
 import wordembeddings.createvectors as cv
-import numpy as np
 
 
 class LSTM(nn.Module):
-    def __init__(self, nb_lstm_units=256, embedding_dim=3, batch_size=3):
+    def __init__(self, nb_lstm_units=256, embedding_dim=3, batch_size=5):
         super(LSTM, self).__init__()
         self.nb_lstm_units = nb_lstm_units
         self.embedding_dim = embedding_dim
@@ -50,6 +49,7 @@ class LSTM(nn.Module):
         return distance
 
 
+seq_length = 5
 num_epochs = 3
 
 embeddings, glove = cv.create_word_vectors()
@@ -66,11 +66,20 @@ for i, x_len in enumerate(sentence_lens):
     sequence = embeddings[i]
     padded_embeddings[i, 0:x_len] = sequence[:x_len]
 
+#padded_embeddings = nn.utils.rnn.pad_sequence(embeddings)
+
 number_of_sentences = len(embeddings)
+data_x = []
+data_y = []
+for i in range(0, number_of_sentences - seq_length):
+    data_x.append(np.asanyarray(embeddings[i: i + seq_length]))
+    data_y.append(np.asanyarray(embeddings[i + seq_length]))
+n_patterns = len(data_x)
 
 # samples, timesteps, features
-#input_x = np.reshape(data_x, (n_patterns, seq_length, input_size))
-#output_y = data_y
+#data_x = np.asanyarray(data_x)
+input_x = np.reshape(data_x, (n_patterns, seq_length, input_size))
+output_y = data_y
 
 model = LSTM()
 optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-5)
@@ -79,12 +88,11 @@ distance = nn.MSELoss()
 for epoch in range(num_epochs):
     for j, sentence in enumerate(padded_embeddings):
         # vec = torch.from_numpy(vec)
-        # ===================forward=====================
+        # forward
         output = model(torch.as_tensor(sentence), sentence_lens[j])
         loss = distance(output, padded_embeddings[j+1])
-        # ===================backward====================
+        # backward
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    # ===================log========================
     print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.data()))
