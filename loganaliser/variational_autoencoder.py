@@ -36,7 +36,7 @@ glove = pickle.load(open(glove_load_path, 'rb'))
 # Hyperparameters
 num_epochs = 100
 batch_size = 128
-learning_rate = 1e-3
+learning_rate = 1e-5
 
 dict_size = len(glove.dictionary)  # number of different words
 embeddings_dim = embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
@@ -47,9 +47,9 @@ padded_embeddings = pad_embeddings(embeddings, sentence_lens, embeddings_dim)
 dataloader = DataLoader(padded_embeddings, batch_size=batch_size)
 
 
-class autoencoder(nn.Module):
+class AutoEncoder(nn.Module):
     def __init__(self):
-        super(autoencoder, self).__init__()
+        super(AutoEncoder, self).__init__()
         self.fc1 = nn.Linear(longest_sent * embeddings_dim, 400)
         self.fc21 = nn.Linear(400, 64)
         self.fc22 = nn.Linear(400, 64)
@@ -78,15 +78,17 @@ class autoencoder(nn.Module):
         z = self.reparametrize(mu, logvar)
         return self.decode(z), mu, logvar
 
-model = autoencoder()
+
+model = AutoEncoder()
 model = model.double()
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # model.load_state_dict(torch.load('./sim_autoencoder.pth'))
 # model.eval()
 
 reconstruction_function = nn.MSELoss()
+
 
 def loss_function(recon_x, x, mu, logvar):
     """
@@ -101,6 +103,7 @@ def loss_function(recon_x, x, mu, logvar):
     KLD = torch.sum(KLD_element).mul_(-0.5)
     # KL divergence
     return BCE + KLD
+
 
 for epoch in range(num_epochs):
     loss = 0
