@@ -105,19 +105,19 @@ def loss_function(recon_x, x, mu, logvar):
     return BCE + KLD
 
 
-for epoch in range(num_epochs):
-    loss = 0
-    model.train()
-    train_loss = 0
-    for sentence in dataloader:
-        sentence = sentence.view(sentence.size(0), -1)
-
-        optimizer.zero_grad()
-        recon_batch, mu, logvar = model(sentence)
-        loss = loss_function(recon_batch, sentence, mu, logvar)
-        loss.backward()
-        train_loss += loss.item()
-        optimizer.step()
-    print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
-
-torch.save(model.state_dict(), './sim_autoencoder.pth')
+# for epoch in range(num_epochs):
+#     loss = 0
+#     model.train()
+#     train_loss = 0
+#     for sentence in dataloader:
+#         sentence = sentence.view(sentence.size(0), -1)
+#
+#         optimizer.zero_grad()
+#         recon_batch, mu, logvar = model(sentence)
+#         loss = loss_function(recon_batch, sentence, mu, logvar)
+#         loss.backward()
+#         train_loss += loss.item()
+#         optimizer.step()
+#     print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
+#
+# torch.save(model.state_dict(), './sim_autoencoder.pth')
