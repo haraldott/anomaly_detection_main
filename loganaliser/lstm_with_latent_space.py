@@ -6,11 +6,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from loganaliser.variational_autoencoder import AutoEncoder, pad_embeddings
+from loganaliser.variational_autoencoder import AutoEncoder
 
 
 class LSTM(nn.Module):
-    def __init__(self, embedding_dim, nb_lstm_units=256, batch_size=5):
+    def __init__(self, embedding_dim, nb_lstm_units=256, batch_size=5, dropout=0.2):
         super(LSTM, self).__init__()
         self.nb_lstm_units = nb_lstm_units
         self.embedding_dim = embedding_dim
@@ -19,7 +19,8 @@ class LSTM(nn.Module):
         self.lstm = nn.LSTM(
             input_size=self.embedding_dim,
             hidden_size=self.nb_lstm_units,
-            num_layers=2
+            num_layers=2,
+            dropout=dropout
         )
 
         self.linear = nn.Linear(self.nb_lstm_units, self.embedding_dim)
@@ -54,20 +55,19 @@ vectors_load_path = args.loadvectors
 autoencoder_model_path = args.loadautoencodermodel
 
 # load vectors and glove obj
-embeddings = pickle.load(open(vectors_load_path, 'rb'))
+padded_embeddings = pickle.load(open(vectors_load_path, 'rb'))
 glove = pickle.load(open(glove_load_path, 'rb'))
 
 # Hyperparamters
 seq_length = 5
-num_epochs = 200
+num_epochs = 100
 learning_rate = 1e-5
 batch_size = 8
 
 dict_size = len(glove.dictionary)  # number of different words
-embeddings_dim = embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
-sentence_lens = [len(sentence) for sentence in embeddings]  # how many words a log line consists of, without padding
+embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
+sentence_lens = [len(sentence) for sentence in padded_embeddings]  # how many words a log line consists of, without padding
 longest_sent = max(sentence_lens)  # length of the longest sentence
-padded_embeddings = pad_embeddings(embeddings, sentence_lens, embeddings_dim)
 
 # load the AutoEncoder model
 autoencoder_model = AutoEncoder()
@@ -90,29 +90,35 @@ data_x = []
 data_y = []
 for i in range(0, number_of_sentences - seq_length):
     data_x.append(latent_space_representation_of_padded_embeddings[i: i + seq_length])
-    data_y.append(latent_space_representation_of_padded_embeddings[i + seq_length])
+    data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + seq_length])
 n_patterns = len(data_x)
 
 data_x = torch.Tensor(data_x)
 data_y = torch.Tensor(data_y)
 
 # samples, timesteps, features
-dataloader = DataLoader(data_x, batch_size=batch_size)
+dataloader_x = DataLoader(data_x, batch_size=64)
+dataloader_y = DataLoader(data_y, batch_size=64)
 input_x = np.reshape(data_x, (n_patterns, seq_length, feature_length))
 
 model = LSTM(embedding_dim=feature_length)
 optimizer = torch.optim.Adam(model.parameters(), weight_decay=learning_rate)
+#  check if softmax is applied on loss, if not do it yourself
+#  überprüfe was mse genau macht, abspeichern
+#  zb jede 10. epoche die distanz plotten
+#  quadrat mean squared error mal probiere n
 distance = nn.MSELoss()
 
 for epoch in range(num_epochs):
-    for x, target in zip(dataloader, data_y):
+    global loss
+    for x, target in zip(dataloader_x, dataloader_y):
         # vec = torch.from_numpy(vec)
         # forward
         prediction = model(x)
-        loss = distance(prediction.view(-1, feature_length), target)
+        loss = distance(prediction.view(-1), target.view(-1))
 
         # backward
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.data()))
+    print('epoch [{}/{}], loss:{}'.format(epoch + 1, num_epochs, loss.data))

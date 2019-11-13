@@ -19,13 +19,13 @@ learning_rate = 1e-3
 
 embeddings, glove = cv.create_word_vectors()
 dict_size = len(glove.dictionary)
-input_size = embeddings[0][0].shape[0]
+input_dimension = embeddings[0][0].shape[0]
 
 sentence_lens = [len(sentence) for sentence in embeddings]
-pad_vector = np.zeros(input_size)
+pad_vector = np.zeros(input_dimension)
 longest_sent = max(sentence_lens)
 total_batch_size = len(embeddings)
-padded_embeddings = np.ones((total_batch_size, longest_sent, input_size)) * pad_vector
+padded_embeddings = np.ones((total_batch_size, longest_sent, input_dimension)) * pad_vector
 
 for i, x_len in enumerate(sentence_lens):
     sequence = embeddings[i]
@@ -33,12 +33,14 @@ for i, x_len in enumerate(sentence_lens):
 
 dataloader = DataLoader(padded_embeddings, batch_size=batch_size)
 
-
+# TODO: überprüfe ob dropout bei autoencoder
+# TODO: eventuell autoencoder mit gru (lstm) probieren, decoder layer kann so bleiben (ggf. auch decoder anpassen,
+#  falls mit linear nicht so gut funktioniert, es geht nur um die Zeit)
 class autoencoder(nn.Module):
     def __init__(self):
         super(autoencoder, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(longest_sent * input_size, 512),
+            nn.Linear(longest_sent * input_dimension, 512),
             nn.ReLU(True),
             nn.Linear(512, 256),
             nn.ReLU(True),
@@ -52,7 +54,7 @@ class autoencoder(nn.Module):
             nn.ReLU(True),
             nn.Linear(256, 512),
             nn.ReLU(True),
-            nn.Linear(512, longest_sent * input_size), nn.Tanh())
+            nn.Linear(512, longest_sent * input_dimension), nn.Tanh())
 
     def forward(self, x):
         x = self.encoder(x)
@@ -60,7 +62,7 @@ class autoencoder(nn.Module):
         return x
 
 model = autoencoder()
-model = model.double()
+model = model.double() # TODO: take care that we use double *everywhere*
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(
     model.parameters(), lr=learning_rate, weight_decay=1e-4)

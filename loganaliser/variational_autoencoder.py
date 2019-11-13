@@ -1,24 +1,12 @@
 import argparse
 import pickle
 
-import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
 from torch import optim
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-
-
-def pad_embeddings(emb, sentlens, emb_dim):
-    total_batch_size = len(emb)
-    pad_vector = np.zeros(emb_dim)
-    padded_emb = np.ones((total_batch_size, longest_sent, emb_dim)) * pad_vector
-    for i, x_len in enumerate(sentlens):
-        sequence = embeddings[i]
-        padded_emb[i, 0:x_len] = sequence[:x_len]
-
-    return padded_emb
 
 
 # Parse args input
@@ -30,7 +18,7 @@ glove_load_path = args.loadglove
 vectors_load_path = args.loadvectors
 
 # load vectors and glove obj
-embeddings = pickle.load(open(vectors_load_path, 'rb'))
+padded_embeddings = pickle.load(open(vectors_load_path, 'rb'))
 glove = pickle.load(open(glove_load_path, 'rb'))
 
 # Hyperparameters
@@ -39,14 +27,15 @@ batch_size = 128
 learning_rate = 1e-5
 
 dict_size = len(glove.dictionary)  # number of different words
-embeddings_dim = embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
-sentence_lens = [len(sentence) for sentence in embeddings]  # how many words a log line consists of, without padding
+embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
+sentence_lens = [len(sentence) for sentence in padded_embeddings]  # how many words a log line consists of, without padding
 longest_sent = max(sentence_lens)
-padded_embeddings = pad_embeddings(embeddings, sentence_lens, embeddings_dim)
 
 dataloader = DataLoader(padded_embeddings, batch_size=batch_size)
 
-
+# TODO: überprüfe ob dropout bei autoencoder
+# TODO: eventuell autoencoder mit gru (lstm) probieren, decoder layer kann so bleiben (ggf. auch decoder anpassen,
+#  falls mit linear nicht so gut funktioniert, es geht nur um die Zeit)
 class AutoEncoder(nn.Module):
     def __init__(self):
         super(AutoEncoder, self).__init__()
@@ -80,7 +69,7 @@ class AutoEncoder(nn.Module):
 
 
 model = AutoEncoder()
-model = model.double()
+model = model.double()  # TODO: take care that we use double *everywhere*
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -105,19 +94,19 @@ def loss_function(recon_x, x, mu, logvar):
     return BCE + KLD
 
 
-# for epoch in range(num_epochs):
-#     loss = 0
-#     model.train()
-#     train_loss = 0
-#     for sentence in dataloader:
-#         sentence = sentence.view(sentence.size(0), -1)
-#
-#         optimizer.zero_grad()
-#         recon_batch, mu, logvar = model(sentence)
-#         loss = loss_function(recon_batch, sentence, mu, logvar)
-#         loss.backward()
-#         train_loss += loss.item()
-#         optimizer.step()
-#     print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
-#
-# torch.save(model.state_dict(), './sim_autoencoder.pth')
+for epoch in range(num_epochs):
+    loss = 0
+    model.train()
+    train_loss = 0
+    for sentence in dataloader:
+        sentence = sentence.view(sentence.size(0), -1)
+
+        optimizer.zero_grad()
+        recon_batch, mu, logvar = model(sentence)
+        loss = loss_function(recon_batch, sentence, mu, logvar)
+        loss.backward()
+        train_loss += loss.item()
+        optimizer.step()
+    print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
+
+torch.save(model.state_dict(), './sim_autoencoder.pth')
