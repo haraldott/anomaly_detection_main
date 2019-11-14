@@ -14,12 +14,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
 args = parser.parse_args()
-glove_load_path = args.loadglove
-vectors_load_path = args.loadvectors
 
 # load vectors and glove obj
-padded_embeddings = pickle.load(open(vectors_load_path, 'rb'))
-glove = pickle.load(open(glove_load_path, 'rb'))
+padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
+glove = pickle.load(open(args.loadglove, 'rb'))
 
 # Hyperparameters
 num_epochs = 100
@@ -84,7 +82,7 @@ class AutoEncoder(nn.Module):
 
 
 model = AutoEncoder()
-model = model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
+model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -111,15 +109,14 @@ def loss_function(recon_x, x, mu, logvar):
 
 def train():
     model.train()
-    total_loss = 0
+    # total_loss = 0
     for sentence in train_dataloader:
         sentence = sentence.view(sentence.size(0), -1)
-
         optimizer.zero_grad()
         recon_batch, mu, logvar = model(sentence)
         loss = loss_function(recon_batch, sentence, mu, logvar)
         loss.backward()
-        total_loss += loss.item()
+        # total_loss += loss.item()
         optimizer.step()
 
 
@@ -129,7 +126,6 @@ def evaluate(test_dl):
     with torch.no_grad():
         for sentence in test_dl:
             sentence = sentence.view(sentence.size(0), -1)
-            optimizer.zero_grad()
             recon_batch, mu, logvar = model(sentence)
             loss = loss_function(recon_batch, sentence, mu, logvar)
             total_loss += loss.item()
@@ -141,7 +137,6 @@ best_val_loss = None
 try:
     for epoch in range(num_epochs):
         epoch_start_time = time.time()
-        model.train()
         train()
         val_loss = evaluate(val_dataloader)
         print('-' * 89)
@@ -161,8 +156,8 @@ except KeyboardInterrupt:
 
 # load best saved model and evaluate
 test_model = AutoEncoder()
-test_model = test_model.double()
-test_model = test_model.load_state_dict(torch.load('./sim_autoencoder.pth'))
+test_model.double()
+test_model.load_state_dict(torch.load('./sim_autoencoder.pth'))
 test_model.eval()
 
 test_loss = evaluate(test_dataloader)
