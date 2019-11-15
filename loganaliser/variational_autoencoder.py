@@ -13,16 +13,15 @@ import math, time
 parser = argparse.ArgumentParser()
 parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
+parser.add_argument('-model_save_path', type=str, default='./18k_normal_autoencoder.pth')
+parser.add_argument('-learning_rate', type=float, default=1e-5)
+parser.add_argument('-batch_size', type=int, default=128)
+parser.add_argument('-num_epochs', type=int, default=100)
 args = parser.parse_args()
 
 # load vectors and glove obj
 padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
 glove = pickle.load(open(args.loadglove, 'rb'))
-
-# Hyperparameters
-num_epochs = 100
-batch_size = 128
-learning_rate = 1e-5
 
 dict_size = len(glove.dictionary)  # number of different words
 embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
@@ -33,9 +32,9 @@ test_set_len = math.floor(len(padded_embeddings) / 20)
 train_set_len = len(padded_embeddings) - test_set_len - val_set_len
 train, test, val = random_split(padded_embeddings, [train_set_len, test_set_len, val_set_len])
 
-train_dataloader = DataLoader(train, batch_size=batch_size, shuffle=True)
-test_dataloader = DataLoader(test, batch_size=batch_size, shuffle=False)
-val_dataloader = DataLoader(val, batch_size=batch_size, shuffle=False)
+train_dataloader = DataLoader(train, batch_size=args.batch_size, shuffle=True)
+test_dataloader = DataLoader(test, batch_size=args.batch_size, shuffle=False)
+val_dataloader = DataLoader(val, batch_size=args.batch_size, shuffle=False)
 
 
 # TODO: überprüfe ob dropout bei autoencoder
@@ -84,7 +83,7 @@ class AutoEncoder(nn.Module):
 model = AutoEncoder()
 model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 
 # model.load_state_dict(torch.load('./sim_autoencoder.pth'))
 # model.eval()
@@ -132,36 +131,37 @@ def evaluate(test_dl):
     return total_loss / test_dl.dataset.dataset.shape[0]
 
 
-best_val_loss = None
-
-try:
-    for epoch in range(num_epochs):
-        epoch_start_time = time.time()
-        train()
-        val_loss = evaluate(val_dataloader)
+def start(lr=args.learning_rate):
+    best_val_loss = None
+    try:
+        for epoch in range(args.num_epochs):
+            epoch_start_time = time.time()
+            train()
+            val_loss = evaluate(val_dataloader)
+            print('-' * 89)
+            print('AE: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
+                  'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
+                                        val_loss, math.exp(val_loss)))
+            print('-' * 89)
+            if not best_val_loss or val_loss < best_val_loss:
+                torch.save(model.state_dict(), args.model_save_path)
+                best_val_loss = val_loss
+            else:
+                # anneal learning rate
+                print("anneal")
+                lr /= 2.0
+    except KeyboardInterrupt:
         print('-' * 89)
-        print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
-              'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
-                                         val_loss, math.exp(val_loss)))
-        print('-' * 89)
-        if not best_val_loss or val_loss < best_val_loss:
-            torch.save(model.state_dict(), './sim_autoencoder.pth')
-        else:
-            # anneal learning rate
-            print("annealeating")
-            learning_rate /= 2.0
-except KeyboardInterrupt:
-    print('-' * 89)
-    print('Exiting from training early')
+        print('Exiting from training early')
 
-# load best saved model and evaluate
-test_model = AutoEncoder()
-test_model.double()
-test_model.load_state_dict(torch.load('./sim_autoencoder.pth'))
-test_model.eval()
+    # load best saved model and evaluate
+    test_model = AutoEncoder()
+    test_model.double()
+    test_model.load_state_dict(torch.load(args.model_save_path))
+    test_model.eval()
 
-test_loss = evaluate(test_dataloader)
-print('=' * 89)
-print('| End of training | test loss {} | test ppl {}'.format(
-    test_loss, math.exp(test_loss)))
-print('=' * 89)
+    test_loss = evaluate(test_dataloader)
+    print('=' * 89)
+    print('| End of training | test loss {} | test ppl {}'.format(
+        test_loss, math.exp(test_loss)))
+    print('=' * 89)

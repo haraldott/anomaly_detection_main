@@ -7,7 +7,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-
 from loganaliser.variational_autoencoder import AutoEncoder
 
 
@@ -63,18 +62,22 @@ class LSTM(nn.Module):
 parser = argparse.ArgumentParser()
 parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
-parser.add_argument('-loadautoencodermodel', type=str, default='sim_autoencoder.pth')
-parser.add_argument('-seq-length')
+parser.add_argument('-loadautoencodermodel', type=str, default='18k_anomaly_autoencoder.pth')
+parser.add_argument('-seq_length', type=int, default=4)
+parser.add_argument('-num_epochs', type=int, default=100)
+parser.add_argument('-learning_rate', type=float, default=1e-5)
+parser.add_argument('-batch_size', type=int, default=5)
+parser.add_argument('-folds', type=int, default=5)
+parser.add_argument('-clip', type=float, default=0.25)
 args = parser.parse_args()
+lr = args.learning_rate
 
 # load vectors and glove obj
 padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
 glove = pickle.load(open(args.loadglove, 'rb'))
 
 # Hyperparamters
-seq_length = 5
-num_epochs = 100
-learning_rate = 1e-5
+learning_rate = 1e-7
 batch_size = 8
 folds = 5
 
@@ -103,28 +106,18 @@ feature_length = latent_space_representation_of_padded_embeddings[0].size
 
 data_x = []
 data_y = []
-for i in range(0, number_of_sentences - seq_length):
-    data_x.append(latent_space_representation_of_padded_embeddings[i: i + seq_length])
-    data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + seq_length])
+for i in range(0, number_of_sentences - args.seq_length):
+    data_x.append(latent_space_representation_of_padded_embeddings[i: i + args.seq_length])
+    data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + args.seq_length])
 n_patterns = len(data_x)
 
 data_x = torch.Tensor(data_x)
 data_y = torch.Tensor(data_y)
 
-data_x_k_fold = split(data_x, 5)
-
 # samples, timesteps, features
 # dataloader_x = DataLoader(data_x, batch_size=64)
 # dataloader_y = DataLoader(data_y, batch_size=64)
-input_x = np.reshape(data_x, (n_patterns, seq_length, feature_length))
-
-model = LSTM(embedding_dim=feature_length)
-optimizer = torch.optim.Adam(model.parameters(), weight_decay=learning_rate)
-#  check if softmax is applied on loss, if not do it yourself
-#  überprüfe was mse genau macht, abspeichern
-#  zb jede 10. epoche die distanz plotten
-#  quadrat mean squared error mal probieren
-distance = nn.MSELoss()
+input_x = np.reshape(data_x, (n_patterns, args.seq_length, feature_length))
 
 
 def evaluate(idx):
@@ -132,12 +125,18 @@ def evaluate(idx):
     dataloader_x = DataLoader(data_x[idx])
     dataloader_y = DataLoader(data_y[idx])
     total_loss = 0
+    min_loss = None
+    max_loss = None
     with torch.no_grad():
         for x, target in zip(dataloader_x, dataloader_y):
             prediction = model(x)
             loss = distance(prediction.view(-1), target.view(-1))
             total_loss += loss.item()
-    return total_loss / len(indices)  # TODO: check this
+            if not min_loss or loss.item() < min_loss:
+                min_loss = loss.item()
+            if not max_loss or loss.item() > min_loss:
+                max_loss = loss.item()
+    return total_loss / len(indices), min_loss, max_loss  # TODO: check total_loss / len(indices) is this correct?
 
 
 def train(idx):
@@ -149,15 +148,28 @@ def train(idx):
         prediction = model(x)
         loss = distance(prediction.view(-1), target.view(-1))
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+        for p in model.parameters():
+            p.data.add_(-lr, p.grad.data)
         optimizer.step()
 
 
-indices_generator = split(data_x, 5)
+model = LSTM(embedding_dim=feature_length)
+optimizer = torch.optim.Adam(model.parameters(), weight_decay=lr)
+#  check if softmax is applied on loss, if not do it yourself
+#  überprüfe was mse genau macht, abspeichern
+#  zb jede 10. epoche die distanz plotten
+#  quadrat mean squared error mal probieren
+distance = nn.MSELoss()
+
 best_val_loss = None
-val_loss = 0  # TODO: make sure that this is correct
+min_loss = None
+max_loss = None
+val_loss = 0  # TODO: make sure that this is correct, can we start at 0 ?
 
 try:
-    for epoch in range(num_epochs):
+    for epoch in range(args.num_epochs):
+        indices_generator = split(data_x, folds)
         epoch_start_time = time.time()
         for i in range(0, folds):
             indices = next(indices_generator)
@@ -165,19 +177,24 @@ try:
             eval_indices = indices[1]
 
             train(train_incides)
-            val_los = + evaluate(eval_indices)
-
+            this_loss, this_min_loss, this_max_loss = evaluate(eval_indices)
+            val_loss += this_loss
+            if not min_loss or this_min_loss < min_loss:
+                min_loss = this_min_loss
+            if not max_loss or this_max_loss > max_loss:
+                max_loss = this_max_loss
         print('-' * 89)
-        print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
+        print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
               'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
                                     val_loss, math.exp(val_loss)))
         print('-' * 89)
         if not best_val_loss or val_loss < best_val_loss:
-            torch.save(model.state_dict(), './sim_autoencoder.pth')
+            torch.save(model.state_dict(), './lstm.pth')
+            best_val_loss = val_loss
         else:
             # anneal learning rate
             print("annealeating")
-            learning_rate /= 2.0
+            lr /= 2.0
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
