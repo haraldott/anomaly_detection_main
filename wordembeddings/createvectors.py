@@ -6,9 +6,9 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-file', type=str,
-                    default='../data/openstack/parsed_drain_st_0.2_depth_2/openstack_18k_anomalies_structured.csv')
-parser.add_argument('-saveglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
-parser.add_argument('-savevectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
+                    default='../data/openstack/utah/parsed/openstack_52k_normal_structured.csv')
+parser.add_argument('-saveglove', type=str, default='../data/openstack/utah/embeddings/glove_52k_normal.model')
+parser.add_argument('-savevectors', type=str, default='../data/openstack/utah/embeddings/vectors_52k_normal.pickle')
 args = parser.parse_args()
 log_file_path = args.file
 glove_save_path = args.saveglove

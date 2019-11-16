@@ -8,6 +8,25 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from loganaliser.variational_autoencoder import AutoEncoder
+import matplotlib.pyplot as plt
+import loganaliser.lstm_with_latent_space.model as lstm_model
+
+# Parse args input
+parser = argparse.ArgumentParser()
+parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
+parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
+parser.add_argument('-loadautoencodermodel', type=str, default='18k_anomaly_autoencoder_with_128.pth')
+parser.add_argument('-n_layers', type=int, default=2, help='number of layers')
+parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
+parser.add_argument('-seq_length', type=int, default=1)
+parser.add_argument('-num_epochs', type=int, default=100)
+parser.add_argument('-learning_rate', type=float, default=1e-5)
+parser.add_argument('-batch_size', type=int, default=20)
+parser.add_argument('-folds', type=int, default=5)
+parser.add_argument('-clip', type=float, default=0.25)
+args = parser.parse_args()
+lr = args.learning_rate
+eval_batch_size = 10
 
 
 def split(x, n_splits):
@@ -23,66 +42,12 @@ def split(x, n_splits):
         yield indices[start: mid], indices[mid + margin: stop]
 
 
-class LSTM(nn.Module):
-    def __init__(self, embedding_dim, nb_lstm_units=256, batch_size=5, dropout=0.2):
-        super(LSTM, self).__init__()
-        self.nb_lstm_units = nb_lstm_units
-        self.embedding_dim = embedding_dim
-        self.batch_size = batch_size
-
-        self.lstm = nn.LSTM(
-            input_size=self.embedding_dim,
-            hidden_size=self.nb_lstm_units,
-            num_layers=2,
-            dropout=dropout
-        )
-
-        self.linear = nn.Linear(self.nb_lstm_units, self.embedding_dim)
-
-        # output layer which projects back to tag space
-        # self.hidden_to_tag = nn.Linear(self.nb_lstm_units, self.nb_tags)
-
-    def forward(self, input):
-        h1, _ = self.lstm(input)
-        pred = self.linear(h1)
-        return pred
-
-    def loss(self, y_pred, y):
-        # y = y.view(-1)
-        # y_pred = y_pred.view(-1)
-
-        mask_y = y * (y != np.zeros(embeddings_dim))
-        mask_y_pred = y_pred * (y_pred != np.zeros(embeddings_dim))
-        distance(mask_y, mask_y_pred)
-
-        return distance
-
-
-# Parse args input
-parser = argparse.ArgumentParser()
-parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
-parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
-parser.add_argument('-loadautoencodermodel', type=str, default='18k_anomaly_autoencoder.pth')
-parser.add_argument('-seq_length', type=int, default=4)
-parser.add_argument('-num_epochs', type=int, default=100)
-parser.add_argument('-learning_rate', type=float, default=1e-5)
-parser.add_argument('-batch_size', type=int, default=5)
-parser.add_argument('-folds', type=int, default=5)
-parser.add_argument('-clip', type=float, default=0.25)
-args = parser.parse_args()
-lr = args.learning_rate
-
 # load vectors and glove obj
 padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
 glove = pickle.load(open(args.loadglove, 'rb'))
 
-# Hyperparamters
-learning_rate = 1e-7
-batch_size = 8
-folds = 5
-
 dict_size = len(glove.dictionary)  # number of different words
-embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
+# embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
 sentence_lens = [len(sentence) for sentence in
                  padded_embeddings]  # how many words a log line consists of, without padding
 longest_sent = max(sentence_lens)  # length of the longest sentence
@@ -106,9 +71,9 @@ feature_length = latent_space_representation_of_padded_embeddings[0].size
 
 data_x = []
 data_y = []
-for i in range(0, number_of_sentences - args.seq_length):
-    data_x.append(latent_space_representation_of_padded_embeddings[i: i + args.seq_length])
-    data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + args.seq_length])
+for i in range(0, number_of_sentences - 1):
+    data_x.append(latent_space_representation_of_padded_embeddings[i])
+    data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
 n_patterns = len(data_x)
 
 data_x = torch.Tensor(data_x)
@@ -117,19 +82,30 @@ data_y = torch.Tensor(data_y)
 # samples, timesteps, features
 # dataloader_x = DataLoader(data_x, batch_size=64)
 # dataloader_y = DataLoader(data_y, batch_size=64)
-input_x = np.reshape(data_x, (n_patterns, args.seq_length, feature_length))
+data_x = np.reshape(data_x, (n_patterns, args.seq_length, feature_length))
+
+
+def repackage_hidden(h):
+    """Wraps hidden states in new Tensors, to detach them from their history."""
+
+    if isinstance(h, torch.Tensor):
+        return h.detach()
+    else:
+        return tuple(repackage_hidden(v) for v in h)
 
 
 def evaluate(idx):
     model.eval()
-    dataloader_x = DataLoader(data_x[idx])
-    dataloader_y = DataLoader(data_y[idx])
+    dataloader_x = DataLoader(data_x[idx], batch_size=args.batch_size)
+    dataloader_y = DataLoader(data_y[idx], batch_size=args.batch_size)
     total_loss = 0
     min_loss = None
     max_loss = None
+    hidden = model.init_hidden(1) # TODO: check stuff with batch size
     with torch.no_grad():
-        for x, target in zip(dataloader_x, dataloader_y):
-            prediction = model(x)
+        for data, target in zip(dataloader_x, dataloader_y):
+            prediction, hidden = model(data, hidden)
+            hidden = repackage_hidden(hidden)
             loss = distance(prediction.view(-1), target.view(-1))
             total_loss += loss.item()
             if not min_loss or loss.item() < min_loss:
@@ -141,21 +117,25 @@ def evaluate(idx):
 
 def train(idx):
     model.train()
-    dataloader_x = DataLoader(data_x[idx])
-    dataloader_y = DataLoader(data_y[idx])
-    for x, target in zip(dataloader_x, dataloader_y):
-        optimizer.zero_grad()
-        prediction = model(x)
+    dataloader_x = DataLoader(data_x[idx], batch_size=args.batch_size)
+    dataloader_y = DataLoader(data_y[idx], batch_size=args.batch_size)
+    hidden = model.init_hidden(1) # TODO: check stuff with batch size
+    for data, target in zip(dataloader_x, dataloader_y):
+        model.zero_grad()
+        hidden = repackage_hidden(hidden)
+        prediction, hidden = model(data, hidden)
+
         loss = distance(prediction.view(-1), target.view(-1))
         loss.backward()
+
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         for p in model.parameters():
             p.data.add_(-lr, p.grad.data)
-        optimizer.step()
 
 
-model = LSTM(embedding_dim=feature_length)
-optimizer = torch.optim.Adam(model.parameters(), weight_decay=lr)
+model = lstm_model.LSTM(feature_length, args.n_hidden_units, args.n_layers)
+# optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+# optimizer = torch.optim.SGD(model.parameters())
 #  check if softmax is applied on loss, if not do it yourself
 #  überprüfe was mse genau macht, abspeichern
 #  zb jede 10. epoche die distanz plotten
@@ -168,10 +148,11 @@ max_loss = None
 val_loss = 0  # TODO: make sure that this is correct, can we start at 0 ?
 
 try:
+    loss_values = []
     for epoch in range(args.num_epochs):
-        indices_generator = split(data_x, folds)
+        indices_generator = split(data_x, args.folds)
         epoch_start_time = time.time()
-        for i in range(0, folds):
+        for i in range(0, args.folds):
             indices = next(indices_generator)
             train_incides = indices[0]
             eval_indices = indices[1]
@@ -195,6 +176,8 @@ try:
             # anneal learning rate
             print("annealeating")
             lr /= 2.0
+        loss_values.append(val_loss / args.folds)
+    plt.plot(loss_values)
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')

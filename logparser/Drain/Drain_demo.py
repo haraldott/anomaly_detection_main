@@ -31,7 +31,7 @@ settings = {
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-dir', default='/Users/haraldott/Development/thesis/anomaly_detection_main/data/openstack/utah', type=str)
+parser.add_argument('-dir', default='../../data/openstack/utah/raw/openstack_52k_normal', type=str)
 parser.add_argument('-file', default='openstack_52k_normal', type=str)
 parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-st', type=float, default=0.2)
