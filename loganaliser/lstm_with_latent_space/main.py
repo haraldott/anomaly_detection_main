@@ -6,7 +6,7 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from loganaliser.variational_autoencoder import AutoEncoder
 import matplotlib.pyplot as plt
 import loganaliser.lstm_with_latent_space.model as lstm_model
@@ -16,13 +16,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
 parser.add_argument('-loadautoencodermodel', type=str, default='18k_anomaly_autoencoder_with_128.pth')
-parser.add_argument('-n_layers', type=int, default=2, help='number of layers')
+parser.add_argument('-n_layers', type=int, default=4, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
 parser.add_argument('-seq_length', type=int, default=1)
 parser.add_argument('-num_epochs', type=int, default=100)
-parser.add_argument('-learning_rate', type=float, default=1e-5)
+parser.add_argument('-learning_rate', type=float, default=1e-7)
 parser.add_argument('-batch_size', type=int, default=20)
-parser.add_argument('-folds', type=int, default=5)
+parser.add_argument('-folds', type=int, default=1)
 parser.add_argument('-clip', type=float, default=0.25)
 args = parser.parse_args()
 lr = args.learning_rate
@@ -74,6 +74,9 @@ data_y = []
 for i in range(0, number_of_sentences - 1):
     data_x.append(latent_space_representation_of_padded_embeddings[i])
     data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
+# for i in range(0, number_of_sentences - args.seq_length):
+#     data_x.append(latent_space_representation_of_padded_embeddings[i: i + args.seq_length])
+#     data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + args.seq_length])
 n_patterns = len(data_x)
 
 data_x = torch.Tensor(data_x)
@@ -101,7 +104,7 @@ def evaluate(idx):
     total_loss = 0
     min_loss = None
     max_loss = None
-    hidden = model.init_hidden(1) # TODO: check stuff with batch size
+    hidden = model.init_hidden(args.seq_length) # TODO: check stuff with batch size
     with torch.no_grad():
         for data, target in zip(dataloader_x, dataloader_y):
             prediction, hidden = model(data, hidden)
@@ -119,23 +122,24 @@ def train(idx):
     model.train()
     dataloader_x = DataLoader(data_x[idx], batch_size=args.batch_size)
     dataloader_y = DataLoader(data_y[idx], batch_size=args.batch_size)
-    hidden = model.init_hidden(1) # TODO: check stuff with batch size
+    hidden = model.init_hidden(args.seq_length) # TODO: check stuff with batch size
     for data, target in zip(dataloader_x, dataloader_y):
-        model.zero_grad()
+        optimizer.zero_grad()
         hidden = repackage_hidden(hidden)
         prediction, hidden = model(data, hidden)
 
         loss = distance(prediction.view(-1), target.view(-1))
         loss.backward()
+        optimizer.step()
 
-        torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-        for p in model.parameters():
-            p.data.add_(-lr, p.grad.data)
+        # torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+        # for p in model.parameters():
+        #     p.data.add_(-lr, p.grad.data)
 
 
 model = lstm_model.LSTM(feature_length, args.n_hidden_units, args.n_layers)
 # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-# optimizer = torch.optim.SGD(model.parameters())
+optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
 #  check if softmax is applied on loss, if not do it yourself
 #  überprüfe was mse genau macht, abspeichern
 #  zb jede 10. epoche die distanz plotten
@@ -174,8 +178,8 @@ try:
             best_val_loss = val_loss
         else:
             # anneal learning rate
-            print("annealeating")
             lr /= 2.0
+            print("anneal lr to: {}".format(lr))
         loss_values.append(val_loss / args.folds)
     plt.plot(loss_values)
 except KeyboardInterrupt:
