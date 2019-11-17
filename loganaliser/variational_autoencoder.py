@@ -11,9 +11,9 @@ import math, time
 
 # Parse args input
 parser = argparse.ArgumentParser()
-parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
-parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
-parser.add_argument('-model_save_path', type=str, default='./18k_anomaly_autoencoder_with_128.pth')
+parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
+parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
+parser.add_argument('-model_save_path', type=str, default='./137k_normal_autoencoder_with_128_size.pth')
 parser.add_argument('-learning_rate', type=float, default=1e-5)
 parser.add_argument('-batch_size', type=int, default=128)
 parser.add_argument('-num_epochs', type=int, default=100)

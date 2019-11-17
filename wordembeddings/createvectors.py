@@ -6,9 +6,9 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-file', type=str,
-                    default='../data/openstack/utah/parsed/openstack_52k_normal_structured.csv')
-parser.add_argument('-saveglove', type=str, default='../data/openstack/utah/embeddings/glove_52k_normal.model')
-parser.add_argument('-savevectors', type=str, default='../data/openstack/utah/embeddings/vectors_52k_normal.pickle')
+                    default='../data/openstack/utah/parsed/openstack_137k_normal_structured.csv')
+parser.add_argument('-saveglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
+parser.add_argument('-savevectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
 args = parser.parse_args()
 log_file_path = args.file
 glove_save_path = args.saveglove
@@ -18,7 +18,7 @@ p = pd.read_csv(log_file_path)
 corpus = Corpus()
 new_lines = [line.split(' ') for line in p["EventTemplate"]]
 corpus.fit(new_lines)
-glove = Glove(no_components=80, learning_rate=0.01)
+glove = Glove(no_components=60, learning_rate=0.01)
 glove.fit(corpus.matrix, epochs=80, no_threads=4, verbose=True)
 glove.add_dictionary(corpus.dictionary)
 
