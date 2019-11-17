@@ -6,16 +6,16 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 from loganaliser.variational_autoencoder import AutoEncoder
 import matplotlib.pyplot as plt
-import loganaliser.lstm_with_latent_space.model as lstm_model
+import loganaliser.model as lstm_model
 
 # Parse args input
 parser = argparse.ArgumentParser()
-parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove.model')
-parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors.pickle')
-parser.add_argument('-loadautoencodermodel', type=str, default='18k_anomaly_autoencoder_with_128.pth')
+parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
+parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
+parser.add_argument('-loadautoencodermodel', type=str, default='137k_normal_autoencoder_with_128_size.pth')
 parser.add_argument('-n_layers', type=int, default=4, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
 parser.add_argument('-seq_length', type=int, default=1)
