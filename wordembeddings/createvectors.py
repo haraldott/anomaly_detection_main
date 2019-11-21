@@ -6,9 +6,11 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-file', type=str,
-                    default='../data/openstack/utah/parsed/openstack_137k_normal_structured.csv')
-parser.add_argument('-saveglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
-parser.add_argument('-savevectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
+                    default='../data/openstack/utah/parsed/openstack_18k_anomalies_structured.csv')
+parser.add_argument('-saveglove', type=str,
+                    default='../data/openstack/utah/embeddings/glove_18k_anomalies_no_norm_and_padding.model')
+parser.add_argument('-savevectors', type=str,
+                    default='../data/openstack/utah/embeddings/glove_18k_anomalies_no_norm_and_padding.pickle')
 args = parser.parse_args()
 log_file_path = args.file
 glove_save_path = args.saveglove
@@ -32,22 +34,7 @@ for sublist in new_lines:
 embeddings = np.array(new_lines_as_vectors)
 
 
-# padding
-embeddings_dim = embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
-sentence_lens = [len(sentence) for sentence in embeddings]  # how many words a log line consists of, without padding
-longest_sent = max(sentence_lens)
-total_batch_size = len(embeddings)
-pad_vector = np.zeros(embeddings_dim)
-padded_emb = np.ones((total_batch_size, longest_sent, embeddings_dim)) * pad_vector
-
-for i, x_len in enumerate(sentence_lens):
-    sequence = embeddings[i]
-    padded_emb[i, 0:x_len] = sequence[:x_len]
-
-# normalise between 0 and 1
-p_max, p_min = padded_emb.max(), padded_emb.min()
-padded_embeddings = (padded_emb - p_min)/(p_max - p_min)
 
 #  save everything
-pickle.dump(padded_embeddings, open(vectors_save_path, "wb"))
+pickle.dump(embeddings, open(vectors_save_path, "wb"))
 pickle.dump(glove, open(glove_save_path, "wb"))

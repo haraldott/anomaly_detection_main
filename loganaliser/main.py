@@ -7,18 +7,21 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from loganaliser.variational_autoencoder import AutoEncoder
 import matplotlib.pyplot as plt
 import loganaliser.model as lstm_model
+import pandas as pd
+from numpy import array
 
 # Parse args input
 parser = argparse.ArgumentParser()
+parser.add_argument('-logfile', type=str,
+                    default='../data/openstack/utah/parsed/openstack_18k_anomalies_structured.csv')
 parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
 parser.add_argument('-loadautoencodermodel', type=str, default='137k_normal_autoencoder_with_128_size.pth')
-parser.add_argument('-n_layers', type=int, default=4, help='number of layers')
+parser.add_argument('-n_layers', type=int, default=2, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
-parser.add_argument('-seq_length', type=int, default=1)
+parser.add_argument('-seq_length', type=int, default=4)
 parser.add_argument('-num_epochs', type=int, default=100)
 parser.add_argument('-learning_rate', type=float, default=1e-7)
 parser.add_argument('-batch_size', type=int, default=20)
@@ -42,51 +45,35 @@ def split(x, n_splits):
         yield indices[start: mid], indices[mid + margin: stop]
 
 
-# load vectors and glove obj
-padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
-glove = pickle.load(open(args.loadglove, 'rb'))
-
-dict_size = len(glove.dictionary)  # number of different words
-# embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
-sentence_lens = [len(sentence) for sentence in
-                 padded_embeddings]  # how many words a log line consists of, without padding
-longest_sent = max(sentence_lens)  # length of the longest sentence
-
-# load the AutoEncoder model
-autoencoder_model = AutoEncoder()
-autoencoder_model.double()
-autoencoder_model.load_state_dict(torch.load(args.loadautoencodermodel))
-autoencoder_model.eval()
-
-# use the loaded AutoEncoder model, to receive the latent space representation of the padded embeddings
-latent_space_representation_of_padded_embeddings = []
-for sentence in padded_embeddings:
-    sentence = torch.from_numpy(sentence)
-    sentence = sentence.reshape(-1)
-    encoded_sentence, _ = autoencoder_model.encode(sentence)
-    latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach().numpy())
-
-number_of_sentences = len(latent_space_representation_of_padded_embeddings)
-feature_length = latent_space_representation_of_padded_embeddings[0].size
+p = pd.read_csv(args.logfile)
+sentences = p["EventTemplate"]
+new_lines = [line.split(' ') for line in sentences]
+flat_words = []
+for sentence in new_lines:
+    for word in sentence:
+        flat_words.append(word)
+words_as_integers_lookup = sorted(list(set(flat_words)))
+vocab_size = len(words_as_integers_lookup)
 
 data_x = []
 data_y = []
-for i in range(0, number_of_sentences - 1):
-    data_x.append(latent_space_representation_of_padded_embeddings[i])
-    data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
-# for i in range(0, number_of_sentences - args.seq_length):
-#     data_x.append(latent_space_representation_of_padded_embeddings[i: i + args.seq_length])
-#     data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + args.seq_length])
-n_patterns = len(data_x)
+n_chars = len(flat_words)
+words_as_integers = [words_as_integers_lookup.index(word) for word in flat_words]
+for i in range(0, n_chars - args.seq_length - 1):
+    data_x.append(words_as_integers[i: i + args.seq_length])
+    data_y.append(words_as_integers[i + args.seq_length + 1])
+data_x = array(data_x)
+data_y = array(data_y)
 
-data_x = torch.Tensor(data_x)
-data_y = torch.Tensor(data_y)
+# data_x = torch.Tensor(data_x)
+# data_y = torch.Tensor(data_y)
+
 
 # samples, timesteps, features
 # dataloader_x = DataLoader(data_x, batch_size=64)
 # dataloader_y = DataLoader(data_y, batch_size=64)
-data_x = np.reshape(data_x, (n_patterns, args.seq_length, feature_length))
 
+# data_x = np.reshape(data_x, (data_x.shape[0], args.seq_length, 1))
 
 def repackage_hidden(h):
     """Wraps hidden states in new Tensors, to detach them from their history."""
@@ -104,12 +91,12 @@ def evaluate(idx):
     total_loss = 0
     min_loss = None
     max_loss = None
-    hidden = model.init_hidden(args.seq_length) # TODO: check stuff with batch size
+    hidden = model.init_hidden(args.seq_length)  # TODO: check stuff with batch size
     with torch.no_grad():
         for data, target in zip(dataloader_x, dataloader_y):
             prediction, hidden = model(data, hidden)
             hidden = repackage_hidden(hidden)
-            loss = distance(prediction.view(-1), target.view(-1))
+            loss = distance(prediction, target)
             total_loss += loss.item()
             if not min_loss or loss.item() < min_loss:
                 min_loss = loss.item()
@@ -122,13 +109,13 @@ def train(idx):
     model.train()
     dataloader_x = DataLoader(data_x[idx], batch_size=args.batch_size)
     dataloader_y = DataLoader(data_y[idx], batch_size=args.batch_size)
-    hidden = model.init_hidden(args.seq_length) # TODO: check stuff with batch size
+    hidden = model.init_hidden(args.seq_length)  # TODO: check stuff with batch size
     for data, target in zip(dataloader_x, dataloader_y):
         optimizer.zero_grad()
         hidden = repackage_hidden(hidden)
         prediction, hidden = model(data, hidden)
 
-        loss = distance(prediction.view(-1), target.view(-1))
+        loss = distance(prediction, target)
         loss.backward()
         optimizer.step()
 
@@ -137,19 +124,23 @@ def train(idx):
         #     p.data.add_(-lr, p.grad.data)
 
 
-model = lstm_model.LSTM(feature_length, args.n_hidden_units, args.n_layers)
-# optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+model = lstm_model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
+# enhancement: check out Adabound: https://github.com/Luolc/AdaBound
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+# optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+
 #  check if softmax is applied on loss, if not do it yourself
 #  überprüfe was mse genau macht, abspeichern
 #  zb jede 10. epoche die distanz plotten
 #  quadrat mean squared error mal probieren
-distance = nn.MSELoss()
+distance = nn.CrossEntropyLoss()
 
 best_val_loss = None
 min_loss = None
 max_loss = None
 val_loss = 0  # TODO: make sure that this is correct, can we start at 0 ?
+
+#y = torch.LongTensor(args.batch_size, 1).random_() %
 
 try:
     loss_values = []

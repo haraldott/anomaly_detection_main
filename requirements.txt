@@ -6,3 +6,4 @@ keras
 glove_python
 skorch
 matplotlib
+sklearn
