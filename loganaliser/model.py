@@ -1,4 +1,6 @@
 import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 class LSTM(nn.Module):
@@ -29,22 +31,28 @@ class LSTM(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def forward(self, input, hidden):
+    def forward(self, input, hidden, sentence_len):
         input = self.dropout(input)
+        input = pack_padded_sequence(input, [sentence_len], batch_first=True)
         output, hidden = self.lstm(input, hidden)
+        output, _ = pad_packed_sequence(output, batch_first=True)
         output = self.dropout(output)
         decoded = self.decoder(output)
+        F.log_softmax(decoded, dim=-1)
         return decoded, hidden
 
-    # def loss(self, y_pred, y):
-    #     # y = y.view(-1)
-    #     # y_pred = y_pred.view(-1)
-    #
-    #     mask_y = y * (y != np.zeros(embeddings_dim))
-    #     mask_y_pred = y_pred * (y_pred != np.zeros(embeddings_dim))
-    #     distance(mask_y, mask_y_pred)
-    #
-    #     return distance
+    def loss(self, prediction, target):
+        prediction = prediction.view(-1)
+        target = target.view(-1)
+
+        # y = y.view(-1)
+        # y_pred = y_pred.view(-1)
+
+        mask_y = y * (y != np.zeros(embeddings_dim))
+        mask_y_pred = y_pred * (y_pred != np.zeros(embeddings_dim))
+        distance(mask_y, mask_y_pred)
+
+        return distance
 
     def init_hidden(self, bsz):
         weight = next(self.parameters())
