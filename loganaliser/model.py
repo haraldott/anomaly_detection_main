@@ -13,6 +13,7 @@ class LSTM(nn.Module):
         self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=n_hidden_units, num_layers=n_layers,
                             dropout=dropout)
         self.decoder = nn.Linear(n_hidden_units, vocab_size)
+        self.softmax = nn.LogSoftmax(dim=1)
 
         # enhancement: read paper and see if this is useful: "Using the Output Embedding to Improve Language Models"
         #   if so, turn tie_weights on in constructor
@@ -36,8 +37,7 @@ class LSTM(nn.Module):
         output, hidden = self.lstm(input, hidden)
         output = self.dropout(output)
         decoded = self.decoder(output)
-        m = nn.Softmax(dim=0)
-        decoded = m(decoded)
+        decoded = self.softmax(decoded)
         return decoded, hidden
 
     # def loss(self, y_pred, y):
