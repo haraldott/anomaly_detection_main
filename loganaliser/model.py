@@ -19,7 +19,7 @@ class LSTM(nn.Module):
         #   if so, turn tie_weights on in constructor
         if tie_weights:
             if embedding_dim != n_hidden_units:
-                raise ValueError('When using the tied flag, nhid must be equal to emsize')
+                raise ValueError('When using the tied flag, n_hidden_units must be equal to embedding_dim')
             self.decoder.weight = self.word_embeddings.weight
 
         self.init_weights()

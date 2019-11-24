@@ -11,7 +11,7 @@ import torch.nn as nn
 from numpy import array
 from torch.utils.data import DataLoader
 
-import loganaliser.model as lstm_model
+import model
 
 # Parse args input
 parser = argparse.ArgumentParser()
@@ -20,14 +20,15 @@ parser.add_argument('-logfile', type=str,
 parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
 parser.add_argument('-loadautoencodermodel', type=str, default='137k_normal_autoencoder_with_128_size.pth')
-parser.add_argument('-n_layers', type=int, default=2, help='number of layers')
+parser.add_argument('-n_layers', type=int, default=3, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
 parser.add_argument('-seq_length', type=int, default=1)
 parser.add_argument('-num_epochs', type=int, default=100)
 parser.add_argument('-learning_rate', type=float, default=1e-6)
-parser.add_argument('-batch_size', type=int, default=20)
+parser.add_argument('-batch_size', type=int, default=30)
 parser.add_argument('-folds', type=int, default=5)
 parser.add_argument('-clip', type=float, default=0.25)
+parser.add_argument('-embedding_dim', type=int, default=30)
 args = parser.parse_args()
 lr = args.learning_rate
 eval_batch_size = 10
@@ -113,12 +114,12 @@ def train(idx):
         loss.backward()
         optimizer.step()
 
-        # torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-        # for p in model.parameters():
-        #     p.data.add_(-lr, p.grad.data)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+        for p in model.parameters():
+            p.data.add_(-lr, p.grad.data)
 
 
-model = lstm_model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
+model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
 # enhancement: check out Adabound: https://github.com/Luolc/AdaBound
 optimizer = adabound.AdaBound(model.parameters(), lr=lr)
 
@@ -134,6 +135,7 @@ max_loss = None
 
 # y = torch.LongTensor(args.batch_size, 1).random_() %
 
+loss_plot_file = open('loss_values_every_epoch.txt', 'w+')
 try:
     loss_values = []
     for epoch in range(args.num_epochs):
@@ -165,8 +167,11 @@ try:
             # anneal learning rate
             lr /= 2.0
             print("anneal lr to: {}".format(lr))
-        loss_values.append(val_loss / args.folds)
+        loss_plot_file.write(str(val_loss) + "\n")
+        loss_values.append(val_loss)
+
     plt.plot(loss_values)
+    loss_plot_file.close()
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
