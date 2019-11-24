@@ -1,16 +1,17 @@
 import argparse
-import math
-import pickle
 import time
+import adabound
+import math
 
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
-import loganaliser.model as lstm_model
-import pandas as pd
 from numpy import array
+from torch.utils.data import DataLoader
+
+import loganaliser.model as lstm_model
 
 # Parse args input
 parser = argparse.ArgumentParser()
@@ -21,11 +22,11 @@ parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/em
 parser.add_argument('-loadautoencodermodel', type=str, default='137k_normal_autoencoder_with_128_size.pth')
 parser.add_argument('-n_layers', type=int, default=2, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
-parser.add_argument('-seq_length', type=int, default=4)
+parser.add_argument('-seq_length', type=int, default=1)
 parser.add_argument('-num_epochs', type=int, default=100)
-parser.add_argument('-learning_rate', type=float, default=1e-7)
+parser.add_argument('-learning_rate', type=float, default=1e-6)
 parser.add_argument('-batch_size', type=int, default=20)
-parser.add_argument('-folds', type=int, default=1)
+parser.add_argument('-folds', type=int, default=5)
 parser.add_argument('-clip', type=float, default=0.25)
 args = parser.parse_args()
 lr = args.learning_rate
@@ -65,15 +66,8 @@ for i in range(0, n_chars - args.seq_length - 1):
 data_x = array(data_x)
 data_y = array(data_y)
 
-# data_x = torch.Tensor(data_x)
-# data_y = torch.Tensor(data_y)
-
 
 # samples, timesteps, features
-# dataloader_x = DataLoader(data_x, batch_size=64)
-# dataloader_y = DataLoader(data_y, batch_size=64)
-
-# data_x = np.reshape(data_x, (data_x.shape[0], args.seq_length, 1))
 
 def repackage_hidden(h):
     """Wraps hidden states in new Tensors, to detach them from their history."""
@@ -102,7 +96,7 @@ def evaluate(idx):
                 min_loss = loss.item()
             if not max_loss or loss.item() > min_loss:
                 max_loss = loss.item()
-    return total_loss / len(indices), min_loss, max_loss  # TODO: check total_loss / len(indices) is this correct?
+    return total_loss / len(idx), min_loss, max_loss  # TODO: check total_loss / len(indices) is this correct?
 
 
 def train(idx):
@@ -126,8 +120,7 @@ def train(idx):
 
 model = lstm_model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
 # enhancement: check out Adabound: https://github.com/Luolc/AdaBound
-optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-# optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+optimizer = adabound.AdaBound(model.parameters(), lr=lr)
 
 #  check if softmax is applied on loss, if not do it yourself
 #  überprüfe was mse genau macht, abspeichern
@@ -138,15 +131,15 @@ distance = nn.CrossEntropyLoss()
 best_val_loss = None
 min_loss = None
 max_loss = None
-val_loss = 0  # TODO: make sure that this is correct, can we start at 0 ?
 
-#y = torch.LongTensor(args.batch_size, 1).random_() %
+# y = torch.LongTensor(args.batch_size, 1).random_() %
 
 try:
     loss_values = []
     for epoch in range(args.num_epochs):
         indices_generator = split(data_x, args.folds)
         epoch_start_time = time.time()
+        val_loss = 0
         for i in range(0, args.folds):
             indices = next(indices_generator)
             train_incides = indices[0]
@@ -159,6 +152,7 @@ try:
                 min_loss = this_min_loss
             if not max_loss or this_max_loss > max_loss:
                 max_loss = this_max_loss
+        val_loss /= args.folds
         print('-' * 89)
         print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
               'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),

@@ -7,3 +7,4 @@ glove_python
 skorch
 matplotlib
 sklearn
+adabound
