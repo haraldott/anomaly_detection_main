@@ -121,9 +121,10 @@ def train(idx):
 
 
 if not args.tie_weights:
-    model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
+    model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers, embedding_dim=args.embedding_dim)
 else:
-    model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers, tie_weights=True)
+    model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers, embedding_dim=args.embedding_dim, tie_weights=True)
+    print("True")
 
 # enhancement: check out Adabound: https://github.com/Luolc/AdaBound
 optimizer = adabound.AdaBound(model.parameters(), lr=lr)
