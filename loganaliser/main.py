@@ -29,6 +29,7 @@ parser.add_argument('-batch_size', type=int, default=30)
 parser.add_argument('-folds', type=int, default=5)
 parser.add_argument('-clip', type=float, default=0.25)
 parser.add_argument('-embedding_dim', type=int, default=30)
+parser.add_argument('-tie_weights', type=bool, default=False)
 args = parser.parse_args()
 lr = args.learning_rate
 eval_batch_size = 10
@@ -119,7 +120,11 @@ def train(idx):
             p.data.add_(-lr, p.grad.data)
 
 
-model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
+if not args.tie_weights:
+    model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers)
+else:
+    model = model.LSTM(vocab_size, args.n_hidden_units, args.n_layers, tie_weights=True)
+
 # enhancement: check out Adabound: https://github.com/Luolc/AdaBound
 optimizer = adabound.AdaBound(model.parameters(), lr=lr)
 
