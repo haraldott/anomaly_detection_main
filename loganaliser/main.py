@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from loganaliser.variational_autoencoder import AutoEncoder
+from loganaliser.vanilla_autoencoder import AutoEncoder
 import matplotlib.pyplot as plt
 import loganaliser.model as lstm_model
 
@@ -140,7 +140,6 @@ def train(idx):
 model = lstm_model.LSTM(feature_length, args.n_hidden_units, args.n_layers)
 # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
-#  check if softmax is applied on loss, if not do it yourself
 #  überprüfe was mse genau macht, abspeichern
 #  zb jede 10. epoche die distanz plotten
 #  quadrat mean squared error mal probieren

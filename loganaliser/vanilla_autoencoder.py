@@ -1,13 +1,13 @@
 import argparse
+import math
 import pickle
+import time
 
+import adabound
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch import optim
-from torch.autograd import Variable
 from torch.utils.data import DataLoader, random_split
-import math, time
 
 # Parse args input
 parser = argparse.ArgumentParser()
@@ -15,7 +15,7 @@ parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embe
 parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
 parser.add_argument('-model_save_path', type=str, default='./137k_normal_autoencoder_with_128_size.pth')
 parser.add_argument('-learning_rate', type=float, default=1e-5)
-parser.add_argument('-batch_size', type=int, default=128)
+parser.add_argument('-batch_size', type=int, default=64)
 parser.add_argument('-num_epochs', type=int, default=100)
 args = parser.parse_args()
 
@@ -44,28 +44,16 @@ class AutoEncoder(nn.Module):
     def __init__(self):
         super(AutoEncoder, self).__init__()
         self.fc1 = nn.Linear(longest_sent * embeddings_dim, 400)
-        self.fc21 = nn.Linear(400, 128)
-        self.fc22 = nn.Linear(400, 128)
+        self.fc2 = nn.Linear(400, 128)
         self.fc3 = nn.Linear(128, 400)
         self.fc4 = nn.Linear(400, longest_sent * embeddings_dim)
 
     def encode(self, x):
         h1 = F.relu(self.fc1(x))
         h1 = F.dropout(h1, 0.1)
-        h21 = self.fc21(h1)
-        h21 = F.dropout(h21, 0.1)
-        h22 = self.fc22(h1)
-        h22 = F.dropout(h22, 0.1)
-        return h21, h22
-
-    def reparametrize(self, mu, logvar):
-        std = logvar.mul(0.5).exp_()
-        if torch.cuda.is_available():
-            eps = torch.FloatTensor(std.size()).normal_()
-        else:
-            eps = torch.FloatTensor(std.size()).normal_()
-        eps = Variable(eps)
-        return eps.mul(std).add_(mu)
+        h2 = self.fc2(h1)
+        h2 = F.dropout(h2, 0.1)
+        return h2
 
     def decode(self, z):
         h3 = F.relu(self.fc3(z))
@@ -75,15 +63,14 @@ class AutoEncoder(nn.Module):
         return torch.sigmoid(h4)
 
     def forward(self, x):
-        mu, logvar = self.encode(x)
-        z = self.reparametrize(mu, logvar)
-        return self.decode(z), mu, logvar
+        latent_space = self.encode(x)
+        return self.decode(latent_space)
 
 
 model = AutoEncoder()
 model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+optimizer = adabound.AdaBound(model.parameters(), lr=args.learning_rate)
 
 # model.load_state_dict(torch.load('./sim_autoencoder.pth'))
 # model.eval()
@@ -91,31 +78,14 @@ optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 reconstruction_function = nn.MSELoss()
 
 
-def loss_function(recon_x, x, mu, logvar):
-    """
-    recon_x: generating images
-    x: origin images
-    mu: latent mean
-    logvar: latent log variance
-    """
-    BCE = reconstruction_function(recon_x, x)  # mse loss
-    # loss = 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-    KLD_element = mu.pow(2).add_(logvar.exp()).mul_(-1).add_(1).add_(logvar)
-    KLD = torch.sum(KLD_element).mul_(-0.5)
-    # KL divergence
-    return BCE + KLD
-
-
 def train():
     model.train()
-    # total_loss = 0
     for sentence in train_dataloader:
         sentence = sentence.view(sentence.size(0), -1)
         optimizer.zero_grad()
-        recon_batch, mu, logvar = model(sentence)
-        loss = loss_function(recon_batch, sentence, mu, logvar)
+        output = model(sentence)
+        loss = criterion(output, sentence)
         loss.backward()
-        # total_loss += loss.item()
         optimizer.step()
 
 
@@ -125,8 +95,8 @@ def evaluate(test_dl):
     with torch.no_grad():
         for sentence in test_dl:
             sentence = sentence.view(sentence.size(0), -1)
-            recon_batch, mu, logvar = model(sentence)
-            loss = loss_function(recon_batch, sentence, mu, logvar)
+            output = model(sentence)
+            loss = criterion(output, sentence)
             total_loss += loss.item()
     return total_loss / test_dl.dataset.dataset.shape[0]
 
