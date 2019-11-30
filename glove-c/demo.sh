@@ -13,7 +13,6 @@ if [ ! -e text8 ]; then
   unzip text8.zip
   rm text8.zip
 fi
-
 CORPUS=text8
 VOCAB_FILE=vocab.txt
 COOCCURRENCE_FILE=cooccurrence.bin

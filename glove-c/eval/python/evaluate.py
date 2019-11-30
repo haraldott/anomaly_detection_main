@@ -3,8 +3,8 @@ import numpy as np
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--vocab_file', default='vocab.txt', type=str)
-    parser.add_argument('--vectors_file', default='vectors.txt', type=str)
+    parser.add_argument('--vocab_file', default='../../vocab.txt', type=str)
+    parser.add_argument('--vectors_file', default='../../52k_normal_vectors.txt', type=str)
     args = parser.parse_args()
 
     with open(args.vocab_file, 'r') as f:

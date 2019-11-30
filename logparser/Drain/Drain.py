@@ -193,7 +193,7 @@ class LogParser:
 
         return retVal
 
-    def outputResult(self, logClustL):
+    def outputResult(self, logClustL, full_output):
         log_templates = [0] * self.df_log.shape[0]
         log_templateids = [0] * self.df_log.shape[0]
         df_events = []
@@ -223,7 +223,15 @@ class LogParser:
         df_event['EventTemplate'] = self.df_log['EventTemplate'].unique()
         df_event['EventId'] = [x for x in range(len(df_event['EventTemplate']))]
         df_event['Occurrences'] = df_event['EventTemplate'].map(occ_dict)
-        df_event.to_csv(os.path.join(self.savePath, self.logName + '_templates.csv'), index=False, columns=["EventId", "EventTemplate", "Occurrences"])
+
+        if full_output:
+            df_event.to_csv(os.path.join(self.savePath, self.logName + '_templates.csv'),
+                            index=False, columns=["EventId", "EventTemplate", "Occurrences"])
+        else:  # here, we're outputting only the EventTemplates, because this is what we'll usually use later
+            et = df_event["EventTemplate"]
+            file = open(os.path.join(self.savePath, self.logName + '_templates.csv'), "w+")
+            for sentence in et:
+                file.write(sentence + "\n")
 
 
     def printTree(self, node, dep):
@@ -246,7 +254,7 @@ class LogParser:
             self.printTree(node.childD[child], dep+1)
 
 
-    def parse(self, logName):
+    def parse(self, logName, full_output):
         print('Parsing file: ' + os.path.join(self.path, logName))
         start_time = datetime.now()
         self.logName = logName
@@ -282,7 +290,7 @@ class LogParser:
 
         if not os.path.exists(self.savePath):
             os.makedirs(self.savePath)
-        self.outputResult(logCluL)
+        self.outputResult(logCluL, full_output)
 
         print('Parsing done. [Time taken: {!s}]'.format(datetime.now() - start_time))
 

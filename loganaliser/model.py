@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LSTM(nn.Module):
@@ -34,17 +35,9 @@ class LSTM(nn.Module):
         output, hidden = self.lstm(input, hidden)
         output = self.dropout(output)
         decoded = self.decoder(output)
+        # TODO: log_softmax makes everything 0 can we leave it like this?
+        # decoded_scores = F.log_softmax(decoded, dim=1)
         return decoded, hidden
-
-    # def loss(self, y_pred, y):
-    #     # y = y.view(-1)
-    #     # y_pred = y_pred.view(-1)
-    #
-    #     mask_y = y * (y != np.zeros(embeddings_dim))
-    #     mask_y_pred = y_pred * (y_pred != np.zeros(embeddings_dim))
-    #     distance(mask_y, mask_y_pred)
-    #
-    #     return distance
 
     def init_hidden(self, bsz):
         weight = next(self.parameters())

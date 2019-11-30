@@ -36,6 +36,7 @@ parser.add_argument('-file', default='openstack_137k_normal', type=str)
 parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-st', type=float, default=0.2)
 parser.add_argument('-depth', type=int, default=2)
+parser.add_argument('-full_output', type=bool, default=False)
 args = parser.parse_args()
 
 input_dir = args.dir  # The input directory of log file
@@ -55,4 +56,4 @@ except ValueError:
 
 output_dir = "../../data/openstack/utah/parsed/"  # The output directory of parsing results
 parser = Drain.LogParser(log_format, indir=input_dir, outdir=output_dir, depth=depth, st=st, rex=regex)
-parser.parse(log_file)
+parser.parse(log_file, args.full_output)

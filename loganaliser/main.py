@@ -2,6 +2,7 @@ import argparse
 import math
 import pickle
 import time
+import adabound
 
 import numpy as np
 import torch
@@ -13,14 +14,13 @@ import loganaliser.model as lstm_model
 
 # Parse args input
 parser = argparse.ArgumentParser()
-parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
-parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
+parser.add_argument('-loadvectors', type=str, default='padded_embeddings.pickle')
 parser.add_argument('-loadautoencodermodel', type=str, default='137k_normal_autoencoder_with_128_size.pth')
 parser.add_argument('-n_layers', type=int, default=4, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
 parser.add_argument('-seq_length', type=int, default=1)
 parser.add_argument('-num_epochs', type=int, default=100)
-parser.add_argument('-learning_rate', type=float, default=1e-7)
+parser.add_argument('-learning_rate', type=float, default=1e-6)
 parser.add_argument('-batch_size', type=int, default=20)
 parser.add_argument('-folds', type=int, default=1)
 parser.add_argument('-clip', type=float, default=0.25)
@@ -44,9 +44,7 @@ def split(x, n_splits):
 
 # load vectors and glove obj
 padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
-glove = pickle.load(open(args.loadglove, 'rb'))
 
-dict_size = len(glove.dictionary)  # number of different words
 # embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
 sentence_lens = [len(sentence) for sentence in
                  padded_embeddings]  # how many words a log line consists of, without padding
@@ -63,7 +61,7 @@ latent_space_representation_of_padded_embeddings = []
 for sentence in padded_embeddings:
     sentence = torch.from_numpy(sentence)
     sentence = sentence.reshape(-1)
-    encoded_sentence, _ = autoencoder_model.encode(sentence)
+    encoded_sentence = autoencoder_model.encode(sentence)
     latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach().numpy())
 
 number_of_sentences = len(latent_space_representation_of_padded_embeddings)
@@ -102,27 +100,21 @@ def evaluate(idx):
     dataloader_x = DataLoader(data_x[idx], batch_size=args.batch_size)
     dataloader_y = DataLoader(data_y[idx], batch_size=args.batch_size)
     total_loss = 0
-    min_loss = None
-    max_loss = None
-    hidden = model.init_hidden(args.seq_length) # TODO: check stuff with batch size
+    hidden = model.init_hidden(args.seq_length)  # TODO: check stuff with batch size
     with torch.no_grad():
         for data, target in zip(dataloader_x, dataloader_y):
             prediction, hidden = model(data, hidden)
             hidden = repackage_hidden(hidden)
             loss = distance(prediction.view(-1), target.view(-1))
             total_loss += loss.item()
-            if not min_loss or loss.item() < min_loss:
-                min_loss = loss.item()
-            if not max_loss or loss.item() > min_loss:
-                max_loss = loss.item()
-    return total_loss / len(indices), min_loss, max_loss  # TODO: check total_loss / len(indices) is this correct?
+    return total_loss / len(indices)  # TODO: check total_loss / len(indices) is this correct?
 
 
 def train(idx):
     model.train()
     dataloader_x = DataLoader(data_x[idx], batch_size=args.batch_size)
     dataloader_y = DataLoader(data_y[idx], batch_size=args.batch_size)
-    hidden = model.init_hidden(args.seq_length) # TODO: check stuff with batch size
+    hidden = model.init_hidden(args.seq_length)  # TODO: check stuff with batch size
     for data, target in zip(dataloader_x, dataloader_y):
         optimizer.zero_grad()
         hidden = repackage_hidden(hidden)
@@ -132,27 +124,25 @@ def train(idx):
         loss.backward()
         optimizer.step()
 
-        # torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-        # for p in model.parameters():
-        #     p.data.add_(-lr, p.grad.data)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+        for p in model.parameters():
+            p.data.add_(-lr, p.grad.data)
 
 
 model = lstm_model.LSTM(feature_length, args.n_hidden_units, args.n_layers)
-# optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+optimizer = adabound.AdaBound(model.parameters(), lr=lr)
 #  überprüfe was mse genau macht, abspeichern
 #  zb jede 10. epoche die distanz plotten
 #  quadrat mean squared error mal probieren
 distance = nn.MSELoss()
 
 best_val_loss = None
-min_loss = None
-max_loss = None
 val_loss = 0  # TODO: make sure that this is correct, can we start at 0 ?
 
 try:
     loss_values = []
     for epoch in range(args.num_epochs):
+        val_loss = 0
         indices_generator = split(data_x, args.folds)
         epoch_start_time = time.time()
         for i in range(0, args.folds):
@@ -161,12 +151,8 @@ try:
             eval_indices = indices[1]
 
             train(train_incides)
-            this_loss, this_min_loss, this_max_loss = evaluate(eval_indices)
+            this_loss = evaluate(eval_indices)
             val_loss += this_loss
-            if not min_loss or this_min_loss < min_loss:
-                min_loss = this_min_loss
-            if not max_loss or this_max_loss > max_loss:
-                max_loss = this_max_loss
         print('-' * 89)
         print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
               'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),

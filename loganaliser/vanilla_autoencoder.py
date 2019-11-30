@@ -11,19 +11,16 @@ from torch.utils.data import DataLoader, random_split
 
 # Parse args input
 parser = argparse.ArgumentParser()
-parser.add_argument('-loadglove', type=str, default='../data/openstack/utah/embeddings/glove_137k_normal.model')
-parser.add_argument('-loadvectors', type=str, default='../data/openstack/utah/embeddings/vectors_137k_normal.pickle')
+parser.add_argument('-loadvectors', type=str, default='padded_embeddings.pickle')
 parser.add_argument('-model_save_path', type=str, default='./137k_normal_autoencoder_with_128_size.pth')
-parser.add_argument('-learning_rate', type=float, default=1e-5)
+parser.add_argument('-learning_rate', type=float, default=1e-6)
 parser.add_argument('-batch_size', type=int, default=64)
 parser.add_argument('-num_epochs', type=int, default=100)
 args = parser.parse_args()
 
 # load vectors and glove obj
 padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
-glove = pickle.load(open(args.loadglove, 'rb'))
 
-dict_size = len(glove.dictionary)  # number of different words
 embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
 longest_sent = len(padded_embeddings[0])
 
@@ -103,23 +100,28 @@ def evaluate(test_dl):
 
 def start(lr=args.learning_rate):
     best_val_loss = None
+    anneal_count = 0
     try:
-        for epoch in range(args.num_epochs):
-            epoch_start_time = time.time()
-            train()
-            val_loss = evaluate(val_dataloader)
-            print('-' * 89)
-            print('AE: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
-                  'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
-                                        val_loss, math.exp(val_loss)))
-            print('-' * 89)
-            if not best_val_loss or val_loss < best_val_loss:
-                torch.save(model.state_dict(), args.model_save_path)
-                best_val_loss = val_loss
-            else:
-                # anneal learning rate
-                print("anneal")
-                lr /= 2.0
+        if anneal_count < 6:
+            for epoch in range(args.num_epochs):
+                epoch_start_time = time.time()
+                train()
+                val_loss = evaluate(val_dataloader)
+                print('-' * 89)
+                print('AE: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
+                      'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
+                                            val_loss, math.exp(val_loss)))
+                print('-' * 89)
+                if not best_val_loss or val_loss < best_val_loss:
+                    torch.save(model.state_dict(), args.model_save_path)
+                    best_val_loss = val_loss
+                else:
+                    # anneal learning rate
+                    print("anneal")
+                    anneal_count += 1
+                    lr /= 2.0
+        else:
+            print('Learning rate has been annealed {} times. Ending training'.format(anneal_count))
     except KeyboardInterrupt:
         print('-' * 89)
         print('Exiting from training early')
