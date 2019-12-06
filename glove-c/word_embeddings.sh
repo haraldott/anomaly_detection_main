@@ -1,6 +1,7 @@
 #!/bin/bash
 usage() { echo "Usage: $0 [] []" 1>&2; exit 1;}
 
+mkdir ../data/openstack/utah/embeddings
 CORPUS=../data/openstack/utah/parsed/openstack_18k_anomalies_templates
 SAVE_FILE=../data/openstack/utah/embeddings/openstack_18k_anomalies_vectors
 

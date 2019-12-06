@@ -20,11 +20,13 @@ parser.add_argument('-loadvectors', type=str,
                     default='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle')
 parser.add_argument('-loadautoencodermodel',type=str,
                     default='saved_models/18k_anomalies_autoencoder.pth')
+parser.add_argument('-savemodelpath',type=str,
+                    default='saved_models/lstm.pth')
 parser.add_argument('-n_layers', type=int, default=4, help='number of layers')
 parser.add_argument('-n_hidden_units', type=int, default=200, help='number of hidden units per layer')
 parser.add_argument('-seq_length', type=int, default=5)
 parser.add_argument('-num_epochs', type=int, default=100)
-parser.add_argument('-learning_rate', type=float, default=1e-6)
+parser.add_argument('-learning_rate', type=float, default=1e-5)
 parser.add_argument('-batch_size', type=int, default=20)
 parser.add_argument('-folds', type=int, default=4)
 parser.add_argument('-clip', type=float, default=0.25)
@@ -135,7 +137,7 @@ def train(idx):
 
 model = lstm_model.LSTM(feature_length, args.n_hidden_units, args.n_layers)
 #optimizer = adabound.AdaBound(model.parameters(), lr=args.learning_rate)
-optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=0.05)
+optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 #  überprüfe was mse genau macht, abspeichern
 #  zb jede 10. epoche die distanz plotten
 #  quadrat mean squared error mal probieren
@@ -167,7 +169,7 @@ def training():
                                         val_loss, math.exp(val_loss)))
             print('-' * 89)
             if not best_val_loss or val_loss < best_val_loss:
-                torch.save(model.state_dict(), 'saved_models/lstm.pth')
+                torch.save(model.state_dict(), args.savemodelpath)
                 best_val_loss = val_loss
             else:
                 # anneal learning rate

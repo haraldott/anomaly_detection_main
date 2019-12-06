@@ -3,7 +3,6 @@ torch
 pandas
 numpy
 keras
-glove_python
 skorch
 matplotlib
 adabound
