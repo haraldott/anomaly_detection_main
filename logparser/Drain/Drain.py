@@ -29,7 +29,7 @@ class Node:
 
 
 class LogParser:
-    def __init__(self, log_format, indir='./', outdir='./result/', depth=4, st=0.4, 
+    def __init__(self, log_format, indir='./', outdir='./result/', depth=4, st=0.4,
                  maxChild=100, rex=[], keep_para=True):
         """
         Attributes
@@ -219,17 +219,21 @@ class LogParser:
             self.df_log.to_csv(os.path.join(self.savePath, self.logName + '_structured.csv'), index=False)
         else:
             et = self.df_log["EventTemplate"]
-            file = open(os.path.join(self.savePath, self.logName + '_structured.csv'), "w+")
+            file = open(os.path.join(self.savePath, self.logName + '_corpus'), "w+")
             for sentence in et:
                 file.write(sentence + "\n")
+            file.close()
 
-        occ_dict = dict(self.df_log['EventTemplate'].value_counts())
-        df_event = pd.DataFrame()
-        df_event['EventTemplate'] = self.df_log['EventTemplate'].unique()
-        df_event['EventId'] = [x for x in range(len(df_event['EventTemplate']))]
-        df_event['Occurrences'] = df_event['EventTemplate'].map(occ_dict)
+        # occ_dict = dict(self.df_log['EventTemplate'].value_counts())
+        # df_event = pd.DataFrame()
+        # df_event['EventId'] = [x for x in range(len(df_event['EventTemplate']))]
+        # df_event['Occurrences'] = df_event['EventTemplate'].map(occ_dict)
+        event_templates = self.df_log['EventTemplate'].unique()
 
-        # we don't need the 'pure' templates for now
+        file = open(os.path.join(self.savePath, self.logName + '_templates'), "w+")
+        for template in event_templates:
+            file.write(template + "\n")
+        file.close()
         # df_event.to_csv(os.path.join(self.savePath, self.logName + '_templates.csv'),
         #                 index=False, columns=["EventId", "EventTemplate", "Occurrences"])
 

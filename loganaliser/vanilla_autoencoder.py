@@ -11,8 +11,9 @@ from torch.utils.data import DataLoader, random_split
 
 # Parse args input
 parser = argparse.ArgumentParser()
-parser.add_argument('-loadvectors', type=str, default='padded_embeddings.pickle')
-parser.add_argument('-model_save_path', type=str, default='./137k_normal_autoencoder_with_128_size.pth')
+parser.add_argument('-loadvectors', type=str,
+                    default='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle')
+parser.add_argument('-model_save_path', type=str, default='saved_models/18k_anomalies_autoencoder.pth')
 parser.add_argument('-learning_rate', type=float, default=1e-6)
 parser.add_argument('-batch_size', type=int, default=64)
 parser.add_argument('-num_epochs', type=int, default=100)
@@ -65,6 +66,8 @@ class AutoEncoder(nn.Module):
 
 
 model = AutoEncoder()
+if torch.cuda.is_available():
+    model.cuda()
 model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
 criterion = nn.MSELoss()
 optimizer = adabound.AdaBound(model.parameters(), lr=args.learning_rate)
@@ -118,6 +121,7 @@ def start(lr=args.learning_rate):
                 else:
                     # anneal learning rate
                     print("anneal")
+                    # TODO: actually do the annealing
                     anneal_count += 1
                     lr /= 2.0
         else:

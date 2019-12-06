@@ -1,29 +1,19 @@
 #!/bin/bash
+usage() { echo "Usage: $0 [] []" 1>&2; exit 1;}
 
-CORPUS=52k_normal_event_templates.txt
+CORPUS=../data/openstack/utah/parsed/openstack_18k_anomalies_templates
+SAVE_FILE=../data/openstack/utah/embeddings/openstack_18k_anomalies_vectors
+
+while getopts c:s: o; do
+  case $o in
+    c)     CORPUS=$OPTARG;;
+    s)     SAVE_FILE=$OPTARG;;
+    *)     usage;;
+  esac
+done
+shift $((OPTIND-1))
+
 VOCAB_FILE=vocab.txt
-SAVE_FILE=52k_normal_vectors
-
-#usage() { echo "Usage: $0 [] []" 1>&2; exit 1;}
-#
-#while getopts ":c:v:s:" o; do
-#  case "${o}" in
-#    c)     CORPUS=event_templates.txt
-#                ;;
-#    v)      VOCAB_FILE=vocab.txt
-#                ;;
-#    s)      SAVE_FILE=vectors
-#                ;;
-#    *)
-#                usage
-#                ;;
-#  esac
-#done
-#shift $((OPTIND-1))
-#echo "corpus = ${CORPUS}"
-#echo "vocab_file = ${VOCAB_FILE}"
-#echo "save_file = ${SAVE_FILE}"
-
 COOCCURRENCE_FILE=cooccurrence.bin
 COOCCURRENCE_SHUF_FILE=cooccurrence.shuf.bin
 BUILDDIR=build
@@ -31,7 +21,7 @@ VERBOSE=2
 MEMORY=4.0
 VOCAB_MIN_COUNT=1
 VECTOR_SIZE=50
-MAX_ITER=15
+MAX_ITER=1000
 WINDOW_SIZE=8
 BINARY=2
 NUM_THREADS=8
@@ -54,11 +44,17 @@ if [[ $? -eq 0 ]]
            elif [ "$1" = 'octave' ]; then
                octave < ./eval/octave/read_and_evaluate_octave.m 1>&2
            else
-               python2 eval/python/evaluate.py --vectors_file $SAVE_FILE.txt
+               # python2 eval/python/evaluate.py --vectors_file $SAVE_FILE.txt
+               echo 'Skip eval'
            fi
        fi
     fi
   fi
 fi
+
+rm $COOCCURRENCE_FILE
+rm "cooccurrence.shuf.bin"
+rm "vocab.txt"
+rm "${SAVE_FILE}.bin"
 
 #run -save-file vectors -threads 8 -input-file cooccurrence.shuf.bin -x-max 10 -iter 15 -vector-size 50 -binary 2 -vocab-file vocab.txt -verbose 2

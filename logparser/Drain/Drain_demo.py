@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import ntpath
 
 # python Drain_demo.py -dir  -file  -logtype
 
@@ -32,14 +33,14 @@ settings = {
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-dir', default='../../data/openstack/utah/raw/', type=str)
-parser.add_argument('-file', default='openstack_137k_normal', type=str)
+parser.add_argument('-file', default='openstack_18k_anomalies', type=str)
+parser.add_argument('-output', type=str, default='../../data/openstack/utah/parsed/')
 parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-st', type=float, default=0.2)
 parser.add_argument('-depth', type=int, default=2)
 parser.add_argument('-full_output', type=bool, default=False)
 args = parser.parse_args()
 
-input_dir = args.dir  # The input directory of log file
 log_file = args.file  # The input log file name
 log_type = args.logtype
 st = args.st
@@ -54,6 +55,5 @@ except ValueError:
     print("log format does not exist")
     raise
 
-output_dir = "../../data/openstack/utah/parsed/"  # The output directory of parsing results
-parser = Drain.LogParser(log_format, indir=input_dir, outdir=output_dir, depth=depth, st=st, rex=regex)
+parser = Drain.LogParser(log_format, indir=args.dir, outdir=args.output, depth=depth, st=st, rex=regex)
 parser.parse(log_file, args.full_output)
