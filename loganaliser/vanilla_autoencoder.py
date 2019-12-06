@@ -82,6 +82,8 @@ def train():
     model.train()
     for sentence in train_dataloader:
         sentence = sentence.view(sentence.size(0), -1)
+        if torch.cuda.is_available():
+            sentence = sentence.cuda()
         optimizer.zero_grad()
         output = model(sentence)
         loss = criterion(output, sentence)
@@ -95,6 +97,8 @@ def evaluate(test_dl):
     with torch.no_grad():
         for sentence in test_dl:
             sentence = sentence.view(sentence.size(0), -1)
+            if torch.cuda.is_available():
+                sentence = sentence.cuda()
             output = model(sentence)
             loss = criterion(output, sentence)
             total_loss += loss.item()
