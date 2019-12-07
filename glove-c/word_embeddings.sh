@@ -1,9 +1,11 @@
 #!/bin/bash
+scriptdir="$(dirname "$0")"
+cd "$scriptdir" || exit
 usage() { echo "Usage: $0 [] []" 1>&2; exit 1;}
 
 mkdir ../data/openstack/utah/embeddings
-CORPUS=../data/openstack/utah/parsed/openstack_18k_anomalies_templates
-SAVE_FILE=../data/openstack/utah/embeddings/openstack_18k_anomalies_vectors
+CORPUS=../data/openstack/utah/parsed/openstack_52k_normal_templates
+SAVE_FILE=../data/openstack/utah/embeddings/openstack_52k_normal_vectors
 
 while getopts c:s: o; do
   case $o in
@@ -14,6 +16,11 @@ while getopts c:s: o; do
 done
 shift $((OPTIND-1))
 
+CORPUS="$(pwd)/${CORPUS}"
+SAVE_FILE="$(pwd)/${SAVE_FILE}"
+echo "$CORPUS"
+echo "$SAVE_FILE"
+
 VOCAB_FILE=vocab.txt
 COOCCURRENCE_FILE=cooccurrence.bin
 COOCCURRENCE_SHUF_FILE=cooccurrence.shuf.bin
@@ -22,7 +29,7 @@ VERBOSE=2
 MEMORY=4.0
 VOCAB_MIN_COUNT=1
 VECTOR_SIZE=50
-MAX_ITER=1000
+MAX_ITER=1500
 WINDOW_SIZE=8
 BINARY=2
 NUM_THREADS=8

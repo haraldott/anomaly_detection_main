@@ -6,3 +6,4 @@ keras
 skorch
 matplotlib
 adabound
+seaborn

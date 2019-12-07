@@ -1,4 +1,3 @@
-import argparse
 import math
 import pickle
 import time
@@ -8,38 +7,14 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.data import DataLoader, random_split
-
-# Parse args input
-parser = argparse.ArgumentParser()
-parser.add_argument('-loadvectors', type=str,
-                    default='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle')
-parser.add_argument('-model_save_path', type=str, default='saved_models/18k_anomalies_autoencoder.pth')
-parser.add_argument('-learning_rate', type=float, default=1e-6)
-parser.add_argument('-batch_size', type=int, default=64)
-parser.add_argument('-num_epochs', type=int, default=100)
-args = parser.parse_args()
-
-# load vectors and glove obj
-padded_embeddings = pickle.load(open(args.loadvectors, 'rb'))
-
-embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
-longest_sent = len(padded_embeddings[0])
-
-val_set_len = math.floor(len(padded_embeddings) / 10)
-test_set_len = math.floor(len(padded_embeddings) / 20)
-train_set_len = len(padded_embeddings) - test_set_len - val_set_len
-train, test, val = random_split(padded_embeddings, [train_set_len, test_set_len, val_set_len])
-
-train_dataloader = DataLoader(train, batch_size=args.batch_size, shuffle=True)
-test_dataloader = DataLoader(test, batch_size=args.batch_size, shuffle=False)
-val_dataloader = DataLoader(val, batch_size=args.batch_size, shuffle=False)
+import os
 
 
 # TODO: überprüfe ob dropout bei autoencoder
 # TODO: eventuell autoencoder mit gru (lstm) probieren, decoder layer kann so bleiben (ggf. auch decoder anpassen,
 #  falls mit linear nicht so gut funktioniert, es geht nur um die Zeit)
 class AutoEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, longest_sent, embeddings_dim):
         super(AutoEncoder, self).__init__()
         self.fc1 = nn.Linear(longest_sent * embeddings_dim, 400)
         self.fc2 = nn.Linear(400, 128)
@@ -65,83 +40,113 @@ class AutoEncoder(nn.Module):
         return self.decode(latent_space)
 
 
-model = AutoEncoder()
-if torch.cuda.is_available():
-    model.cuda()
-model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
-criterion = nn.MSELoss()
-optimizer = adabound.AdaBound(model.parameters(), lr=args.learning_rate)
+class VanillaAutoEncoder:
+    def __init__(self,
+                 load_vectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal_embeddings.pickle',
+                 model_save_path='saved_models/18k_anomalies_autoencoder.pth',
+                 learning_rate=1e-6,
+                 batch_size=64,
+                 num_epochs=100):
+        os.chdir(os.path.dirname(__file__))
+        self.load_vectors = load_vectors
+        self.model_save_path = model_save_path
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
+        self.num_epochs = num_epochs
 
-# model.load_state_dict(torch.load('./sim_autoencoder.pth'))
-# model.eval()
+        # load vectors and glove obj
+        padded_embeddings = pickle.load(open(self.load_vectors, 'rb'))
 
-reconstruction_function = nn.MSELoss()
+        self.embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
+        self.longest_sent = len(padded_embeddings[0])
 
+        val_set_len = math.floor(len(padded_embeddings) / 10)
+        test_set_len = math.floor(len(padded_embeddings) / 20)
+        train_set_len = len(padded_embeddings) - test_set_len - val_set_len
+        train, test, val = random_split(padded_embeddings, [train_set_len, test_set_len, val_set_len])
 
-def train():
-    model.train()
-    for sentence in train_dataloader:
-        sentence = sentence.view(sentence.size(0), -1)
+        self.train_dataloader = DataLoader(train, batch_size=self.batch_size, shuffle=True)
+        self.test_dataloader = DataLoader(test, batch_size=self.batch_size, shuffle=False)
+        self.val_dataloader = DataLoader(val, batch_size=self.batch_size, shuffle=False)
+
+        self.model = AutoEncoder(self.longest_sent, self.embeddings_dim)
         if torch.cuda.is_available():
-            sentence = sentence.cuda()
-        optimizer.zero_grad()
-        output = model(sentence)
-        loss = criterion(output, sentence)
-        loss.backward()
-        optimizer.step()
+            self.model.cuda()
+        self.model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
+        self.criterion = nn.MSELoss()
+        self.optimizer = adabound.AdaBound(self.model.parameters(), lr=self.learning_rate)
 
+        # model.load_state_dict(torch.load('./sim_autoencoder.pth'))
+        # model.eval()
+        self.start()
 
-def evaluate(test_dl):
-    model.eval()
-    total_loss = 0
-    with torch.no_grad():
-        for sentence in test_dl:
+    def train(self):
+        self.model.train()
+        for sentence in self.train_dataloader:
             sentence = sentence.view(sentence.size(0), -1)
             if torch.cuda.is_available():
                 sentence = sentence.cuda()
-            output = model(sentence)
-            loss = criterion(output, sentence)
-            total_loss += loss.item()
-    return total_loss / test_dl.dataset.dataset.shape[0]
+            self.optimizer.zero_grad()
+            output = self.model(sentence)
+            loss = self.criterion(output, sentence)
+            loss.backward()
+            self.optimizer.step()
+
+    def evaluate(self, test_dl):
+        self.model.eval()
+        total_loss = 0
+        with torch.no_grad():
+            for sentence in test_dl:
+                sentence = sentence.view(sentence.size(0), -1)
+                if torch.cuda.is_available():
+                    sentence = sentence.cuda()
+                output = self.model(sentence)
+                loss = self.criterion(output, sentence)
+                total_loss += loss.item()
+        return total_loss / test_dl.dataset.dataset.shape[0]
+
+    def start(self):
+        best_val_loss = None
+        anneal_count = 0
+        try:
+            if anneal_count < 6:
+                for epoch in range(self.num_epochs):
+                    epoch_start_time = time.time()
+                    self.train()
+                    val_loss = self.evaluate(self.val_dataloader)
+                    print('-' * 89)
+                    print('AE: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
+                          'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
+                                                val_loss, math.exp(val_loss)))
+                    print('-' * 89)
+                    if not best_val_loss or val_loss < best_val_loss:
+                        torch.save(self.model.state_dict(), self.model_save_path)
+                        best_val_loss = val_loss
+                    else:
+                        # anneal learning rate
+                        print("anneal")
+                        # TODO: actually do the annealing
+                        anneal_count += 1
+                        self.learning_rate /= 2.0
+            else:
+                print('Learning rate has been annealed {} times. Ending training'.format(anneal_count))
+        except KeyboardInterrupt:
+            print('-' * 89)
+            print('Exiting from training early')
+
+        # load best saved model and evaluate
+        test_model = AutoEncoder(self.longest_sent, self.embeddings_dim)
+        test_model.double()
+        test_model.load_state_dict(torch.load(self.model_save_path))
+        test_model.eval()
+
+        test_loss = self.evaluate(self.test_dataloader)
+        print('=' * 89)
+        print('| End of training | test loss {} | test ppl {}'.format(
+            test_loss, math.exp(test_loss)))
+        print('=' * 89)
 
 
-def start(lr=args.learning_rate):
-    best_val_loss = None
-    anneal_count = 0
-    try:
-        if anneal_count < 6:
-            for epoch in range(args.num_epochs):
-                epoch_start_time = time.time()
-                train()
-                val_loss = evaluate(val_dataloader)
-                print('-' * 89)
-                print('AE: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
-                      'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
-                                            val_loss, math.exp(val_loss)))
-                print('-' * 89)
-                if not best_val_loss or val_loss < best_val_loss:
-                    torch.save(model.state_dict(), args.model_save_path)
-                    best_val_loss = val_loss
-                else:
-                    # anneal learning rate
-                    print("anneal")
-                    # TODO: actually do the annealing
-                    anneal_count += 1
-                    lr /= 2.0
-        else:
-            print('Learning rate has been annealed {} times. Ending training'.format(anneal_count))
-    except KeyboardInterrupt:
-        print('-' * 89)
-        print('Exiting from training early')
-
-    # load best saved model and evaluate
-    test_model = AutoEncoder()
-    test_model.double()
-    test_model.load_state_dict(torch.load(args.model_save_path))
-    test_model.eval()
-
-    test_loss = evaluate(test_dataloader)
-    print('=' * 89)
-    print('| End of training | test loss {} | test ppl {}'.format(
-        test_loss, math.exp(test_loss)))
-    print('=' * 89)
+if __name__ == '__main__':
+    vae = VanillaAutoEncoder()
+    vae.start()
