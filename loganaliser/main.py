@@ -137,6 +137,19 @@ class AnomalyDetection:
                 total_loss += loss.item()
         return total_loss / len(idx), loss_distribution
 
+    def predict(self, idx):
+        self.model.eval()
+        hidden = self.model.init_hidden(self.seq_length, self.device)  # TODO: check stuff with batch size
+        loss_distribution = []
+        with torch.no_grad():
+            for data, target in zip(self.data_x[idx], self.data_y[idx]):
+                prediction, hidden = self.model(data, hidden)
+                hidden = self.repackage_hidden(hidden)
+                loss = self.distance(prediction.view(-1), target.view(-1))
+                loss_distribution.append(loss)
+        return loss_distribution
+
+
     def train(self, idx):
         self.model.train()
         dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size)
@@ -203,7 +216,7 @@ class AnomalyDetection:
         else:
             n_samples = len(self.data_x)
             indices_containing_anomalies = np.arange(n_samples)
-            _, loss_values = self.evaluate(indices_containing_anomalies)
+            _, loss_values = self.predict(indices_containing_anomalies)
 
         loss_values = np.array(loss_values)
         loss_values = loss_values.flatten()

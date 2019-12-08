@@ -72,11 +72,17 @@ ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                               loadvectors=padded_embeddings_anomalies_file_full_path,
                               savemodelpath=lstm_model_save_path)
 anomaly_loss_values = ad_anomaly.loss_values(normal=False)
-outliers = [x for x in anomaly_loss_values if x < lower or x > upper]
+
 anomaly_values_file = open('anomaly_loss_values', 'w+')
 for val in anomaly_loss_values:
     anomaly_values_file.write(str(val) + "\n")
 anomaly_values_file.close()
+
+outliers = []
+for i, x in enumerate(anomaly_loss_values):
+    if x < lower or x > upper:
+        outliers.append((i, x))
+
 outliers_values_file = open('outliers_values', 'w+')
 for val in outliers:
     outliers_values_file.write(str(val) + "\n")
