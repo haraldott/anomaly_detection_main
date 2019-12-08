@@ -38,7 +38,7 @@ class LSTM(nn.Module):
         # decoded_scores = F.log_softmax(decoded, dim=1)
         return decoded, hidden
 
-    def init_hidden(self, bsz):
+    def init_hidden(self, bsz, device):
         weight = next(self.parameters())
-        return (weight.new_zeros(self.n_layers, bsz, self.n_hidden_units),
-                weight.new_zeros(self.n_layers, bsz, self.n_hidden_units))
+        return (weight.new_zeros(self.n_layers, bsz, self.n_hidden_units).to(device),
+                weight.new_zeros(self.n_layers, bsz, self.n_hidden_units).to(device))

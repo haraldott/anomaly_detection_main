@@ -24,7 +24,7 @@ class AnomalyDetection:
                  n_layers=4,
                  n_hidden_units=200,
                  seq_length=7,
-                 num_epochs=100,
+                 num_epochs=1,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
@@ -65,7 +65,7 @@ class AnomalyDetection:
         embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
 
         # load the AutoEncoder model
-        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim).to(self.device)
+        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim)
         autoencoder_model.double()
         autoencoder_model.load_state_dict(torch.load(self.loadautoencodermodel))
         autoencoder_model.eval()
@@ -74,7 +74,7 @@ class AnomalyDetection:
         latent_space_representation_of_padded_embeddings = []
         for sentence in padded_embeddings:
             sentence = torch.from_numpy(sentence)
-            sentence = sentence.reshape(-1).to(self.device)
+            sentence = sentence.reshape(-1)
             encoded_sentence = autoencoder_model.encode(sentence)
             latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach().numpy())
 
@@ -97,7 +97,8 @@ class AnomalyDetection:
         # samples, timesteps, features
         # dataloader_x = DataLoader(data_x, batch_size=64)
         # dataloader_y = DataLoader(data_y, batch_size=64)
-        data_x = np.reshape(data_x, (n_patterns, self.seq_length, feature_length))
+        # data_x = np.reshape(data_x, (n_patterns, self.seq_length, feature_length))
+
         return data_x, data_y, feature_length
 
     def split(self, x, n_splits):
@@ -126,7 +127,7 @@ class AnomalyDetection:
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size)
         loss_distribution = []
         total_loss = 0
-        hidden = self.model.init_hidden(self.seq_length)  # TODO: check stuff with batch size
+        hidden = self.model.init_hidden(self.seq_length, self.device)  # TODO: check stuff with batch size
         with torch.no_grad():
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
@@ -140,7 +141,7 @@ class AnomalyDetection:
         self.model.train()
         dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size)
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size)
-        hidden = self.model.init_hidden(self.seq_length)  # TODO: check stuff with batch size
+        hidden = self.model.init_hidden(self.seq_length, self.device)  # TODO: check stuff with batch size
         for data, target in zip(dataloader_x, dataloader_y):
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
