@@ -30,25 +30,25 @@ vae_model_save_path = 'saved_models/' + args.inputfile + '_vae.pth'
 lstm_model_save_path = 'saved_models/' + args.inputfile + '_lstm.pth'
 
 # start Drain parser
-drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
+# drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
 
 # start glove-c
-subprocess.call(['glove-c/word_embeddings.sh',
-                 '-c', templates_inputfile_full_path,
-                 '-s', embeddingsfile_full_path_for_glove])
+# subprocess.call(['glove-c/word_embeddings.sh',
+#                  '-c', templates_inputfile_full_path,
+#                  '-s', embeddingsfile_full_path_for_glove])
 
 # transform output of glove into numpy word embedding vectors
-transform_glove.transform(logfile=corpus_inputfile_full_path,
-                          vectorsfile=embeddingsfile_full_path_for_transformer,
-                          outputfile=padded_embeddings_normal_file_full_path)
-
-transform_glove.transform(logfile=corpus_inputfile_full_path,
-                          vectorsfile=embeddingsfile_full_path_for_transformer,
-                          outputfile=padded_embeddings_anomalies_file_full_path)
-
-transform_glove.transform(logfile=corpus_inputfile_full_path,
-                          vectorsfile=embeddingsfile_full_path_for_transformer,
-                          outputfile=padded_embeddings_combined_file_full_path)
+# transform_glove.transform(logfile=corpus_inputfile_full_path,
+#                           vectorsfile=embeddingsfile_full_path_for_transformer,
+#                           outputfile=padded_embeddings_normal_file_full_path)
+#
+# transform_glove.transform(logfile=corpus_inputfile_full_path,
+#                           vectorsfile=embeddingsfile_full_path_for_transformer,
+#                           outputfile=padded_embeddings_anomalies_file_full_path)
+#
+# transform_glove.transform(logfile=corpus_inputfile_full_path,
+#                           vectorsfile=embeddingsfile_full_path_for_transformer,
+#                           outputfile=padded_embeddings_combined_file_full_path)
 
 vae = VanillaAutoEncoder(load_vectors=padded_embeddings_combined_file_full_path, model_save_path=vae_model_save_path)
 vae.start()
@@ -80,5 +80,4 @@ anomaly_values_file.close()
 outliers_values_file = open('outliers_values', 'w+')
 for val in outliers:
     outliers_values_file.write(str(val) + "\n")
-outliers_values_file.writelines(outliers)
 outliers_values_file.close()
