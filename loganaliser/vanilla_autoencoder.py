@@ -1,4 +1,5 @@
 import math
+import os
 import pickle
 import time
 
@@ -7,7 +8,6 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.data import DataLoader, random_split
-import os
 
 
 # TODO: überprüfe ob dropout bei autoencoder
@@ -42,7 +42,7 @@ class AutoEncoder(nn.Module):
 
 class VanillaAutoEncoder:
     def __init__(self,
-                 load_vectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal_embeddings.pickle',
+                 load_vectors='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies.pickle',
                  model_save_path='saved_models/18k_anomalies_autoencoder.pth',
                  learning_rate=1e-6,
                  batch_size=64,
@@ -70,15 +70,9 @@ class VanillaAutoEncoder:
         self.val_dataloader = DataLoader(val, batch_size=self.batch_size, shuffle=False)
 
         self.model = AutoEncoder(self.longest_sent, self.embeddings_dim)
-        if torch.cuda.is_available():
-            self.model.cuda()
         self.model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
         self.criterion = nn.MSELoss()
         self.optimizer = adabound.AdaBound(self.model.parameters(), lr=self.learning_rate)
-
-        # model.load_state_dict(torch.load('./sim_autoencoder.pth'))
-        # model.eval()
-        self.start()
 
     def train(self):
         self.model.train()

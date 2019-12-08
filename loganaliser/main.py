@@ -18,7 +18,7 @@ import os
 
 class AnomalyDetection:
     def __init__(self,
-                 loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal_embeddings.pickle',
+                 loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/18k_anomalies_autoencoder.pth',
                  savemodelpath='saved_models/lstm.pth',
                  n_layers=4,
@@ -43,15 +43,17 @@ class AnomalyDetection:
         self.folds = folds
         self.clip = clip
 
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.data_x, self.data_y, self.feature_length = self.prepare_data()
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers)
-        self.model = self.model.double()  # TODO: check this double stuff
+        # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = adabound.AdaBound(self.model.parameters(), lr=self.learning_rate)
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
         #  zb jede 10. epoche die distanz plotten
         #  quadrat mean squared error mal probieren
         self.distance = nn.MSELoss()
+
 
     def prepare_data(self):
         # load vectors and glove obj
@@ -63,7 +65,7 @@ class AnomalyDetection:
         embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
 
         # load the AutoEncoder model
-        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim)
+        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim).to(self.device)
         autoencoder_model.double()
         autoencoder_model.load_state_dict(torch.load(self.loadautoencodermodel))
         autoencoder_model.eval()
@@ -72,7 +74,7 @@ class AnomalyDetection:
         latent_space_representation_of_padded_embeddings = []
         for sentence in padded_embeddings:
             sentence = torch.from_numpy(sentence)
-            sentence = sentence.reshape(-1)
+            sentence = sentence.reshape(-1).to(self.device)
             encoded_sentence = autoencoder_model.encode(sentence)
             latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach().numpy())
 
@@ -89,8 +91,8 @@ class AnomalyDetection:
             data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + self.seq_length])
         n_patterns = len(data_x)
 
-        data_x = torch.Tensor(data_x)
-        data_y = torch.Tensor(data_y)
+        data_x = torch.Tensor(data_x).to(self.device)
+        data_y = torch.Tensor(data_y).to(self.device)
 
         # samples, timesteps, features
         # dataloader_x = DataLoader(data_x, batch_size=64)
