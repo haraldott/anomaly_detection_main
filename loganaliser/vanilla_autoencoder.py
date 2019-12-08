@@ -78,8 +78,6 @@ class VanillaAutoEncoder:
         self.model.train()
         for sentence in self.train_dataloader:
             sentence = sentence.view(sentence.size(0), -1)
-            if torch.cuda.is_available():
-                sentence = sentence.cuda()
             self.optimizer.zero_grad()
             output = self.model(sentence)
             loss = self.criterion(output, sentence)
@@ -92,8 +90,6 @@ class VanillaAutoEncoder:
         with torch.no_grad():
             for sentence in test_dl:
                 sentence = sentence.view(sentence.size(0), -1)
-                if torch.cuda.is_available():
-                    sentence = sentence.cuda()
                 output = self.model(sentence)
                 loss = self.criterion(output, sentence)
                 total_loss += loss.item()
