@@ -45,7 +45,7 @@ class AnomalyDetection:
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.data_x, self.data_y, self.feature_length = self.prepare_data()
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers)
+        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = adabound.AdaBound(self.model.parameters(), lr=self.learning_rate)
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
