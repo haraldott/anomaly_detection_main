@@ -48,7 +48,7 @@ transform_glove.transform(logfile=corpus_inputfile_full_path,
                           vectorsfile=embeddingsfile_full_path,
                           outputfile=padded_embeddings_combined_file_full_path)
 
-vae = VanillaAutoEncoder(load_vectors=args.embeddingspickledir, model_save_path=vae_model_save_path)
+vae = VanillaAutoEncoder(load_vectors=padded_embeddings_combined_file_full_path, model_save_path=vae_model_save_path)
 vae.start()
 
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
