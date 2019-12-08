@@ -1,9 +1,12 @@
 import argparse
 import subprocess
-from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
-from loganaliser.main import AnomalyDetection
-import wordembeddings.transform_glove as transform_glove
+
 import numpy as np
+
+import logparser.Drain.Drain_demo as drain
+import wordembeddings.transform_glove as transform_glove
+from loganaliser.main import AnomalyDetection
+from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-combinedinputfile', type=str, default='openstack_18k_plus_52k')
@@ -18,7 +21,8 @@ args = parser.parse_args()
 
 templates_inputfile_full_path = '../' + args.parseddir + args.combinedinputfile + '_templates'
 corpus_inputfile_full_path = '../' + args.parseddir + args.combinedinputfile + '_corpus'
-embeddingsfile_full_path = '../' + args.embeddingsdir + args.inputfile + '_vectors.txt'
+embeddingsfile_full_path_for_transformer = '../' + args.embeddingsdir + args.inputfile + '_vectors.txt'
+embeddingsfile_full_path_for_glove = '../' + args.embeddingsdir + args.inputfile + '_vectors'
 padded_embeddings_normal_file_full_path = '../' + args.embeddingspickledir + args.inputfile + '.pickle'
 padded_embeddings_anomalies_file_full_path = '../' + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
 padded_embeddings_combined_file_full_path = '../' + args.embeddingspickledir + args.combinedinputfile + '.pickle'
@@ -26,26 +30,24 @@ vae_model_save_path = 'saved_models/' + args.inputfile + '_vae.pth'
 lstm_model_save_path = 'saved_models/' + args.inputfile + '_lstm.pth'
 
 # start Drain parser
-subprocess.call(['python', 'logparser/Drain/Drain_demo.py',
-                 '-dir', args.inputdir,
-                 '-file', args.combinedinputfile,
-                 '-output', args.parseddir])
+drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
 
 # start glove-c
 subprocess.call(['glove-c/word_embeddings.sh',
                  '-c', templates_inputfile_full_path,
-                 '-s', embeddingsfile_full_path])
+                 '-s', embeddingsfile_full_path_for_glove])
 
+# transform output of glove into numpy word embedding vectors
 transform_glove.transform(logfile=corpus_inputfile_full_path,
-                          vectorsfile=embeddingsfile_full_path,
+                          vectorsfile=embeddingsfile_full_path_for_transformer,
                           outputfile=padded_embeddings_normal_file_full_path)
 
 transform_glove.transform(logfile=corpus_inputfile_full_path,
-                          vectorsfile=embeddingsfile_full_path,
+                          vectorsfile=embeddingsfile_full_path_for_transformer,
                           outputfile=padded_embeddings_anomalies_file_full_path)
 
 transform_glove.transform(logfile=corpus_inputfile_full_path,
-                          vectorsfile=embeddingsfile_full_path,
+                          vectorsfile=embeddingsfile_full_path_for_transformer,
                           outputfile=padded_embeddings_combined_file_full_path)
 
 vae = VanillaAutoEncoder(load_vectors=padded_embeddings_combined_file_full_path, model_save_path=vae_model_save_path)
