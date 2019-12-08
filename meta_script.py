@@ -64,7 +64,8 @@ std = np.std(normal_loss_values)
 cut_off = std * 3  # TODO: is this ok?
 lower, upper = mean - cut_off, mean + cut_off
 normal_values_file = open('normal_loss_values', 'w+')
-normal_values_file.writelines(normal_loss_values)
+for val in normal_loss_values:
+    normal_values_file.write(str(val))
 normal_values_file.close()
 
 ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
@@ -73,7 +74,8 @@ ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
 anomaly_loss_values = ad_anomaly.loss_values(normal=False)
 outliers = [x for x in anomaly_loss_values if x < lower or x > upper]
 anomaly_values_file = open('anomaly_loss_values', 'w+')
-anomaly_values_file.writelines(anomaly_loss_values)
+for val in anomaly_loss_values:
+    anomaly_values_file.write(str(val))
 anomaly_values_file.close()
 outliers_values_file = open('outliers_values', 'w+')
 outliers_values_file.writelines(outliers)
