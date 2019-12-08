@@ -79,6 +79,6 @@ for val in anomaly_loss_values:
 anomaly_values_file.close()
 outliers_values_file = open('outliers_values', 'w+')
 for val in outliers:
-    outliers_values_file.write(str(val + "\n"))
+    outliers_values_file.write(str(val) + "\n")
 outliers_values_file.writelines(outliers)
 outliers_values_file.close()
