@@ -86,9 +86,9 @@ class AnomalyDetection:
         # for i in range(0, number_of_sentences - 1):
         #     data_x.append(latent_space_representation_of_padded_embeddings[i])
         #     data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
-        for i in range(0, number_of_sentences - self.seq_length):
+        for i in range(0, number_of_sentences - self.seq_length - 1):
             data_x.append(latent_space_representation_of_padded_embeddings[i: i + self.seq_length])
-            data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + self.seq_length])
+            data_y.append(latent_space_representation_of_padded_embeddings[i + 1 + self.seq_length])
         n_patterns = len(data_x)
 
         data_x = torch.Tensor(data_x).to(self.device)
@@ -132,7 +132,8 @@ class AnomalyDetection:
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                loss = self.distance(prediction.view(-1), target.view(-1))
+                prediction = prediction[:, 1, :]
+                loss = self.distance(prediction.reshape(-1), target.reshape(-1))
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
         return total_loss / len(idx), loss_distribution
@@ -143,9 +144,11 @@ class AnomalyDetection:
         loss_distribution = []
         with torch.no_grad():
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
+                data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                loss = self.distance(prediction.view(-1), target.view(-1))
+                prediction = prediction[:, 1, :]
+                loss = self.distance(prediction.reshape(-1), target.reshape(-1))
                 loss_distribution.append(loss)
         return loss_distribution
 
@@ -159,8 +162,8 @@ class AnomalyDetection:
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
-
-            loss = self.distance(prediction.view(-1), target.view(-1))
+            prediction = prediction[:, 1, :]
+            loss = self.distance(prediction.reshape(-1), target.reshape(-1))
             loss.backward()
             self.optimizer.step()
 
@@ -216,7 +219,7 @@ class AnomalyDetection:
         else:
             n_samples = len(self.data_x)
             indices_containing_anomalies = np.arange(n_samples)
-            _, loss_values = self.predict(indices_containing_anomalies)
+            loss_values = self.predict(indices_containing_anomalies)
 
         loss_values = np.array(loss_values)
         loss_values = loss_values.flatten()
