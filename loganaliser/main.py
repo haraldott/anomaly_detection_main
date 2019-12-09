@@ -54,7 +54,6 @@ class AnomalyDetection:
         #  quadrat mean squared error mal probieren
         self.distance = nn.MSELoss()
 
-
     def prepare_data(self):
         # load vectors and glove obj
         padded_embeddings = pickle.load(open(self.loadvectors, 'rb'))
@@ -151,7 +150,6 @@ class AnomalyDetection:
                 loss = self.distance(prediction.reshape(-1), target.reshape(-1))
                 loss_distribution.append(loss)
         return loss_distribution
-
 
     def train(self, idx):
         self.model.train()

@@ -11,7 +11,7 @@ from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
 parser = argparse.ArgumentParser()
 parser.add_argument('-combinedinputfile', type=str, default='openstack_18k_plus_52k')
 parser.add_argument('-anomalyinputfile', type=str, default='openstack_18k_anomalies')
-parser.add_argument('-inputfile', type=str, default='openstack_52k_normal')
+parser.add_argument('-normalinputfile', type=str, default='openstack_52k_normal')
 parser.add_argument('-inputdir', type=str, default='data/openstack/utah/raw/')
 parser.add_argument('-parseddir', type=str, default='data/openstack/utah/parsed/')
 parser.add_argument('-embeddingspickledir', type=str, default='data/openstack/utah/padded_embeddings_pickle/')
@@ -21,10 +21,15 @@ parser.add_argument('-seq_len', type=int, default=7)
 args = parser.parse_args()
 
 templates_inputfile_full_path = '../' + args.parseddir + args.combinedinputfile + '_templates'
-corpus_inputfile_full_path = '../' + args.parseddir + args.combinedinputfile + '_corpus'
+
+corpus_normal_inputfile_full_path = '../' + args.parseddir + args.normalinputfile + '_corpus'
+corpus_anomaly_inputfile_full_path = '../' + args.parseddir + args.anomalyinputfile + '_corpus'
+corpus_combined_file_full_path = '../' + args.parseddir + args.combinedinputfile + '_corpus'
+
 embeddingsfile_full_path_for_transformer = '../' + args.embeddingsdir + args.inputfile + '_vectors.txt'
 embeddingsfile_full_path_for_glove = '../' + args.embeddingsdir + args.inputfile + '_vectors'
-padded_embeddings_normal_file_full_path = '../' + args.embeddingspickledir + args.inputfile + '.pickle'
+
+padded_embeddings_normal_file_full_path = '../' + args.embeddingspickledir + args.normalinputfile + '.pickle'
 padded_embeddings_anomalies_file_full_path = '../' + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
 padded_embeddings_combined_file_full_path = '../' + args.embeddingspickledir + args.combinedinputfile + '.pickle'
 vae_model_save_path = 'saved_models/' + args.inputfile + '_vae.pth'
@@ -32,6 +37,8 @@ lstm_model_save_path = 'saved_models/' + args.inputfile + '_lstm.pth'
 
 # start Drain parser
 drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
+drain.execute(dir=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
+drain.execute(dir=args.inputdir, file=args.normalinputfile, output=args.parseddir)
 
 # start glove-c
 subprocess.call(['glove-c/word_embeddings.sh',
@@ -39,15 +46,15 @@ subprocess.call(['glove-c/word_embeddings.sh',
                  '-s', embeddingsfile_full_path_for_glove])
 
 # transform output of glove into numpy word embedding vectors
-transform_glove.transform(logfile=corpus_inputfile_full_path,
+transform_glove.transform(logfile=corpus_normal_inputfile_full_path,
                           vectorsfile=embeddingsfile_full_path_for_transformer,
                           outputfile=padded_embeddings_normal_file_full_path)
 
-transform_glove.transform(logfile=corpus_inputfile_full_path,
+transform_glove.transform(logfile=corpus_anomaly_inputfile_full_path,
                           vectorsfile=embeddingsfile_full_path_for_transformer,
                           outputfile=padded_embeddings_anomalies_file_full_path)
 
-transform_glove.transform(logfile=corpus_inputfile_full_path,
+transform_glove.transform(logfile=corpus_combined_file_full_path,
                           vectorsfile=embeddingsfile_full_path_for_transformer,
                           outputfile=padded_embeddings_combined_file_full_path)
 
