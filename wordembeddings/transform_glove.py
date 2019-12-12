@@ -7,6 +7,13 @@ import os
 def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
               vectorsfile='../data/openstack/utah/embeddings/openstack_18k_anomalies_embeddings.txt',
               outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle'):
+    """
+
+    :param logfile:
+    :param vectorsfile:
+    :param outputfile:
+    :return:
+    """
     os.chdir(os.path.dirname(__file__))
     file = open(logfile)
     lines = file.read().splitlines()
@@ -55,6 +62,28 @@ def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_cor
     padded_embeddings = (padded_emb - p_min) / (p_max - p_min)
 
     pickle.dump(padded_embeddings, open(outputfile, 'wb'))
+
+
+def merge_templates(*template_files, merged_template_path):
+    """
+
+    :param merged_template_path: 
+    :param template_files:
+    :return:
+    """
+    os.chdir(os.path.dirname(__file__))
+    log_lines = []
+    for file in template_files:
+        try:
+            this_file = open(file, "r")
+            for line in this_file.readlines():
+                log_lines.append(line)
+        except FileNotFoundError:
+            print("Could not open file {}".format(file))
+    log_lines = set(log_lines)
+    merged_template_file = open(merged_template_path, 'w+')
+    for t in log_lines:
+        merged_template_file.write(t)
 
 
 def extract_event_templates():
