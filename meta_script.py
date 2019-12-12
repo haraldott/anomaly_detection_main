@@ -9,6 +9,7 @@ import wordembeddings.transform_glove as transform_glove
 from loganaliser.main import AnomalyDetection
 from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
 
+cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-combinedinputfile', type=str, default='openstack_18k_plus_52k')
 parser.add_argument('-anomalyinputfile', type=str, default='openstack_18k_anomalies')
@@ -21,23 +22,24 @@ parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-seq_len', type=int, default=7)
 args = parser.parse_args()
 
-templates_normal = '../' + args.parseddir + args.normalinputfile + '_templates'
-templates_anomaly = '../' + args.parseddir + args.anomalyinputfile + '_templates'
-templates_added = '../' + args.parseddir + args.combinedinputfile + '_templates'
-templates_merged = '../' + args.parseddir + args.combinedinputfile + '_merged_templates'
+templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
+templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
+templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'
+templates_merged = cwd + args.parseddir + args.combinedinputfile + '_merged_templates'
+templates_merged_glove = '../' + args.parseddir + args.combinedinputfile + '_merged_templates'
 
-corpus_normal_inputfile = '../' + args.parseddir + args.normalinputfile + '_corpus'
-corpus_anomaly_inputfile = '../' + args.parseddir + args.anomalyinputfile + '_corpus'
-corpus_combined_file = '../' + args.parseddir + args.combinedinputfile + '_corpus'
+corpus_normal_inputfile = cwd + args.parseddir + args.normalinputfile + '_corpus'
+corpus_anomaly_inputfile = cwd + args.parseddir + args.anomalyinputfile + '_corpus'
+corpus_combined_file = cwd + args.parseddir + args.combinedinputfile + '_corpus'
 
-embeddingsfile_for_transformer = '../' + args.embeddingsdir + args.combinedinputfile + '_vectors.txt'
+embeddingsfile_for_transformer = cwd + args.embeddingsdir + args.combinedinputfile + '_vectors.txt'
 embeddingsfile_for_glove = '../' + args.embeddingsdir + args.combinedinputfile + '_vectors'
 
-padded_embeddings_normal = '../' + args.embeddingspickledir + args.normalinputfile + '.pickle'
-padded_embeddings_anomalies = '../' + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
-padded_embeddings_combined = '../' + args.embeddingspickledir + args.combinedinputfile + '.pickle'
-vae_model_save_path = 'saved_models/' + args.normalinputfile + '_vae.pth'
-lstm_model_save_path = 'saved_models/' + args.normalinputfile + '_lstm.pth'
+padded_embeddings_normal = cwd + args.embeddingspickledir + args.normalinputfile + '.pickle'
+padded_embeddings_anomalies = cwd + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
+padded_embeddings_combined = cwd + args.embeddingspickledir + args.combinedinputfile + '.pickle'
+vae_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_vae.pth'
+lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_lstm.pth'
 
 # start Drain parser
 drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
@@ -49,9 +51,8 @@ transform_glove.merge_templates(templates_normal, templates_anomaly, templates_a
 
 
 # start glove-c
-os.chdir(os.path.dirname(__file__))
 subprocess.call(['glove-c/word_embeddings.sh',
-                 '-c', templates_merged,
+                 '-c', templates_merged_glove,
                  '-s', embeddingsfile_for_glove])
 
 # transform output of glove into numpy word embedding vectors

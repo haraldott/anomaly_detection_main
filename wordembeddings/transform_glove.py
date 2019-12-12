@@ -1,7 +1,6 @@
 import numpy as np
 import pickle
 import pandas as pd
-import os
 
 
 def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
@@ -14,7 +13,6 @@ def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_cor
     :param outputfile:
     :return:
     """
-    os.chdir(os.path.dirname(__file__))
     file = open(logfile)
     lines = file.read().splitlines()
     log_lines_per_word = [line.split(' ') for line in lines]
@@ -71,7 +69,6 @@ def merge_templates(*template_files, merged_template_path):
     :param template_files:
     :return:
     """
-    os.chdir(os.path.dirname(__file__))
     log_lines = []
     for file in template_files:
         try:

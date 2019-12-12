@@ -30,7 +30,6 @@ class AnomalyDetection:
                  folds=4,
                  clip=0.25
                  ):
-        os.chdir(os.path.dirname(__file__))
         self.loadvectors = loadvectors
         self.loadautoencodermodel = loadautoencodermodel
         self.savemodelpath = savemodelpath
