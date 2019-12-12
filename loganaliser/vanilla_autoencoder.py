@@ -46,17 +46,16 @@ class VanillaAutoEncoder:
                  model_save_path='saved_models/18k_anomalies_autoencoder.pth',
                  learning_rate=1e-5,
                  batch_size=64,
-                 num_epochs=100):
+                 num_epochs=1):
         self.load_vectors = load_vectors
         self.model_save_path = model_save_path
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.num_epochs = num_epochs
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # load vectors and glove obj
         padded_embeddings = pickle.load(open(self.load_vectors, 'rb'))
-        padded_embeddings = torch.from_numpy(padded_embeddings).to(self.device)
+        padded_embeddings = torch.from_numpy(padded_embeddings)
 
         self.embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
         self.longest_sent = len(padded_embeddings[0])
