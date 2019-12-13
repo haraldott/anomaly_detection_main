@@ -75,7 +75,7 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              loadvectors=padded_embeddings_normal,
                              savemodelpath=lstm_model_save_path,
                              seq_length=args.seq_len)
-ad_normal.start_training()
+# ad_normal.start_training()
 normal_loss_values = ad_normal.loss_values(normal=True)
 
 mean = np.mean(normal_loss_values)

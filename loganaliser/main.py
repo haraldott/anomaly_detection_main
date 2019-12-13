@@ -24,7 +24,7 @@ class AnomalyDetection:
                  n_layers=4,
                  n_hidden_units=200,
                  seq_length=7,
-                 num_epochs=100,
+                 num_epochs=1,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
@@ -219,8 +219,12 @@ class AnomalyDetection:
             loss_values = self.predict(indices_containing_anomalies)
 
         loss_values = np.array(loss_values)
-        loss_values = loss_values.flatten()
-        return loss_values
+        loss_values_new = []
+        for dim in loss_values:
+            for val in dim:
+                loss_values_new.append(val)
+        # loss_values = loss_values.flatten()
+        return loss_values_new
 
 
 if __name__ == '__main__':
