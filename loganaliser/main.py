@@ -219,12 +219,8 @@ class AnomalyDetection:
             loss_values = self.predict(indices_containing_anomalies)
 
         loss_values = np.array(loss_values)
-        loss_values_new = []
-        for dim in loss_values:
-            for val in dim:
-                loss_values_new.append(val)
-        # loss_values = loss_values.flatten()
-        return loss_values_new
+        loss_values = loss_values.flatten()
+        return loss_values
 
 
 if __name__ == '__main__':
