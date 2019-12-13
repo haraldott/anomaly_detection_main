@@ -1,19 +1,16 @@
-import argparse
 import math
 import pickle
 import time
-import adabound
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from loganaliser.vanilla_autoencoder import AutoEncoder
-import matplotlib.pyplot as plt
-import loganaliser.model as lstm_model
-from scipy import stats
 from torch import optim
-import os
+
+import loganaliser.model as lstm_model
+from loganaliser.vanilla_autoencoder import AutoEncoder
 
 
 class AnomalyDetection:
@@ -46,7 +43,7 @@ class AnomalyDetection:
         self.data_x, self.data_y, self.feature_length = self.prepare_data()
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
-        self.optimizer = adabound.AdaBound(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
         #  zb jede 10. epoche die distanz plotten
@@ -121,16 +118,15 @@ class AnomalyDetection:
 
     def evaluate(self, idx):
         self.model.eval()
-        dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size)
-        dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size)
+        dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size, drop_last=True)
+        dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
         loss_distribution = []
         total_loss = 0
-        hidden = self.model.init_hidden(self.seq_length, self.device)  # TODO: check stuff with batch size
+        hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         with torch.no_grad():
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                prediction = prediction[:, 1, :]
                 loss = self.distance(prediction.reshape(-1), target.reshape(-1))
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
@@ -138,28 +134,28 @@ class AnomalyDetection:
 
     def predict(self, idx):
         self.model.eval()
-        hidden = self.model.init_hidden(self.seq_length, self.device)  # TODO: check stuff with batch size
+        # TODO: since we want to predict *every* loss of every line, we don't use batches, so here we use batch_size
+        #   1 is this ok?
+        hidden = self.model.init_hidden(1, self.device)
         loss_distribution = []
         with torch.no_grad():
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                prediction = prediction[:, 1, :]
-                loss = self.distance(prediction.reshape(-1), target.reshape(-1))
-                loss_distribution.append(loss)
+                loss = self.distance(prediction.reshape(-1), target.reshape(-1)) # TODO check if reshape is necessary
+                loss_distribution.append(loss.item())
         return loss_distribution
 
     def train(self, idx):
         self.model.train()
-        dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size)
-        dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size)
-        hidden = self.model.init_hidden(self.seq_length, self.device)  # TODO: check stuff with batch size
+        dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size, drop_last=True)
+        dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
+        hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         for data, target in zip(dataloader_x, dataloader_y):
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
-            prediction = prediction[:, 1, :]
             loss = self.distance(prediction.reshape(-1), target.reshape(-1))
             loss.backward()
             self.optimizer.step()
@@ -216,6 +212,8 @@ class AnomalyDetection:
         else:
             n_samples = len(self.data_x)
             indices_containing_anomalies = np.arange(n_samples)
+            drop_last = len(indices_containing_anomalies) % self.batch_size - 1
+            indices_containing_anomalies = indices_containing_anomalies[:-drop_last]
             loss_values = self.predict(indices_containing_anomalies)
 
         loss_values = np.array(loss_values)

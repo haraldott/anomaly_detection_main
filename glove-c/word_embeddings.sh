@@ -20,7 +20,7 @@ SAVE_FILE="$(pwd)/${SAVE_FILE}"
 echo "$CORPUS"
 echo "$SAVE_FILE"
 
-VOCAB_FILE=vocab.txt
+VOCAB_FILE=vocab.txt # TODO reuse
 COOCCURRENCE_FILE=cooccurrence.bin
 COOCCURRENCE_SHUF_FILE=cooccurrence.shuf.bin
 BUILDDIR=build

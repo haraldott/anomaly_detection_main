@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LSTM(nn.Module):
@@ -10,7 +11,7 @@ class LSTM(nn.Module):
         # self.encoder = nn.Embedding()
         self.dropout = nn.Dropout(dropout)
         self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units, num_layers=n_layers,
-                            dropout=dropout)
+                            dropout=dropout, batch_first=True)
         self.decoder = nn.Linear(n_hidden_units, n_input)
 
         # enhancement: read paper and see if this is useful: "Using the Output Embedding to Improve Language Models"
@@ -33,10 +34,10 @@ class LSTM(nn.Module):
         input = self.dropout(input)
         output, hidden = self.lstm(input, hidden)
         output = self.dropout(output)
-        decoded = self.decoder(output)
+        decoded = self.decoder(output[:,-1,:])
         # TODO: log_softmax makes everything 0 can we leave it like this?
-        # decoded_scores = F.log_softmax(decoded, dim=1)
-        return decoded, hidden
+        decoded_scores = F.log_softmax(decoded, dim=1)
+        return decoded_scores, hidden
 
     def init_hidden(self, bsz, device):
         weight = next(self.parameters())
