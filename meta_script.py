@@ -21,7 +21,7 @@ parser.add_argument('-embeddingspickledir', type=str, default='data/openstack/ut
 parser.add_argument('-embeddingsdir', type=str, default='data/openstack/utah/embeddings/')
 parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-seq_len', type=int, default=7)
-parser.add_argument('-full', type=bool, default=True)
+parser.add_argument('-full', type=str, default="True")
 args = parser.parse_args()
 
 templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
@@ -43,7 +43,7 @@ padded_embeddings_combined = cwd + args.embeddingspickledir + args.combinedinput
 vae_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_vae.pth'
 lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_lstm.pth'
 
-if args.full:
+if args.full == "True":
     # start Drain parser
     drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
     drain.execute(dir=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
@@ -51,7 +51,6 @@ if args.full:
 
     transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
                                     merged_template_path=templates_merged)
-
 
     # start glove-c
     subprocess.call(['glove-c/word_embeddings.sh',

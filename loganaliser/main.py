@@ -2,7 +2,6 @@ import math
 import pickle
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
@@ -21,7 +20,7 @@ class AnomalyDetection:
                  n_layers=4,
                  n_hidden_units=200,
                  seq_length=7,
-                 num_epochs=1,
+                 num_epochs=100,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
@@ -193,7 +192,6 @@ class AnomalyDetection:
                     self.learning_rate /= 2.0
                     print("anneal lr to: {}".format(self.learning_rate))
                 loss_values.append(val_loss / self.folds)
-            plt.plot(loss_values)
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
