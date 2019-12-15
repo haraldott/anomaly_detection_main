@@ -34,7 +34,7 @@ class LSTM(nn.Module):
         input = self.dropout(input)
         output, hidden = self.lstm(input, hidden)
         output = self.dropout(output)
-        decoded = self.decoder(output[:,-1,:])
+        decoded = self.decoder(output)
         # TODO: log_softmax makes everything 0 can we leave it like this?
         decoded_scores = F.log_softmax(decoded, dim=1)
         return decoded_scores, hidden

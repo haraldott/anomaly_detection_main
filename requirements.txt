@@ -7,3 +7,5 @@ skorch
 matplotlib
 adabound
 seaborn
+bert-embedding
+pytorch-pretrained-bert
