@@ -142,7 +142,7 @@ class AnomalyDetection:
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                loss = self.distance(prediction.reshape(-1), target.reshape(-1)) # TODO check if reshape is necessary
+                loss = self.distance(prediction.reshape(-1), target.reshape(-1))  # TODO check if reshape is necessary
                 loss_distribution.append(loss.item())
         return loss_distribution
 
@@ -205,7 +205,7 @@ class AnomalyDetection:
             indices = [x for x in self.split(self.data_x, self.folds)]
             for idx in indices:
                 eval_indices = idx[1]
-                _, loss_distribution = self.evaluate(eval_indices)
+                loss_distribution = self.predict(eval_indices)
                 loss_values.append(loss_distribution)
         else:
             n_samples = len(self.data_x)

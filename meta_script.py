@@ -103,7 +103,7 @@ anomaly_values_file.close()
 outliers = []
 for i, x in enumerate(anomaly_loss_values):
     if x < lower or x > upper:
-        outliers.append((i + args.seq_len, x))
+        outliers.append(str(i + args.seq_len) + "," + str(x))
 
 outliers_values_file = open(cwd + args.resultsdir + 'outliers_values', 'w+')
 for val in outliers:
