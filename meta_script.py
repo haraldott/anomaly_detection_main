@@ -41,7 +41,7 @@ padded_embeddings_normal = cwd + args.embeddingspickledir + args.normalinputfile
 padded_embeddings_anomalies = cwd + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
 padded_embeddings_combined = cwd + args.embeddingspickledir + args.combinedinputfile + '.pickle'
 vae_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_vae.pth'
-lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_lstm.pth'
+lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile
 
 if args.full == "True":
     # start Drain parser

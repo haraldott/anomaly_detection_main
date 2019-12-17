@@ -16,11 +16,11 @@ class AnomalyDetection:
     def __init__(self,
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/18k_anomalies_autoencoder.pth',
-                 savemodelpath='saved_models/lstm.pth',
+                 savemodelpath='saved_models/',
                  n_layers=4,
                  n_hidden_units=100,
                  seq_length=7,
-                 num_epochs=250,
+                 num_epochs=200,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
@@ -186,7 +186,7 @@ class AnomalyDetection:
                                             val_loss, math.exp(val_loss)))
                 print('-' * 89)
                 if not best_val_loss or val_loss < best_val_loss:
-                    torch.save(self.model.state_dict(), self.savemodelpath)
+                    torch.save(self.model.state_dict(), self.savemodelpath + "epoch_" + str(epoch) + "_lstm.pth")
                     best_val_loss = val_loss
                 loss_values.append(val_loss / self.folds)
         except KeyboardInterrupt:
