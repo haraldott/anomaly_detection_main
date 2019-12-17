@@ -1,13 +1,12 @@
 import math
-import os
 import pickle
 import time
 
-import adabound
 import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.data import DataLoader, random_split
+from torch import optim
 
 
 # TODO: überprüfe ob dropout bei autoencoder
@@ -72,7 +71,8 @@ class VanillaAutoEncoder:
         self.model = AutoEncoder(self.longest_sent, self.embeddings_dim)
         self.model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
         self.criterion = nn.MSELoss()
-        self.optimizer = adabound.AdaBound(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
 
     def train(self):
         self.model.train()
@@ -82,7 +82,6 @@ class VanillaAutoEncoder:
             output = self.model(sentence)
             loss = self.criterion(output, sentence)
             loss.backward()
-            self.optimizer.step()
 
     def evaluate(self, test_dl):
         self.model.eval()
@@ -104,6 +103,8 @@ class VanillaAutoEncoder:
                     epoch_start_time = time.time()
                     self.train()
                     val_loss = self.evaluate(self.val_dataloader)
+                    self.optimizer.step()
+                    self.scheduler.step(val_loss)
                     print('-' * 89)
                     print('AE: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
                           'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),

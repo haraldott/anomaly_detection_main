@@ -20,7 +20,7 @@ class AnomalyDetection:
                  n_layers=4,
                  n_hidden_units=100,
                  seq_length=7,
-                 num_epochs=100,
+                 num_epochs=250,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
@@ -43,6 +43,7 @@ class AnomalyDetection:
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
         #  zb jede 10. epoche die distanz plotten
@@ -156,7 +157,6 @@ class AnomalyDetection:
             prediction, hidden = self.model(data, hidden)
             loss = self.distance(prediction.reshape(-1), target.reshape(-1))
             loss.backward()
-            self.optimizer.step()
 
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
             for p in self.model.parameters():
@@ -177,6 +177,8 @@ class AnomalyDetection:
 
                     self.train(train_incides)
                     this_loss, _ = self.evaluate(eval_indices)
+                    self.optimizer.step()
+                    self.scheduler.step(this_loss)
                     val_loss += this_loss
                 print('-' * 89)
                 print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
@@ -186,10 +188,6 @@ class AnomalyDetection:
                 if not best_val_loss or val_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
                     best_val_loss = val_loss
-                else:
-                    # anneal learning rate
-                    self.learning_rate /= 2.0
-                    print("anneal lr to: {}".format(self.learning_rate))
                 loss_values.append(val_loss / self.folds)
         except KeyboardInterrupt:
             print('-' * 89)

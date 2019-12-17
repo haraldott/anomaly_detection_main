@@ -109,3 +109,8 @@ outliers_values_file = open(cwd + args.resultsdir + 'outliers_values', 'w+')
 for val in outliers:
     outliers_values_file.write(str(val) + "\n")
 outliers_values_file.close()
+
+subprocess.call(['tar', 'cvf', cwd + args.resultsdir + 'results.tar',
+                               cwd + args.resultsdir + 'normal_loss_values',
+                               cwd + args.resultsdir + 'anomaly_loss_values',
+                               cwd + args.resultsdir + 'outliers_values'])
