@@ -82,8 +82,7 @@ class AnomalyDetection:
         #     data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
         for i in range(0, number_of_sentences - self.seq_length - 1):
             data_x.append(latent_space_representation_of_padded_embeddings[i: i + self.seq_length])
-            data_y.append(latent_space_representation_of_padded_embeddings[i + 1: i + 1 + self.seq_length])
-        n_patterns = len(data_x)
+            data_y.append(latent_space_representation_of_padded_embeddings[i + 1 + self.seq_length])
 
         data_x = torch.Tensor(data_x).to(self.device)
         data_y = torch.Tensor(data_y).to(self.device)
