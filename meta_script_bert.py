@@ -5,10 +5,9 @@ import subprocess
 import numpy as np
 
 import logparser.Drain.Drain_demo as drain
-import wordembeddings.transform_glove as transform_glove
 import wordembeddings.transform_bert as transform_bert
+import wordembeddings.transform_glove as transform_glove
 from loganaliser.main import AnomalyDetection
-from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
@@ -46,38 +45,36 @@ lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile
 
 if args.full == "True":
     # start Drain parser
-    #drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
-    #drain.execute(dir=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
-    #drain.execute(dir=args.inputdir, file=args.normalinputfile, output=args.parseddir)
+    drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
+    drain.execute(dir=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
+    drain.execute(dir=args.inputdir, file=args.normalinputfile, output=args.parseddir)
 
-    # transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
-    #                                 merged_template_path=templates_merged)
+    transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
+                                    merged_template_path=templates_merged)
 
     bert_vectors = transform_bert.get_bert_vectors(templates_merged)
 
     # transform output of glove into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=bert_vectors,
                              logfile=corpus_normal_inputfile,
-                             templatefile=embeddingsfile_for_transformer,
+                             templatefile=templates_merged,
                              outputfile=embeddings_normal)
 
     transform_bert.transform(sentence_embeddings=bert_vectors,
                              logfile=corpus_anomaly_inputfile,
-                             templatefile=embeddingsfile_for_transformer,
+                             templatefile=templates_merged,
                              outputfile=embeddings_anomalies)
 
     transform_bert.transform(sentence_embeddings=bert_vectors,
                              logfile=corpus_combined_file,
-                             templatefile=embeddingsfile_for_transformer,
+                             templatefile=templates_merged,
                              outputfile=embeddings_combined)
-
-    vae = VanillaAutoEncoder(load_vectors=embeddings_combined, model_save_path=vae_model_save_path)
-    vae.start()
 
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path,
-                             seq_length=args.seq_len)
+                             seq_length=args.seq_len,
+                             latent=False)
 ad_normal.start_training()
 normal_loss_values = ad_normal.loss_values(normal=True)
 
@@ -93,7 +90,8 @@ normal_values_file.close()
 ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                               loadvectors=embeddings_anomalies,
                               savemodelpath=lstm_model_save_path,
-                              seq_length=args.seq_len)
+                              seq_length=args.seq_len,
+                              latent=False)
 anomaly_loss_values = ad_anomaly.loss_values(normal=False)
 
 anomaly_values_file = open(cwd + args.resultsdir + 'anomaly_loss_values', 'w+')
@@ -112,6 +110,7 @@ for val in outliers:
 outliers_values_file.close()
 
 subprocess.call(['tar', 'cvf', cwd + args.resultsdir + 'results.tar',
-                               cwd + args.resultsdir + 'normal_loss_values',
-                               cwd + args.resultsdir + 'anomaly_loss_values',
-                               cwd + args.resultsdir + 'outliers_values'])
+                 '--directory=' + cwd + args.resultsdir,
+                 'normal_loss_values',
+                 'anomaly_loss_values',
+                 'outliers_values'])

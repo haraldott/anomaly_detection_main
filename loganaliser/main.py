@@ -16,7 +16,8 @@ class AnomalyDetection:
     def __init__(self,
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/18k_anomalies_autoencoder.pth',
-                 savemodelpath='saved_models/',
+                 savemodelpath='saved_models/lstm.pth',
+                 latent=True,
                  n_layers=4,
                  n_hidden_units=100,
                  seq_length=7,
@@ -39,7 +40,10 @@ class AnomalyDetection:
         self.clip = clip
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.data_x, self.data_y, self.feature_length = self.prepare_data()
+        if latent:
+            self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
+        else:
+            self.data_x, self.data_y, self.feature_length = self.prepare_data()
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -51,6 +55,22 @@ class AnomalyDetection:
         self.distance = nn.MSELoss()
 
     def prepare_data(self):
+        embeddings = pickle.load(open(self.loadvectors, 'rb'))
+        number_of_sentences = len(embeddings)
+        feature_length = embeddings[0].size(0)
+
+        data_x = []
+        data_y = []
+        for i in range(0, number_of_sentences - self.seq_length - 1):
+            data_x.append(embeddings[i: i + self.seq_length])
+            data_y.append(embeddings[i + 1 + self.seq_length])
+
+        data_x = torch.stack(data_x).to(self.device)
+        data_y = torch.stack(data_y).to(self.device)
+
+        return data_x, data_y, feature_length
+
+    def prepare_data_latent_space(self):
         # load vectors and glove obj
         padded_embeddings = pickle.load(open(self.loadvectors, 'rb'))
 
@@ -166,7 +186,7 @@ class AnomalyDetection:
         best_val_loss = None
         try:
             loss_values = []
-            for epoch in range(self.num_epochs):
+            for epoch in range(1, self.num_epochs+1):
                 val_loss = 0
                 indices_generator = self.split(self.data_x, self.folds)
                 epoch_start_time = time.time()
@@ -186,7 +206,7 @@ class AnomalyDetection:
                                             val_loss, math.exp(val_loss)))
                 print('-' * 89)
                 if not best_val_loss or val_loss < best_val_loss:
-                    torch.save(self.model.state_dict(), self.savemodelpath + "epoch_" + str(epoch) + "_lstm.pth")
+                    torch.save(self.model.state_dict(), self.savemodelpath)
                     best_val_loss = val_loss
                 loss_values.append(val_loss / self.folds)
         except KeyboardInterrupt:

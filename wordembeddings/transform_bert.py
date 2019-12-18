@@ -1,9 +1,9 @@
-import numpy as np
-import pickle
 import argparse
 import os
-from pytorch_pretrained_bert import BertTokenizer, BertModel
+import pickle
+
 import torch
+from pytorch_pretrained_bert import BertTokenizer, BertModel
 
 
 def transform(sentence_embeddings,
@@ -29,8 +29,8 @@ def transform(sentence_embeddings,
         idx = templatefilelines.index(sentence)
         if idx is None:
             raise ValueError("{} not found in template file".format(sentence))
-        sentences_as_vectors.append(sentence_embeddings(idx))
-    sentences_as_vectors = np.array(sentences_as_vectors)
+        sentences_as_vectors.append(sentence_embeddings[idx])
+    sentences_as_vectors = torch.stack(sentences_as_vectors)
 
     # normalise between 0 and 1
     p_max, p_min = sentences_as_vectors.max(), sentences_as_vectors.min()
