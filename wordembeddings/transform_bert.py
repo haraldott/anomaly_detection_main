@@ -10,14 +10,6 @@ def transform(sentence_embeddings,
               logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
               outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle',
               templatefile='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
-    """
-
-    :param templatefile:
-    :param sentence_embeddings:
-    :param logfile:
-    :param outputfile:
-    :return:
-    """
     file = open(logfile)
     logfilelines = file.readlines()
 
@@ -40,9 +32,6 @@ def transform(sentence_embeddings,
 
 
 def get_bert_vectors(templates_location='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
-    cwd = os.getcwd() + "/"
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-parsedinputfile', type=str, default='data/openstack/utah/parsed/')
 
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
