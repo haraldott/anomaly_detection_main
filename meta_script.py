@@ -17,7 +17,7 @@ parser.add_argument('-anomalyinputfile', type=str, default='openstack_18k_anomal
 parser.add_argument('-normalinputfile', type=str, default='openstack_52k_normal')
 parser.add_argument('-inputdir', type=str, default='data/openstack/utah/raw/')
 parser.add_argument('-parseddir', type=str, default='data/openstack/utah/parsed/')
-parser.add_argument('-resultsdir', type=str, default='data/openstack/utah/results/glove/')
+parser.add_argument('-resultsdir', type=str, default='data/openstack/utah/results/glove')
 parser.add_argument('-embeddingspickledir', type=str, default='data/openstack/utah/padded_embeddings_pickle/')
 parser.add_argument('-embeddingsdir', type=str, default='data/openstack/utah/embeddings/')
 parser.add_argument('-logtype', default='OpenStack', type=str)

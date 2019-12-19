@@ -57,4 +57,7 @@ def calc_precision_utah(anomalies_file, outliers_file):
         else:
             fp += 1
 
-    return tp / (tp + fp)
+    if tp is 0:
+        return 0
+    else:
+        return tp / (tp + fp)
