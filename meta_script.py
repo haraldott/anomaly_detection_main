@@ -28,8 +28,8 @@ parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-embeddingsize', type=int, default=100)
 args = parser.parse_args()
 
-results_dir = args.resultsdir + '_epochs_' + args.epochs_ + \
-              '–hiddenunits_' + args.hiddenunits + '_embeddingsize_' + args.embeddingsize + '/'
+results_dir = args.resultsdir + '_epochs_' + args.epochs + \
+              '_hiddenunits_' + args.hiddenunits + '_embeddingsize_' + args.embeddingsize + '/'
 templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
 templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
 templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'
