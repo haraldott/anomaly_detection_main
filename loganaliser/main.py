@@ -21,7 +21,7 @@ class AnomalyDetection:
                  n_layers=3,
                  n_hidden_units=250,
                  seq_length=7,
-                 num_epochs=200,
+                 num_epochs=0,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,

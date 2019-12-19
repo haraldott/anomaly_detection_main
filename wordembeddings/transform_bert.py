@@ -25,8 +25,8 @@ def transform(sentence_embeddings,
     sentences_as_vectors = torch.stack(sentences_as_vectors)
 
     # normalise between 0 and 1
-    p_max, p_min = sentences_as_vectors.max(), sentences_as_vectors.min()
-    sentences_as_vectors = (sentences_as_vectors - p_min) / (p_max - p_min)
+    # p_max, p_min = sentences_as_vectors.max(), sentences_as_vectors.min()
+    # sentences_as_vectors = (sentences_as_vectors - p_min) / (p_max - p_min)
 
     pickle.dump(sentences_as_vectors, open(outputfile, 'wb'))
 
@@ -69,6 +69,6 @@ def get_bert_vectors(templates_location='../data/openstack/utah/parsed/openstack
 
     sentence_embeddings = []
     for t in encoded_layers:
-        sentence_embeddings.append(torch.mean(t[0][11][0], dim=0))
+        sentence_embeddings.append(torch.mean(t[0][10][0], dim=0))
 
     return sentence_embeddings

@@ -39,7 +39,6 @@ embeddingsfile_for_glove = '../' + args.embeddingsdir + args.combinedinputfile +
 
 embeddings_normal = cwd + args.embeddingspickledir + args.normalinputfile + '.pickle'
 embeddings_anomalies = cwd + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
-embeddings_combined = cwd + args.embeddingspickledir + args.combinedinputfile + '.pickle'
 vae_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_vae.pth'
 lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile
 
@@ -65,17 +64,15 @@ if args.full == "True":
                              templatefile=templates_merged,
                              outputfile=embeddings_anomalies)
 
-    transform_bert.transform(sentence_embeddings=bert_vectors,
-                             logfile=corpus_combined_file,
-                             templatefile=templates_merged,
-                             outputfile=embeddings_combined)
-
+# start LSTM
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path,
                              seq_length=args.seq_len,
                              latent=False)
 ad_normal.start_training()
+
+# run normal values once through LSTM to obtain loss values
 normal_loss_values = ad_normal.loss_values(normal=True)
 
 mean = np.mean(normal_loss_values)
