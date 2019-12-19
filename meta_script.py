@@ -62,7 +62,7 @@ if args.full == "True":
     subprocess.call(['glove-c/word_embeddings.sh',
                      '-c', templates_merged_glove,
                      '-s', embeddingsfile_for_glove,
-                     '-v', args.embeddingsize])
+                     '-v', str(args.embeddingsize)])
 
     # transform output of glove into numpy word embedding vectors
     transform_glove.transform(logfile=corpus_normal_inputfile,

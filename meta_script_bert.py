@@ -22,7 +22,7 @@ parser.add_argument('-embeddingspickledir', type=str, default='data/openstack/ut
 parser.add_argument('-embeddingsdir', type=str, default='data/openstack/utah/embeddings/')
 parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-seq_len', type=int, default=7)
-parser.add_argument('-full', type=str, default="False")
+parser.add_argument('-full', type=str, default="True")
 parser.add_argument('-epochs', type=int, default=100)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)

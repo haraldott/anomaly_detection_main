@@ -1,5 +1,6 @@
 #!/bin/bash
 
+python meta_script_bert.py -hiddenunits=768 -epochs=1
 python meta_script.py -embeddingsize=100 -hiddenunits=100 -epochs=80
 python meta_script.py -embeddingsize=100 -hiddenunits=100 -epochs=100
 python meta_script.py -embeddingsize=100 -hiddenunits=100 -epochs=150
