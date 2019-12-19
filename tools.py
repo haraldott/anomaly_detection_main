@@ -57,7 +57,7 @@ def calc_precision_utah(anomalies_file, outliers_file):
         else:
             fp += 1
 
-    if tp is 0:
-        return 0
-    else:
+    try:
         return tp / (tp + fp)
+    except ZeroDivisionError:
+        return 0
