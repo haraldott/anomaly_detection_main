@@ -8,6 +8,7 @@ import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_glove as transform_glove
 from loganaliser.main import AnomalyDetection
 from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
+from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
@@ -16,14 +17,19 @@ parser.add_argument('-anomalyinputfile', type=str, default='openstack_18k_anomal
 parser.add_argument('-normalinputfile', type=str, default='openstack_52k_normal')
 parser.add_argument('-inputdir', type=str, default='data/openstack/utah/raw/')
 parser.add_argument('-parseddir', type=str, default='data/openstack/utah/parsed/')
-parser.add_argument('-resultsdir', type=str, default='data/openstack/utah/results/')
+parser.add_argument('-resultsdir', type=str, default='data/openstack/utah/results/glove/')
 parser.add_argument('-embeddingspickledir', type=str, default='data/openstack/utah/padded_embeddings_pickle/')
 parser.add_argument('-embeddingsdir', type=str, default='data/openstack/utah/embeddings/')
 parser.add_argument('-logtype', default='OpenStack', type=str)
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-full', type=str, default="True")
+parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-hiddenunits', type=int, default=250)
+parser.add_argument('-embeddingsize', type=int, default=100)
 args = parser.parse_args()
 
+results_dir = args.resultsdir + '_epochs_' + args.epochs_ + \
+              '–hiddenunits_' + args.hiddenunits + '_embeddingsize_' + args.embeddingsize + '/'
 templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
 templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
 templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'
@@ -55,7 +61,8 @@ if args.full == "True":
     # start glove-c
     subprocess.call(['glove-c/word_embeddings.sh',
                      '-c', templates_merged_glove,
-                     '-s', embeddingsfile_for_glove])
+                     '-s', embeddingsfile_for_glove,
+                     '-v', args.embeddingsize])
 
     # transform output of glove into numpy word embedding vectors
     transform_glove.transform(logfile=corpus_normal_inputfile,
@@ -76,15 +83,19 @@ if args.full == "True":
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              loadvectors=padded_embeddings_normal,
                              savemodelpath=lstm_model_save_path,
-                             seq_length=args.seq_len)
+                             seq_length=args.seq_len,
+                             num_epochs=args.epochs,
+                             n_hidden_units=args.hiddenunits)
 ad_normal.start_training()
+
+# run normal values once through LSTM to obtain loss values
 normal_loss_values = ad_normal.loss_values(normal=True)
 
 mean = np.mean(normal_loss_values)
 std = np.std(normal_loss_values)
 cut_off = std * 3  # TODO: is this ok?
 lower, upper = mean - cut_off, mean + cut_off
-normal_values_file = open(cwd + args.resultsdir + 'normal_loss_values', 'w+')
+normal_values_file = open(cwd + results_dir + 'normal_loss_values', 'w+')
 for val in normal_loss_values:
     normal_values_file.write(str(val) + "\n")
 normal_values_file.close()
@@ -92,10 +103,12 @@ normal_values_file.close()
 ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                               loadvectors=padded_embeddings_anomalies,
                               savemodelpath=lstm_model_save_path,
-                              seq_length=args.seq_len)
+                              seq_length=args.seq_len,
+                              num_epochs=args.epochs,
+                              n_hidden_units=args.hiddenunits)
 anomaly_loss_values = ad_anomaly.loss_values(normal=False)
 
-anomaly_values_file = open(cwd + args.resultsdir + 'anomaly_loss_values', 'w+')
+anomaly_values_file = open(cwd + results_dir + 'anomaly_loss_values', 'w+')
 for val in anomaly_loss_values:
     anomaly_values_file.write(str(val) + "\n")
 anomaly_values_file.close()
@@ -105,12 +118,17 @@ for i, x in enumerate(anomaly_loss_values):
     if x < lower or x > upper:
         outliers.append(str(i + args.seq_len) + "," + str(x))
 
-outliers_values_file = open(cwd + args.resultsdir + 'outliers_values', 'w+')
+outliers_values_file = open(cwd + results_dir + 'outliers_values', 'w+')
 for val in outliers:
     outliers_values_file.write(str(val) + "\n")
 outliers_values_file.close()
 
-subprocess.call(['tar', 'cvf', cwd + args.resultsdir + 'results.tar',
-                               cwd + args.resultsdir + 'normal_loss_values',
-                               cwd + args.resultsdir + 'anomaly_loss_values',
-                               cwd + args.resultsdir + 'outliers_values'])
+precision = calc_precision_utah(cwd + results_dir + 'anomaly_loss_values', cwd + results_dir + 'outliers_values')
+distribution_plots(results_dir, args.epochs, args.hiddenunits, args.embeddingsize, precision)
+
+subprocess.call(['tar', 'cvf', cwd + results_dir + 'results.tar',
+                 '--directory=' + cwd + results_dir,
+                 'normal_loss_values',
+                 'anomaly_loss_values',
+                 'outliers_values',
+                 'plot.png'])

@@ -5,11 +5,13 @@ usage() { echo "Usage: $0 [] []" 1>&2; exit 1;}
 
 CORPUS=../data/openstack/utah/parsed/openstack_52k_normal_templates
 SAVE_FILE=../data/openstack/utah/embeddings/openstack_52k_normal_vectors
+VECTOR_SIZE=100
 
-while getopts c:s: o; do
+while getopts c:s:v: o; do
   case $o in
     c)     CORPUS=$OPTARG;;
     s)     SAVE_FILE=$OPTARG;;
+    v)     VECTOR_SIZE=$OPTARG;;
     *)     usage;;
   esac
 done
@@ -27,7 +29,6 @@ BUILDDIR=build
 VERBOSE=2
 MEMORY=4.0
 VOCAB_MIN_COUNT=1
-VECTOR_SIZE=100
 MAX_ITER=1500
 WINDOW_SIZE=8
 BINARY=2
