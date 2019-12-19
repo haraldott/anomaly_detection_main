@@ -30,7 +30,10 @@ args = parser.parse_args()
 
 results_dir = "{}_epochs_{}_hiddenunits_{}_embeddingsize_{}/"\
     .format(args.resultsdir, args.epochs, args.hiddenunits, args.embeddingsize)
-os.mkdir(results_dir)
+try:
+    os.mkdir(results_dir)
+except FileExistsError:
+    pass
 templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
 templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
 templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'

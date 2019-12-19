@@ -29,7 +29,11 @@ parser.add_argument('-hiddenlayers', type=int, default=4)
 args = parser.parse_args()
 
 results_dir = "{}_epochs_{}_hiddenunits_{}/".format(args.resultsdir, args.epochs, args.hiddenunits)
-os.mkdir(results_dir)
+try:
+    os.mkdir(results_dir)
+except FileExistsError:
+    pass
+
 templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
 templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
 templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'
