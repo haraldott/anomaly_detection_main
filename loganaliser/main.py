@@ -14,10 +14,10 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 
 class AnomalyDetection:
     def __init__(self,
+                 model,
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/18k_anomalies_autoencoder.pth',
                  savemodelpath='saved_models/lstm.pth',
-                 latent=True,
                  n_layers=3,
                  n_hidden_units=250,
                  seq_length=7,
@@ -38,12 +38,14 @@ class AnomalyDetection:
         self.batch_size = batch_size
         self.folds = folds
         self.clip = clip
+        self.model = model
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if latent:
+        if model == 'glove':
             self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
-        else:
-            self.data_x, self.data_y, self.feature_length = self.prepare_data()
+        elif model == 'bert' or model == 'embeddings_layer':
+            self.data_x, self.data_y, self.feature_length = self.prepare_data_raw()
+
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -54,7 +56,7 @@ class AnomalyDetection:
         #  quadrat mean squared error mal probieren
         self.distance = nn.MSELoss()
 
-    def prepare_data(self):
+    def prepare_data_raw(self):
         embeddings = pickle.load(open(self.loadvectors, 'rb'))
         number_of_sentences = len(embeddings)
         feature_length = embeddings[0].size(0)
@@ -186,7 +188,7 @@ class AnomalyDetection:
         best_val_loss = None
         try:
             loss_values = []
-            for epoch in range(1, self.num_epochs+1):
+            for epoch in range(1, self.num_epochs + 1):
                 val_loss = 0
                 indices_generator = self.split(self.data_x, self.folds)
                 epoch_start_time = time.time()

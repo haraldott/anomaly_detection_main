@@ -5,10 +5,10 @@ sys.path.append('../../')
 from logparser import Drain
 
 
-def execute(dir='../../data/openstack/utah/raw/',
-            file='openstack_18k_anomalies',
-            output='../../data/openstack/utah/parsed/',
-            logtype='OpenStack',
+def execute(directory='../../data/openstack/sasho/raw/sequential_data/logs/',
+            file='logs_aggregated_sequential.csv',
+            output='../../data/openstack/sasho/parsed/',
+            logtype='OpenStackSasho',
             st=0.2,
             depth=2,
             full_output=False):
@@ -33,6 +33,20 @@ def execute(dir='../../data/openstack/utah/raw/',
             'st': 0.2,
             'depth': 2
         },
+        'OpenStackSasho': {
+            'log_format': '<_id>,<_index>,<_score>,<_type>,<Hostname>,<user_id>,<project_domain>,<Timestamp>,<timestamp>,<log_level>,<Pid>,<Content>,<tenant_id>,<programname>,<request_id>,<python_module>,<Logger>,<user_domain>,<domain_id>,<http_status>,<http_method>,<http_version>,<http_url>,<chunk>,<next_retry_seconds>,<error>,<retry_time>,<message>,<chunk_id>,<worker>',
+            'regex': [r'((\d+\.){3}\d+,?)+',
+                      r'/.+?\s',
+                      r'\d+',
+                      r'\[.*?\]',
+                      r'\[.*\]',
+                      r'\[.*\] \[.*\]',
+                      r'(/|)([0-9]+\.){3}[0-9]+(:[0-9]+|)(:|)',
+                      r'(?<=[^A-Za-z0-9])(\-?\+?\d+)(?=[^A-Za-z0-9])|[0-9]+$',
+                      r'\(\/.*\)'],
+            'st': 0.2,
+            'depth': 2
+        },
     }
 
     try:
@@ -44,5 +58,5 @@ def execute(dir='../../data/openstack/utah/raw/',
         print("log format does not exist")
         raise
 
-    parser = Drain.LogParser(log_format, indir=dir, outdir=output, depth=depth, st=st, rex=regex)
+    parser = Drain.LogParser(log_format, indir=directory, outdir=output, depth=depth, st=st, rex=regex)
     parser.parse(file, full_output)

@@ -54,9 +54,9 @@ lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile
 
 if args.full == "True":
     # start Drain parser
-    drain.execute(dir=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
-    drain.execute(dir=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
-    drain.execute(dir=args.inputdir, file=args.normalinputfile, output=args.parseddir)
+    drain.execute(directory=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
+    drain.execute(directory=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
+    drain.execute(directory=args.inputdir, file=args.normalinputfile, output=args.parseddir)
 
     transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
                                     merged_template_path=templates_merged)
@@ -82,7 +82,7 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              num_epochs=args.epochs,
                              n_hidden_units=args.hiddenunits,
                              n_layers=args.hiddenlayers,
-                             latent=False)
+                             model='bert')
 ad_normal.start_training()
 
 # run normal values once through LSTM to obtain loss values
@@ -104,7 +104,7 @@ ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                               num_epochs=args.epochs,
                               n_hidden_units=args.hiddenunits,
                               n_layers=args.hiddenlayers,
-                              latent=False)
+                              model='bert')
 anomaly_loss_values = ad_anomaly.loss_values(normal=False)
 
 anomaly_values_file = open(cwd + results_dir + 'anomaly_loss_values', 'w+')
