@@ -60,3 +60,7 @@ def execute(directory='../../data/openstack/sasho/raw/sequential_data/logs/',
 
     parser = Drain.LogParser(log_format, indir=directory, outdir=output, depth=depth, st=st, rex=regex)
     parser.parse(file, full_output)
+
+
+if __name__ == "__main__":
+    execute()
