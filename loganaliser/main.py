@@ -25,7 +25,8 @@ class AnomalyDetection:
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
-                 clip=0.25
+                 clip=0.25,
+                 train_mode=False
                  ):
         self.loadvectors = loadvectors
         self.loadautoencodermodel = loadautoencodermodel
@@ -39,6 +40,7 @@ class AnomalyDetection:
         self.folds = folds
         self.clip = clip
         self.model = model
+        self.train_mode = train_mode
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if model == 'glove':
@@ -46,7 +48,10 @@ class AnomalyDetection:
         elif model == 'bert' or model == 'embeddings_layer':
             self.data_x, self.data_y, self.feature_length = self.prepare_data_raw()
 
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers).to(self.device)
+        self.model = lstm_model.LSTM(n_input=self.feature_length,
+                                     n_hidden_units=self.n_hidden_units,
+                                     n_layers=self.n_layers,
+                                     train_mode=self.train_mode).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
@@ -82,7 +87,7 @@ class AnomalyDetection:
         embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
 
         # load the AutoEncoder model
-        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim)
+        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim, train_mode=False)
         autoencoder_model.double()
         autoencoder_model.load_state_dict(torch.load(self.loadautoencodermodel))
         autoencoder_model.eval()
@@ -216,7 +221,7 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def loss_values(self, normal: bool = True):
-        model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers)
+        model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False)
         model.load_state_dict(torch.load(self.savemodelpath))
         model.eval()
         if normal:

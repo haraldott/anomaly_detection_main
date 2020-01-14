@@ -13,25 +13,31 @@ from torch import optim
 # TODO: eventuell autoencoder mit gru (lstm) probieren, decoder layer kann so bleiben (ggf. auch decoder anpassen,
 #  falls mit linear nicht so gut funktioniert, es geht nur um die Zeit)
 class AutoEncoder(nn.Module):
-    def __init__(self, longest_sent, embeddings_dim):
+    def __init__(self, longest_sent, embeddings_dim, train_mode=False):
         super(AutoEncoder, self).__init__()
+        self.train_mode = train_mode
         self.fc1 = nn.Linear(longest_sent * embeddings_dim, 400)
         self.fc2 = nn.Linear(400, 128)
+        #TODO: probiere 32 -> 2
         self.fc3 = nn.Linear(128, 400)
         self.fc4 = nn.Linear(400, longest_sent * embeddings_dim)
 
     def encode(self, x):
         h1 = F.relu(self.fc1(x))
-        h1 = F.dropout(h1, 0.1)
+        if self.train_mode:
+            h1 = F.dropout(h1, 0.1)
         h2 = self.fc2(h1)
-        h2 = F.dropout(h2, 0.1)
+        if self.train_mode:
+            h2 = F.dropout(h2, 0.1)
         return h2
 
     def decode(self, z):
         h3 = F.relu(self.fc3(z))
-        h3 = F.dropout(h3, 0.1)
+        if self.train_mode:
+            h3 = F.dropout(h3, 0.1)
         h4 = self.fc4(h3)
-        h4 = F.dropout(h4, 0.1)
+        if self.train_mode:
+            h4 = F.dropout(h4, 0.1)
         return torch.sigmoid(h4)
 
     def forward(self, x):
@@ -45,12 +51,14 @@ class VanillaAutoEncoder:
                  model_save_path='saved_models/18k_anomalies_autoencoder.pth',
                  learning_rate=1e-5,
                  batch_size=64,
-                 num_epochs=100):
+                 num_epochs=1,
+                 train_mode=False):
         self.load_vectors = load_vectors
         self.model_save_path = model_save_path
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.num_epochs = num_epochs
+        self.train_mode = train_mode
 
         # load vectors and glove obj
         padded_embeddings = pickle.load(open(self.load_vectors, 'rb'))
@@ -68,7 +76,7 @@ class VanillaAutoEncoder:
         self.test_dataloader = DataLoader(test, batch_size=self.batch_size, shuffle=False)
         self.val_dataloader = DataLoader(val, batch_size=self.batch_size, shuffle=False)
 
-        self.model = AutoEncoder(self.longest_sent, self.embeddings_dim)
+        self.model = AutoEncoder(self.longest_sent, self.embeddings_dim, self.train_mode)
         self.model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)

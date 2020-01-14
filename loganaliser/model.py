@@ -2,10 +2,11 @@ import torch.nn as nn
 
 
 class LSTM(nn.Module):
-    def __init__(self, n_input, n_hidden_units, n_layers, dropout=0.1, tie_weights=False):
+    def __init__(self, n_input, n_hidden_units, n_layers, dropout=0.1, tie_weights=False, train_mode=False):
         super(LSTM, self).__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
+        self.train_mode = train_mode
 
         # Layers
         self.dropout = nn.Dropout(dropout)
@@ -27,13 +28,14 @@ class LSTM(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
+    # TODO: try to do flag: do dropout only during training
     def forward(self, input, hidden):
-        input = self.dropout(input)
+        if self.train_mode:
+            input = self.dropout(input)
         output, hidden = self.lstm(input, hidden)
-        output = self.dropout(output)
+        if self.train_mode:
+            output = self.dropout(output)
         decoded = self.decoder(output[:, -1, :])
-        # TODO: log_softmax makes everything 0 can we leave it like this?
-        # decoded_scores = F.log_softmax(decoded, dim=1)
         return decoded, hidden
 
     def init_hidden(self, bsz, device):

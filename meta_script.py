@@ -81,7 +81,9 @@ if args.full == "True":
                               vectorsfile=embeddingsfile_for_transformer,
                               outputfile=padded_embeddings_combined)
 
-    vae = VanillaAutoEncoder(load_vectors=padded_embeddings_combined, model_save_path=vae_model_save_path)
+    vae = VanillaAutoEncoder(load_vectors=padded_embeddings_combined,
+                             model_save_path=vae_model_save_path,
+                             train_mode=True)
     vae.start()
 
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
@@ -90,7 +92,8 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              seq_length=args.seq_len,
                              num_epochs=args.epochs,
                              n_hidden_units=args.hiddenunits,
-                             model='glove')
+                             model='glove',
+                             train_mode=True)
 ad_normal.start_training()
 
 # run normal values once through LSTM to obtain loss values

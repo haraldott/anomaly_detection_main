@@ -8,7 +8,7 @@ from logparser import Drain
 def execute(directory='../../data/openstack/sasho/raw/sequential_data/logs/',
             file='logs_aggregated_sequential.csv',
             output='../../data/openstack/sasho/parsed/',
-            logtype='OpenStackSasho',
+            logtype='OpenStack',
             st=0.2,
             depth=2,
             full_output=False):
