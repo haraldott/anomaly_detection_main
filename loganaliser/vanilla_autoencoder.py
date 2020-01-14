@@ -64,6 +64,7 @@ class VanillaAutoEncoder:
         # load vectors and glove obj
         padded_embeddings = pickle.load(open(self.load_vectors, 'rb'))
         padded_embeddings = torch.from_numpy(padded_embeddings)
+        padded_embeddings = padded_embeddings.to(self.device)
 
         self.embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
         self.longest_sent = len(padded_embeddings[0])
@@ -73,9 +74,9 @@ class VanillaAutoEncoder:
         train_set_len = len(padded_embeddings) - test_set_len - val_set_len
         train, test, val = random_split(padded_embeddings, [train_set_len, test_set_len, val_set_len])
 
-        self.train_dataloader = DataLoader(train.to(self.device), batch_size=self.batch_size, shuffle=True)
-        self.test_dataloader = DataLoader(test.to(self.device), batch_size=self.batch_size, shuffle=False)
-        self.val_dataloader = DataLoader(val.to(self.device), batch_size=self.batch_size, shuffle=False)
+        self.train_dataloader = DataLoader(train, batch_size=self.batch_size, shuffle=True)
+        self.test_dataloader = DataLoader(test, batch_size=self.batch_size, shuffle=False)
+        self.val_dataloader = DataLoader(val, batch_size=self.batch_size, shuffle=False)
 
         self.model = AutoEncoder(self.longest_sent, self.embeddings_dim, self.train_mode).to(self.device)
         self.model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
