@@ -51,7 +51,7 @@ class VanillaAutoEncoder:
                  model_save_path='saved_models/18k_anomalies_autoencoder.pth',
                  learning_rate=1e-5,
                  batch_size=64,
-                 num_epochs=1,
+                 num_epochs=100,
                  train_mode=False):
         self.load_vectors = load_vectors
         self.model_save_path = model_save_path
