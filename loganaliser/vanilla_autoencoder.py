@@ -59,6 +59,7 @@ class VanillaAutoEncoder:
         self.batch_size = batch_size
         self.num_epochs = num_epochs
         self.train_mode = train_mode
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # load vectors and glove obj
         padded_embeddings = pickle.load(open(self.load_vectors, 'rb'))
@@ -72,11 +73,11 @@ class VanillaAutoEncoder:
         train_set_len = len(padded_embeddings) - test_set_len - val_set_len
         train, test, val = random_split(padded_embeddings, [train_set_len, test_set_len, val_set_len])
 
-        self.train_dataloader = DataLoader(train, batch_size=self.batch_size, shuffle=True)
-        self.test_dataloader = DataLoader(test, batch_size=self.batch_size, shuffle=False)
-        self.val_dataloader = DataLoader(val, batch_size=self.batch_size, shuffle=False)
+        self.train_dataloader = DataLoader(train.to(self.device), batch_size=self.batch_size, shuffle=True)
+        self.test_dataloader = DataLoader(test.to(self.device), batch_size=self.batch_size, shuffle=False)
+        self.val_dataloader = DataLoader(val.to(self.device), batch_size=self.batch_size, shuffle=False)
 
-        self.model = AutoEncoder(self.longest_sent, self.embeddings_dim, self.train_mode)
+        self.model = AutoEncoder(self.longest_sent, self.embeddings_dim, self.train_mode).to(self.device)
         self.model.double()  # TODO: take care that we use double *everywhere*, glove uses float currently
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
