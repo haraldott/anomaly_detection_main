@@ -21,7 +21,7 @@ class AnomalyDetection:
                  n_layers=3,
                  n_hidden_units=250,
                  seq_length=7,
-                 num_epochs=0,
+                 num_epochs=100,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=4,
@@ -197,7 +197,7 @@ class AnomalyDetection:
                 val_loss = 0
                 indices_generator = self.split(self.data_x, self.folds)
                 epoch_start_time = time.time()
-                for i in range(0, self.folds):
+                for i in range(0, self.folds - 1):
                     indices = next(indices_generator)
                     train_incides = indices[0]
                     eval_indices = indices[1]
@@ -219,18 +219,19 @@ class AnomalyDetection:
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
+        return indices_generator
 
-    def loss_values(self, normal: bool = True):
+    def loss_values(self, indices_generator=None, normal: bool = True):
         model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False)
         model.load_state_dict(torch.load(self.savemodelpath))
         model.eval()
         if normal:
+            assert indices_generator is not None, "indices_generator should not be None when in normal mode"
             loss_values = []
-            indices = [x for x in self.split(self.data_x, self.folds)]
-            for idx in indices:
-                eval_indices = idx[1]
-                loss_distribution = self.predict(eval_indices)
-                loss_values.append(loss_distribution)
+            indices = next(indices_generator)
+            indices = np.concatenate([indices[0], indices[1]])
+            loss_distribution = self.predict(indices)
+            loss_values.append(loss_distribution)
         else:
             n_samples = len(self.data_x)
             indices_containing_anomalies = np.arange(n_samples)

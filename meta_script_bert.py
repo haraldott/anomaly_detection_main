@@ -82,7 +82,8 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              num_epochs=args.epochs,
                              n_hidden_units=args.hiddenunits,
                              n_layers=args.hiddenlayers,
-                             model='bert')
+                             model='bert',
+                             train_mode=True)
 ad_normal.start_training()
 
 # run normal values once through LSTM to obtain loss values
