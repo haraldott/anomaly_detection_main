@@ -33,8 +33,6 @@ class LSTM(nn.Module):
         if self.train_mode:
             input = self.dropout(input)
         output, hidden = self.lstm(input, hidden)
-        if self.train_mode:
-            output = self.dropout(output)
         decoded = self.decoder(output[:, -1, :])
         return decoded, hidden
 

@@ -21,10 +21,10 @@ class AnomalyDetection:
                  n_layers=3,
                  n_hidden_units=250,
                  seq_length=7,
-                 num_epochs=100,
+                 num_epochs=0,
                  learning_rate=1e-5,
                  batch_size=20,
-                 folds=4,
+                 folds=5,
                  clip=0.25,
                  train_mode=False
                  ):
@@ -108,9 +108,9 @@ class AnomalyDetection:
         # for i in range(0, number_of_sentences - 1):
         #     data_x.append(latent_space_representation_of_padded_embeddings[i])
         #     data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
-        for i in range(0, number_of_sentences - self.seq_length - 1):
+        for i in range(0, number_of_sentences - self.seq_length):
             data_x.append(latent_space_representation_of_padded_embeddings[i: i + self.seq_length])
-            data_y.append(latent_space_representation_of_padded_embeddings[i + 1 + self.seq_length])
+            data_y.append(latent_space_representation_of_padded_embeddings[i + self.seq_length])
 
         data_x = torch.Tensor(data_x).to(self.device)
         data_y = torch.Tensor(data_y).to(self.device)
@@ -193,6 +193,7 @@ class AnomalyDetection:
         best_val_loss = None
         try:
             loss_values = []
+            indices_generator = self.split(self.data_x, self.folds)
             for epoch in range(1, self.num_epochs + 1):
                 val_loss = 0
                 indices_generator = self.split(self.data_x, self.folds)
