@@ -2,6 +2,7 @@ import argparse
 import os
 import subprocess
 import matplotlib
+import pathlib
 matplotlib.use('Agg')
 
 import numpy as np
@@ -32,10 +33,14 @@ args = parser.parse_args()
 
 results_dir = "{}_epochs_{}_hiddenunits_{}_embeddingsize_{}/" \
     .format(args.resultsdir, args.epochs, args.hiddenunits, args.embeddingsize)
-try:
-    os.mkdir(results_dir)
-except FileExistsError:
-    pass
+
+# create all directories, if they don't exist yet
+pathlib.Path(args.resultsdir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(results_dir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(args.inputdir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(args.parseddir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(args.embeddingsdir).mkdir(parents=True, exist_ok=True)
+
 templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
 templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
 templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'
@@ -88,7 +93,6 @@ if args.full == "True":
                              train_mode=True)
     vae.start()
 
-print("start training lstm")
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              loadvectors=padded_embeddings_normal,
                              savemodelpath=lstm_model_save_path,
@@ -97,10 +101,11 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              n_hidden_units=args.hiddenunits,
                              model='glove',
                              train_mode=True)
-indices_generator = ad_normal.start_training()
+ad_normal.start_training()
 
-# run normal values once through LSTM to obtain loss values
-normal_loss_values = ad_normal.loss_values(indices_generator, normal=True)
+# run normal values once through LSTM to obtain loss values, model will be loaded again in this function call,
+# train_mode will be set to False
+normal_loss_values = ad_normal.loss_values(normal=True)
 
 mean = np.mean(normal_loss_values)
 std = np.std(normal_loss_values)

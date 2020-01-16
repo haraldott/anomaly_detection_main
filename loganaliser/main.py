@@ -14,9 +14,9 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 
 class AnomalyDetection:
     def __init__(self,
-                 model,
+                 model='glove',
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
-                 loadautoencodermodel='saved_models/18k_anomalies_autoencoder.pth',
+                 loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
                  savemodelpath='saved_models/lstm.pth',
                  n_layers=3,
                  n_hidden_units=250,
@@ -43,6 +43,8 @@ class AnomalyDetection:
         self.train_mode = train_mode
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # select word embeddings
         if model == 'glove':
             self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
         elif model == 'bert' or model == 'embeddings_layer':
@@ -60,6 +62,12 @@ class AnomalyDetection:
         #  zb jede 10. epoche die distanz plotten
         #  quadrat mean squared error mal probieren
         self.distance = nn.MSELoss()
+
+        test_set_len = math.floor(self.data_x.size(0) / 10)
+        train_set_len = self.data_x.size(0) - test_set_len
+
+        self.train_indices = range(0, train_set_len)
+        self.test_indices = range(train_set_len, train_set_len + test_set_len)
 
     def prepare_data_raw(self):
         embeddings = pickle.load(open(self.loadvectors, 'rb'))
@@ -128,11 +136,13 @@ class AnomalyDetection:
         indices = np.arange(n_samples)
 
         margin = 0
+        indices = []
         for i in range(n_splits):
             start = i * k_fold_size
             stop = start + k_fold_size
             mid = int(0.8 * (stop - start)) + start
-            yield indices[start: mid], indices[mid + margin: stop]
+            indices.append(tuple((indices[start: mid], indices[mid + margin: stop])))
+        return indices
 
     def repackage_hidden(self, h):
         """Wraps hidden states in new Tensors, to detach them from their history."""
@@ -193,15 +203,13 @@ class AnomalyDetection:
         best_val_loss = None
         try:
             loss_values = []
-            indices_generator = self.split(self.data_x, self.folds)
+            train_and_eval_indices = self.split(self.train_indices, self.folds)
             for epoch in range(1, self.num_epochs + 1):
                 val_loss = 0
-                indices_generator = self.split(self.data_x, self.folds)
                 epoch_start_time = time.time()
-                for i in range(0, self.folds - 1):
-                    indices = next(indices_generator)
-                    train_incides = indices[0]
-                    eval_indices = indices[1]
+                for i in range(0, self.folds):
+                    train_incides = train_and_eval_indices[i][0]
+                    eval_indices = train_and_eval_indices[i][1]
 
                     self.train(train_incides)
                     this_loss, _ = self.evaluate(eval_indices)
@@ -220,25 +228,26 @@ class AnomalyDetection:
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
-        return indices_generator
 
-    def loss_values(self, indices_generator=None, normal: bool = True):
+    def loss_values(self, normal: bool = True):
         model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False)
         model.load_state_dict(torch.load(self.savemodelpath))
         model.eval()
+        # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,
+        # these have not been used in trainig phase, and have not been seen by the model
         if normal:
-            assert indices_generator is not None, "indices_generator should not be None when in normal mode"
             loss_values = []
-            indices = next(indices_generator)
-            indices = np.concatenate([indices[0], indices[1]])
+            indices = self.test_indices
             loss_distribution = self.predict(indices)
             loss_values.append(loss_distribution)
+        # if normal is set to false, we want to get the loss distribution of a dataset which contains anomalies,
+        # so we want to process the complete dataset
         else:
             n_samples = len(self.data_x)
-            indices_containing_anomalies = np.arange(n_samples)
-            drop_last = len(indices_containing_anomalies) % self.batch_size - 1
-            indices_containing_anomalies = indices_containing_anomalies[:-drop_last]
-            loss_values = self.predict(indices_containing_anomalies)
+            indices = np.arange(n_samples)
+            drop_last = len(indices) % self.batch_size - 1
+            indices = indices[:-drop_last]
+            loss_values = self.predict(indices)
 
         loss_values = np.array(loss_values)
         loss_values = loss_values.flatten()
