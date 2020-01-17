@@ -21,7 +21,7 @@ class AnomalyDetection:
                  n_layers=3,
                  n_hidden_units=250,
                  seq_length=7,
-                 num_epochs=0,
+                 num_epochs=100,
                  learning_rate=1e-5,
                  batch_size=20,
                  folds=5,
@@ -136,13 +136,13 @@ class AnomalyDetection:
         indices = np.arange(n_samples)
 
         margin = 0
-        indices = []
+        indices_aggregated = []
         for i in range(n_splits):
             start = i * k_fold_size
             stop = start + k_fold_size
             mid = int(0.8 * (stop - start)) + start
-            indices.append(tuple((indices[start: mid], indices[mid + margin: stop])))
-        return indices
+            indices_aggregated.append(tuple((indices[start: mid], indices[mid + margin: stop])))
+        return indices_aggregated
 
     def repackage_hidden(self, h):
         """Wraps hidden states in new Tensors, to detach them from their history."""
