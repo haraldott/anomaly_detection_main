@@ -93,6 +93,7 @@ class VanillaAutoEncoder:
             loss = self.criterion(output, sentence)
             loss.backward()
 
+    #TODO : turn off dropout in eval, i.e. train_mode = false
     def evaluate(self, test_dl):
         self.model.eval()
         total_loss = 0

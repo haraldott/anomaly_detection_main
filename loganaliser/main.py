@@ -55,7 +55,7 @@ class AnomalyDetection:
                                      n_layers=self.n_layers,
                                      train_mode=self.train_mode).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
