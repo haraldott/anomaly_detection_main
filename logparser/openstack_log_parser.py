@@ -94,8 +94,8 @@ def filter_anomalies(
             if interval_start < current < interval_end:
                 anomaly_indices.append(i)
 
-    anomaly_slice.to_csv(output_anomalies)
-    normal_slice.to_csv(output_normal)
+    anomaly_slice.to_csv(output_anomalies, index=False)
+    normal_slice.to_csv(output_normal, index=False)
 
     anomaly_indices_file = open(output_anomalies_indices, 'w+')
     for t in anomaly_indices:

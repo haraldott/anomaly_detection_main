@@ -65,3 +65,15 @@ def write_to_tsv_files_bert():
         for sentence in tokenized_text:
             for word in sentence:
                 out_file.write(word + "\n")
+
+def write_to_tsv_files_bert_sentences():
+    sentences, _, _, _ = transform_bert.get_bert_vectors()
+    with open('vectors_bert_sentences.tsv', 'wt') as out_file:
+        tsv_writer = csv.writer(out_file, delimiter='\t')
+        for word in sentences:
+            tsv_writer.writerow(word)
+
+    # with open('sentences_bert.tsv', 'wt') as out_file:
+    #     for sentence in tokenized_text:
+    #         for word in sentence:
+    #             out_file.write(word + "\n")

@@ -69,7 +69,7 @@ if args.full == "True":
 
     bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged)
 
-    # transform output of glove into numpy word embedding vectors
+    # transform output of bert into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=bert_vectors,
                              logfile=corpus_normal_inputfile,
                              templatefile=templates_merged,

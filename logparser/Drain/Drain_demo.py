@@ -5,10 +5,10 @@ sys.path.append('../../')
 from logparser import Drain
 
 
-def execute(directory='../../data/openstack/sasho/raw/sequential_data/logs/',
-            file='logs_aggregated_sequential.csv',
+def execute(directory='../../data/openstack/sasho/raw/',
+            file='logs_aggregated_full.csv',
             output='../../data/openstack/sasho/parsed/',
-            logtype='OpenStack',
+            logtype='OpenStackSasho',
             st=0.2,
             depth=2,
             full_output=False):

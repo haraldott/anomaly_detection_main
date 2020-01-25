@@ -5,7 +5,7 @@ import torch
 from pytorch_pretrained_bert import BertTokenizer, BertModel
 from sklearn.manifold import TSNE
 
-from wordembeddings.visualisation import tsne_plot_2d
+# from wordembeddings.visualisation import tsne_plot_2d
 
 
 # ref: https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
@@ -14,6 +14,8 @@ def transform(sentence_embeddings,
               logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
               outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle',
               templatefile='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
+
+
     file = open(logfile)
     logfilelines = file.readlines()
 
@@ -36,7 +38,9 @@ def transform(sentence_embeddings,
     pickle.dump(sentences_as_vectors, open(outputfile, 'wb'))
 
 
-def get_bert_vectors(templates_location='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
+def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates'):
+    word_embeddings_location = 'sasho_bert_vectors_for_cosine.pickle'
+
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     lines = open(templates_location, 'r')
@@ -72,8 +76,27 @@ def get_bert_vectors(templates_location='../data/openstack/utah/parsed/openstack
 
     token_embeddings = [emb.permute(1, 0, 2) for emb in token_embeddings_stacked]
 
-    token_vecs_cat = __concatenate_layers(token_embeddings)
-    token_vecs_sum = __sum_layers(token_embeddings)
+    token_vectors_cat = []
+    token_vectors_sum = []
+
+    for sentence in token_embeddings:
+        for token in sentence:
+            cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
+            sum_vec = torch.sum(token[-4:], dim=0)
+            token_vectors_cat.append(cat_vec.numpy())
+            token_vectors_sum.append(sum_vec.numpy())
+
+    token_vecs_cat = np.asarray(token_vectors_cat)
+    token_vecs_sum = np.asarray(token_vectors_sum)
+
+    # dump words with according vectors in file
+    words = []
+    for sent in tokenized_text:
+        for word in sent:
+            words.append(word)
+
+    word_embeddings = [tuple((word, vec)) for word, vec in zip(words, token_vecs_cat)]
+    pickle.dump(word_embeddings, open(word_embeddings_location, 'wb'))
 
     sentence_embeddings = []
     for t in encoded_layers:
@@ -82,32 +105,14 @@ def get_bert_vectors(templates_location='../data/openstack/utah/parsed/openstack
     return sentence_embeddings, token_vecs_cat, token_vecs_sum, tokenized_text
 
 
-def __concatenate_layers(token_embeddings):
-    token_vectors_cat = []
-    for sentence in token_embeddings:
-        for token in sentence:
-            cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
-            token_vectors_cat.append(cat_vec.numpy())
-    return np.asarray(token_vectors_cat)
-
-
-def __sum_layers(token_embeddings):
-    token_vectors_sum = []
-    for sentence in token_embeddings:
-        for token in sentence:
-            cat_vec = torch.sum(token[-4:], dim=0)
-            token_vectors_sum.append(cat_vec.numpy())
-    return np.asarray(token_vectors_sum)
-
-
 # _, token_vecs_cat, token_vecs_sum, tokenized_text = get_bert_vectors()
 # plot_bert(token_vecs_cat, tokenized_text)
-def plot_bert(token_vecs, tokenized_text):
-    flat_tokenized_text = []
-    for sentence in tokenized_text:
-        for word in sentence:
-            flat_tokenized_text.append(word)
-
-    tsne_ak_2d = TSNE(perplexity=30, n_components=2, init='pca', n_iter=3500, random_state=32)
-    embeddings_ak_2d = tsne_ak_2d.fit_transform(token_vecs)
-    tsne_plot_2d('bert.png', 'Word embeddings', embeddings_ak_2d, flat_tokenized_text, a=0.9)
+# def plot_bert(token_vecs, tokenized_text):
+#     flat_tokenized_text = []
+#     for sentence in tokenized_text:
+#         for word in sentence:
+#             flat_tokenized_text.append(word)
+#
+#     tsne_ak_2d = TSNE(perplexity=30, n_components=2, init='pca', n_iter=3500, random_state=32)
+#     embeddings_ak_2d = tsne_ak_2d.fit_transform(token_vecs)
+#     tsne_plot_2d('bert.png', 'Word embeddings', embeddings_ak_2d, flat_tokenized_text, a=0.9)

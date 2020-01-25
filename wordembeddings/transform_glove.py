@@ -3,8 +3,8 @@ import pickle
 import pandas as pd
 
 
-def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
-              vectorsfile='../data/openstack/utah/embeddings/openstack_18k_anomalies_embeddings.txt',
+def transform(logfile='../data/openstack/utah/parsed/openstack_18k_plus_52k_corpus',
+              vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt',
               outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle'):
     """
 
@@ -13,8 +13,13 @@ def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_cor
     :param outputfile:
     :return:
     """
+    cosinefile = 'sasho_glove_vectors_for_cosine.pickle'
+
     file = open(logfile)
     lines = file.read().splitlines()
+    # TODO: Sasho's data contains log lines with empty payload,
+    #  if this stays like this, they will be skipped completely
+    lines = list(filter(str.strip, lines))
     log_lines_per_word = [line.split(' ') for line in lines]
 
     # transform glove output
@@ -26,11 +31,16 @@ def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_cor
     for i, line in enumerate(vectors_lookup):
         line_split = line.split(' ')
         words[(line_split[0])] = i
-        vector = [line_split[i] for i in range(1, len(line_split))]
+        vector = [float(line_split[i]) for i in range(1, len(line_split))]
         vector_as_array = np.array(vector)
         vectors.append(vector_as_array)
     vectors = np.array(vectors)
 
+    words_vectors = tuple((words, vectors))
+    pickle.dump(words_vectors, open(cosinefile, 'wb'))
+
+
+    log_lines_containing_no_payload = []
     new_lines_as_vectors = []
     for sublist in log_lines_per_word:
         new_sublist = []
@@ -44,8 +54,8 @@ def transform(logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_cor
 
     # padding
     embeddings_dim = vectors.shape[1]  # dimension of each of the word embeddings vectors
-    sentence_lens = [len(sentence) for sentence in
-                     log_lines_per_word]  # how many words a log line consists of, without padding
+    sentence_lens = [len(sentence) if len(sentence) > 0 else print(i) for i, sentence in
+                     enumerate(log_lines_per_word)]  # how many words a log line consists of, without padding
     longest_sent = max(sentence_lens)
     total_batch_size = len(embeddings)
     pad_vector = np.zeros(embeddings_dim)
@@ -90,3 +100,4 @@ def extract_event_templates():
     parsed_file = open("52k_normal_event_templates.txt", "w+")
     for sentence in et:
         parsed_file.write(sentence + "\n")
+
