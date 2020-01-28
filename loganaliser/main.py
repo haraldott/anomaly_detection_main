@@ -54,7 +54,8 @@ class AnomalyDetection:
                                      n_layers=self.n_layers,
                                      train_mode=self.train_mode).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        #self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
@@ -229,7 +230,7 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def loss_values(self, normal: bool = True):
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False)
+        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
         # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,
