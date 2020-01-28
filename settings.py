@@ -8,7 +8,7 @@ settings = {
         'resultsdir': 'data/openstack/sasho/results/bert',
         'embeddingspickledir': 'data/openstack/sasho/padded_embeddings_pickle/',
         'embeddingsdir': 'data/openstack/sasho/embeddings/',
-        'logtype': 'OpenStack'
+        'logtype': 'OpenStackSasho'
     },
     'Utah': {
         'combinedinputfile': 'openstack_18k_plus_52k',

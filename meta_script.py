@@ -16,7 +16,7 @@ from tools import distribution_plots as distribution_plots, calc_precision_utah 
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='SashoBert')
+parser.add_argument('-option', type=str, default='Sasho')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-full', type=str, default="False")
 parser.add_argument('-epochs', type=int, default=3)
