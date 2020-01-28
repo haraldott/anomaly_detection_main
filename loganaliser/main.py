@@ -14,7 +14,7 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 
 class AnomalyDetection:
     def __init__(self,
-                 model='glove',
+                 embeddings_model='glove',
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
                  savemodelpath='saved_models/lstm.pth',
@@ -39,15 +39,14 @@ class AnomalyDetection:
         self.batch_size = batch_size
         self.folds = folds
         self.clip = clip
-        self.model = model
         self.train_mode = train_mode
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # select word embeddings
-        if model == 'glove':
+        if embeddings_model == 'glove':
             self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
-        elif model == 'bert' or model == 'embeddings_layer':
+        elif embeddings_model == 'bert' or embeddings_model == 'embeddings_layer':
             self.data_x, self.data_y, self.feature_length = self.prepare_data_raw()
 
         self.model = lstm_model.LSTM(n_input=self.feature_length,
@@ -230,9 +229,9 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def loss_values(self, normal: bool = True):
-        model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False)
-        model.load_state_dict(torch.load(self.savemodelpath))
-        model.eval()
+        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False)
+        self.model.load_state_dict(torch.load(self.savemodelpath))
+        self.model.eval()
         # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,
         # these have not been used in trainig phase, and have not been seen by the model
         if normal:
@@ -246,7 +245,8 @@ class AnomalyDetection:
             n_samples = len(self.data_x)
             indices = np.arange(n_samples)
             drop_last = len(indices) % self.batch_size - 1
-            indices = indices[:-drop_last]
+            if drop_last != 0:
+                indices = indices[:-drop_last]
             loss_values = self.predict(indices)
 
         loss_values = np.array(loss_values)

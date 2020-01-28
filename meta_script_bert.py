@@ -4,6 +4,7 @@ import subprocess
 import matplotlib
 import pathlib
 matplotlib.use('Agg')
+import settings
 
 import numpy as np
 
@@ -15,54 +16,56 @@ from tools import distribution_plots as distribution_plots, calc_precision_utah 
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-combinedinputfile', type=str, default='openstack_18k_plus_52k')
-parser.add_argument('-anomalyinputfile', type=str, default='openstack_18k_anomalies')
-parser.add_argument('-normalinputfile', type=str, default='openstack_52k_normal')
-parser.add_argument('-inputdir', type=str, default='data/openstack/utah/raw/')
-parser.add_argument('-parseddir', type=str, default='data/openstack/utah/parsed/')
-parser.add_argument('-resultsdir', type=str, default='data/openstack/utah/results/bert')
-parser.add_argument('-embeddingspickledir', type=str, default='data/openstack/utah/padded_embeddings_pickle/')
-parser.add_argument('-embeddingsdir', type=str, default='data/openstack/utah/embeddings/')
-parser.add_argument('-logtype', default='OpenStack', type=str)
+parser.add_argument('-option', type=str, default='Sasho')
 parser.add_argument('-seq_len', type=int, default=7)
-parser.add_argument('-full', type=str, default="True")
-parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-full', type=str, default="False")
+parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 args = parser.parse_args()
 
-results_dir = "{}_epochs_{}_hiddenunits_{}/".format(args.resultsdir, args.epochs, args.hiddenunits)
+option = args.option
+results_dir_experiment = "{}_epochs_{}_hiddenunits_{}/".format(settings.settings[option]["resultsdir"], args.epochs, args.hiddenunits)
+combinedinputfile = settings.settings[option]["combinedinputfile"]
+anomalyinputfile = settings.settings[option]["anomalyinputfile"]
+normalinputfile = settings.settings[option]["normalinputfile"]
+inputdir = settings.settings[option]["inputdir"]
+parseddir = settings.settings[option]["parseddir"]
+resultsdir = settings.settings[option]["resultsdir"]
+embeddingspickledir = settings.settings[option]["embeddingspickledir"]
+embeddingsdir = settings.settings[option]["embeddingsdir"]
+logtype = settings.settings[option]["logtype"]
 
 # create all directories, if they don't exist yet
-pathlib.Path(args.resultsdir).mkdir(parents=True, exist_ok=True)
-pathlib.Path(results_dir).mkdir(parents=True, exist_ok=True)
-pathlib.Path(args.inputdir).mkdir(parents=True, exist_ok=True)
-pathlib.Path(args.parseddir).mkdir(parents=True, exist_ok=True)
-pathlib.Path(args.embeddingsdir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(resultsdir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(results_dir_experiment).mkdir(parents=True, exist_ok=True)
+pathlib.Path(inputdir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(parseddir).mkdir(parents=True, exist_ok=True)
+pathlib.Path(embeddingsdir).mkdir(parents=True, exist_ok=True)
 
-templates_normal = cwd + args.parseddir + args.normalinputfile + '_templates'
-templates_anomaly = cwd + args.parseddir + args.anomalyinputfile + '_templates'
-templates_added = cwd + args.parseddir + args.combinedinputfile + '_templates'
-templates_merged = cwd + args.parseddir + args.combinedinputfile + '_merged_templates'
-templates_merged_glove = '../' + args.parseddir + args.combinedinputfile + '_merged_templates'
+templates_normal = cwd + parseddir + normalinputfile + '_templates'
+templates_anomaly = cwd + parseddir + anomalyinputfile + '_templates'
+templates_added = cwd + parseddir + combinedinputfile + '_templates'
+templates_merged = cwd + parseddir + combinedinputfile + '_merged_templates'
+templates_merged_glove = '../' + parseddir + combinedinputfile + '_merged_templates'
 
-corpus_normal_inputfile = cwd + args.parseddir + args.normalinputfile + '_corpus'
-corpus_anomaly_inputfile = cwd + args.parseddir + args.anomalyinputfile + '_corpus'
-corpus_combined_file = cwd + args.parseddir + args.combinedinputfile + '_corpus'
+corpus_normal_inputfile = cwd + parseddir + normalinputfile + '_corpus'
+corpus_anomaly_inputfile = cwd + parseddir + anomalyinputfile + '_corpus'
+corpus_combined_file = cwd + parseddir + combinedinputfile + '_corpus'
 
-embeddingsfile_for_transformer = cwd + args.embeddingsdir + args.combinedinputfile + '_vectors.txt'
-embeddingsfile_for_glove = '../' + args.embeddingsdir + args.combinedinputfile + '_vectors'
+embeddingsfile_for_transformer = cwd + embeddingsdir + combinedinputfile + '_vectors.txt'
+embeddingsfile_for_glove = '../' + embeddingsdir + combinedinputfile + '_vectors'
 
-embeddings_normal = cwd + args.embeddingspickledir + args.normalinputfile + '.pickle'
-embeddings_anomalies = cwd + args.embeddingspickledir + args.anomalyinputfile + '.pickle'
-vae_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile + '_vae.pth'
-lstm_model_save_path = cwd + 'loganaliser/saved_models/' + args.normalinputfile
+embeddings_normal = cwd + embeddingspickledir + normalinputfile + '.pickle'
+embeddings_anomalies = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
+vae_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_vae.pth'
+lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_lstm.pth'
 
 if args.full == "True":
     # start Drain parser
-    drain.execute(directory=args.inputdir, file=args.combinedinputfile, output=args.parseddir)
-    drain.execute(directory=args.inputdir, file=args.anomalyinputfile, output=args.parseddir)
-    drain.execute(directory=args.inputdir, file=args.normalinputfile, output=args.parseddir)
+    drain.execute(directory=inputdir, file=combinedinputfile, output=parseddir, logtype=logtype)
+    drain.execute(directory=inputdir, file=anomalyinputfile, output=parseddir, logtype=logtype)
+    drain.execute(directory=inputdir, file=normalinputfile, output=parseddir, logtype=logtype)
 
     transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
                                     merged_template_path=templates_merged)
@@ -88,7 +91,7 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              num_epochs=args.epochs,
                              n_hidden_units=args.hiddenunits,
                              n_layers=args.hiddenlayers,
-                             model='bert',
+                             embeddings_model='bert',
                              train_mode=True)
 ad_normal.start_training()
 
@@ -100,7 +103,7 @@ mean = np.mean(normal_loss_values)
 std = np.std(normal_loss_values)
 cut_off = std * 3  # TODO: is this ok?
 lower, upper = mean - cut_off, mean + cut_off
-normal_values_file = open(cwd + results_dir + 'normal_loss_values', 'w+')
+normal_values_file = open(cwd + results_dir_experiment + 'normal_loss_values', 'w+')
 for val in normal_loss_values:
     normal_values_file.write(str(val) + "\n")
 normal_values_file.close()
@@ -112,10 +115,10 @@ ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                               num_epochs=args.epochs,
                               n_hidden_units=args.hiddenunits,
                               n_layers=args.hiddenlayers,
-                              model='bert')
+                              embeddings_model='bert')
 anomaly_loss_values = ad_anomaly.loss_values(normal=False)
 
-anomaly_values_file = open(cwd + results_dir + 'anomaly_loss_values', 'w+')
+anomaly_values_file = open(cwd + results_dir_experiment + 'anomaly_loss_values', 'w+')
 for val in anomaly_loss_values:
     anomaly_values_file.write(str(val) + "\n")
 anomaly_values_file.close()
@@ -125,16 +128,16 @@ for i, x in enumerate(anomaly_loss_values):
     if x < lower or x > upper:
         outliers.append(str(i + args.seq_len) + "," + str(x))
 
-outliers_values_file = open(cwd + results_dir + 'outliers_values', 'w+')
+outliers_values_file = open(cwd + results_dir_experiment + 'outliers_values', 'w+')
 for val in outliers:
     outliers_values_file.write(str(val) + "\n")
 outliers_values_file.close()
 
-precision = calc_precision_utah(cwd + results_dir + 'anomaly_loss_values', cwd + results_dir + 'outliers_values')
-distribution_plots(results_dir, args.epochs, args.hiddenunits, 768, precision)
+precision = calc_precision_utah(cwd + results_dir_experiment + 'anomaly_loss_values', cwd + results_dir_experiment + 'outliers_values')
+distribution_plots(results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
 
-subprocess.call(['tar', 'cvf', cwd + results_dir + 'results.tar',
-                 '--directory=' + cwd + results_dir,
+subprocess.call(['tar', 'cvf', cwd + results_dir_experiment + 'results.tar',
+                 '--directory=' + cwd + results_dir_experiment,
                  'normal_loss_values',
                  'anomaly_loss_values',
                  'outliers_values',
