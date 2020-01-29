@@ -44,6 +44,7 @@ def get_bert_vectors_for_fine_tuning_task(
                                  - int:  number_of_concat_sent, how many sentences were concatenated
     """
     max_concat_sent_len = 0
+    temp_max_concat_sent_len = 0
     number_of_concat_sent = 1
 
     tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
@@ -53,7 +54,7 @@ def get_bert_vectors_for_fine_tuning_task(
     target_ids = None
     # find the maximum number of possible concatenation of sentences with which we can stay below the maximum threshold
     # of BERT_MAX_TOKEN_LEN
-    while max_concat_sent_len < BERT_MAX_TOKEN_LEN:
+    while temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
         input_ids_temp = []
         target_ids_temp = []
         for i in range(0, len(sentences) - number_of_concat_sent):
@@ -72,13 +73,14 @@ def get_bert_vectors_for_fine_tuning_task(
             encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
             target_ids_temp.append(encoded_target_sentence)
 
-
-        max_concat_sent_len = max([len(sen) for sen in input_ids_temp])
-        if max_concat_sent_len < BERT_MAX_TOKEN_LEN:
+        temp_max_concat_sent_len = max([len(sen) for sen in input_ids_temp])
+        if temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
             input_ids = input_ids_temp
             target_ids = target_ids_temp
             number_of_concat_sent += 1
+            max_concat_sent_len = temp_max_concat_sent_len
 
+    print("number_of_concat_sent: ".format(number_of_concat_sent))
     assert input_ids is not None, "The longest sentence already produced" \
                                   "a tokenised sentence that's longer than {}".format(BERT_MAX_TOKEN_LEN)
 
@@ -88,7 +90,7 @@ def get_bert_vectors_for_fine_tuning_task(
     max_target_length = max([len(sen) for sen in target_ids])
 
     padded_target_ids = pad_sequences(target_ids, maxlen=max_target_length, dtype="long",
-                                     value=0, truncating="post", padding="post")
+                                      value=0, truncating="post", padding="post")
 
     attention_masks = []
 
@@ -223,7 +225,7 @@ model = BertForNextSequenceClassification.from_pretrained(
 )
 
 # Tell pytorch to run this model on the GPU.
-model.cuda()
+model.to(device)
 
 optimizer = AdamW(model.parameters(),
                   lr=2e-5,  # args.learning_rate - default is 5e-5, our notebook had 2e-5
@@ -242,7 +244,6 @@ scheduler = get_linear_schedule_with_warmup(optimizer,
                                             num_training_steps=total_steps)
 
 loss_values = []
-
 
 for epoch_i in range(0, epochs):
 
