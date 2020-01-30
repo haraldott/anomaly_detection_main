@@ -218,7 +218,7 @@ class BertForNextSequenceClassification(BertPreTrainedModel):
         return outputs  # (loss), logits, (hidden_states), (attentions)
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 pad_input_ids, trgt_ids, attent_masks, no_of_concat_sents, max_target_length = get_bert_vectors_for_fine_tuning_task()
 
