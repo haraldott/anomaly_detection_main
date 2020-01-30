@@ -43,44 +43,79 @@ def get_bert_vectors_for_fine_tuning_task(
                                  - list: attention_masks, containing index 1 for token ids and 0 for padding 0
                                  - int:  number_of_concat_sent, how many sentences were concatenated
     """
-    max_concat_sent_len = 0
     temp_max_concat_sent_len = 0
     number_of_concat_sent = 1
 
     tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
     sentences = open(templates_location, 'r').readlines()
 
-    input_ids = None
-    target_ids = None
-    # find the maximum number of possible concatenation of sentences with which we can stay below the maximum threshold
-    # of BERT_MAX_TOKEN_LEN
-    while temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
-        input_ids_temp = []
-        target_ids_temp = []
-        for i in range(0, len(sentences) - number_of_concat_sent):
-            concatenated_sentence = ""
-            for j in range(0, number_of_concat_sent):
-                concatenated_sentence += sentences[i + j]
-                # append space after every sentence, but not after the last one
-                if j != number_of_concat_sent - 1:
-                    concatenated_sentence += " "
-                # append target sentence
-                if j == number_of_concat_sent - 1:
-                    target_sentence = sentences[j + i + 1]
-            encoded_concatenated_sentence = tokenizer.encode(concatenated_sentence, add_special_tokens=True)
-            input_ids_temp.append(encoded_concatenated_sentence)
-            assert target_sentence is not None
-            encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
-            target_ids_temp.append(encoded_target_sentence)
+    # input_ids = None
+    # target_ids = None
+    # # find the maximum number of possible concatenation of sentences with which we can stay below the maximum threshold
+    # # of BERT_MAX_TOKEN_LEN
+    # while temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
+    #     input_ids_temp = []
+    #     target_ids_temp = []
+    #     for i in range(0, len(sentences) - number_of_concat_sent):
+    #         concatenated_sentence = ""
+    #         for j in range(0, number_of_concat_sent):
+    #             concatenated_sentence += sentences[i + j]
+    #             # append space after every sentence, but not after the last one
+    #             if j != number_of_concat_sent - 1:
+    #                 concatenated_sentence += " "
+    #             # append target sentence
+    #             if j == number_of_concat_sent - 1:
+    #                 target_sentence = sentences[j + i + 1]
+    #         encoded_concatenated_sentence = tokenizer.encode(concatenated_sentence, add_special_tokens=True)
+    #         input_ids_temp.append(encoded_concatenated_sentence)
+    #         assert target_sentence is not None
+    #         encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
+    #         target_ids_temp.append(encoded_target_sentence)
+    #
+    #     temp_max_concat_sent_len = max([len(sen) for sen in input_ids_temp])
+    #     if temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
+    #         input_ids = input_ids_temp
+    #         target_ids = target_ids_temp
+    #         number_of_concat_sent += 1
+    #         max_concat_sent_len = temp_max_concat_sent_len
 
-        temp_max_concat_sent_len = max([len(sen) for sen in input_ids_temp])
-        if temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
-            input_ids = input_ids_temp
-            target_ids = target_ids_temp
-            number_of_concat_sent += 1
-            max_concat_sent_len = temp_max_concat_sent_len
+    input_ids = []
+    target_ids = []
+    seq_len = 7
 
-    print("number_of_concat_sent: ".format(number_of_concat_sent))
+    for i in range(0, len(sentences) - seq_len):
+        input_sentences = sentences[i:i+seq_len]
+        target_sentence = sentences[i+seq_len].strip('\n')
+        concat_sentences = ""
+        for j, sent in enumerate(input_sentences):
+            concat_sentences += sent
+            if j != seq_len - 1:
+                concat_sentences += " "
+        encoded_concatenated_sentence = tokenizer.encode(concat_sentences, add_special_tokens=True)
+        input_ids.append(encoded_concatenated_sentence)
+        assert target_sentence is not None
+        encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
+        target_ids.append(encoded_target_sentence)
+
+    max_concat_sent_len = max([len(sen) for sen in input_ids])
+
+    # for i in range(0, len(sentences) - seq_len):
+    #     concatenated_sentence = ""
+    #     for j in range(0, seq_len):
+    #         concatenated_sentence += sentences[i + j]
+    #         # append space after every sentence, but not after the last one
+    #         if j != seq_len - 1:
+    #             concatenated_sentence += " "
+    #         # append target sentence
+    #         if j == number_of_concat_sent - 1:
+    #             target_sentence = sentences[j + i + 1]
+    #         encoded_concatenated_sentence = tokenizer.encode(concatenated_sentence, add_special_tokens=True)
+    #         input_ids.append(encoded_concatenated_sentence)
+    #         assert target_sentence is not None
+    #         encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
+    #         target_ids.append(encoded_target_sentence)
+
+    print("number_of_concat_sent: {}".format(number_of_concat_sent))
     assert input_ids is not None, "The longest sentence already produced" \
                                   "a tokenised sentence that's longer than {}".format(BERT_MAX_TOKEN_LEN)
 
@@ -103,7 +138,7 @@ def get_bert_vectors_for_fine_tuning_task(
         # Store the attention mask for this sentence.
         attention_masks.append(att_mask)
 
-    return padded_input_ids, padded_target_ids, attention_masks, number_of_concat_sent
+    return padded_input_ids, padded_target_ids, attention_masks, seq_len, max_target_length
 
 
 class BertNSPHead(nn.Module):
@@ -176,10 +211,8 @@ class BertForNextSequenceClassification(BertPreTrainedModel):
 
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
 
-        #  We are doing regression
         loss_fct = MSELoss()
-        # TODO: hier muss statt labels.view, die target sentence rein!
-        loss = loss_fct(logits.view(-1), labels.view(-1))
+        loss = loss_fct(logits.view(-1), labels.view(-1).float())
         outputs = (loss,) + outputs
 
         return outputs  # (loss), logits, (hidden_states), (attentions)
@@ -187,7 +220,7 @@ class BertForNextSequenceClassification(BertPreTrainedModel):
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-pad_input_ids, trgt_ids, attent_masks, no_of_concat_sents = get_bert_vectors_for_fine_tuning_task()
+pad_input_ids, trgt_ids, attent_masks, no_of_concat_sents, max_target_length = get_bert_vectors_for_fine_tuning_task()
 
 # Use 90% for training and 10% for validation.
 train_inputs, validation_inputs, train_targets, validation_targets = train_test_split(pad_input_ids, trgt_ids,
@@ -218,7 +251,7 @@ validation_dataloader = DataLoader(validation_data, batch_size=batch_size)
 # linear classification layer on top.
 model = BertForNextSequenceClassification.from_pretrained(
     "bert-base-uncased",  # Use the 12-layer BERT model, with an uncased vocab.
-    num_labels=2,  # The number of output labels--2 for binary classification.
+    num_labels=max_target_length,  # The number of output labels--2 for binary classification.
     # You can increase this for multi-class tasks.
     output_attentions=False,  # Whether the model returns attentions weights.
     output_hidden_states=False,  # Whether the model returns all hidden-states.
