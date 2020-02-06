@@ -1,19 +1,20 @@
 import datetime
+import random
+import time
 
 import numpy as np
 import torch
 from keras.preprocessing.sequence import pad_sequences
-from pytorch_pretrained_bert import BertModel
 from sklearn.model_selection import train_test_split
-from torch import nn
-from torch.nn import MSELoss
-from torch.utils.data import TensorDataset, DataLoader
-from transformers import BertPreTrainedModel, BertModel, AdamW
+from torch.utils.data import TensorDataset, DataLoader, RandomSampler
+from transformers import AdamW, BertForMaskedLM
 from transformers import BertTokenizer as transformers_BertTokenizer
 from transformers import get_linear_schedule_with_warmup
-import time
+from typing import Tuple
+from transformers import PreTrainedTokenizer
+import math
 
-BERT_MAX_TOKEN_LEN = 512
+epochs = 3
 
 
 def format_time(elapsed):
@@ -27,234 +28,134 @@ def format_time(elapsed):
     return str(datetime.timedelta(seconds=elapsed_rounded))
 
 
-def flat_accuracy(preds, labels):
-    pred_flat = np.argmax(preds, axis=1).flatten()
-    labels_flat = labels.flatten()
-    return np.sum(pred_flat == labels_flat) / len(labels_flat)
+def mask_tokens(inputs: torch.Tensor, tokenizer: transformers_BertTokenizer) -> Tuple[torch.Tensor, torch.Tensor]:
+    # """ Prepare masked tokens inputs/labels for masked language modeling: 80% MASK, 10% random, 10% original. """
+    labels = inputs.clone()
+    # We sample a few tokens in each sequence for masked-LM training
+    # (with probability args.mlm_probability defaults to 0.15 in Bert/RoBERTa)
+    probability_matrix = torch.full(labels.shape, 0.15)
+    special_tokens_mask = [
+        tokenizer.get_special_tokens_mask(val, already_has_special_tokens=True) for val in labels.tolist()
+    ]
+    probability_matrix.masked_fill_(torch.tensor(special_tokens_mask, dtype=torch.bool), value=0.0)
+    if tokenizer._pad_token is not None:
+        padding_mask = labels.eq(tokenizer.pad_token_id)
+        probability_matrix.masked_fill_(padding_mask, value=0.0)
+    masked_indices = torch.bernoulli(probability_matrix).bool()
+    labels[~masked_indices] = -1  # We only compute loss on masked tokens
+
+    # 80% of the time, we replace masked input tokens with tokenizer.mask_token ([MASK])
+    indices_replaced = torch.bernoulli(torch.full(labels.shape, 0.8)).bool() & masked_indices
+    inputs[indices_replaced] = tokenizer.convert_tokens_to_ids(tokenizer.mask_token)
+
+    # 10% of the time, we replace masked input tokens with random word
+    indices_random = torch.bernoulli(torch.full(labels.shape, 0.5)).bool() & masked_indices & ~indices_replaced
+    random_words = torch.randint(len(tokenizer), labels.shape, dtype=torch.long)
+    inputs[indices_random] = random_words[indices_random]
+    # The rest of the time (10% of the time) we keep the masked input tokens unchanged
+    return inputs, labels
 
 
-def get_bert_vectors_for_fine_tuning_task(
-        templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates') -> (list, list, int):
-    """
+tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
+sentences = open('../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates', 'r').readlines()
+sentences_duplicated = []
+for sent in sentences:
+    sent_len = len(sent.strip())
+    number_of_repititions = math.floor(len(sent.split()) * 0.3)
+    if number_of_repititions == 0:
+        sentences_duplicated.extend([sent for _ in range(epochs)])
+    else:
+        sentences_duplicated.extend([sent for _ in range(number_of_repititions * 3)])
 
-    :param templates_location:
-    :return: 3-tuple containing: - list: padded_input_ids, containing the sentences which were converted into ids
-                                         and are padded
-                                 - list: attention_masks, containing index 1 for token ids and 0 for padding 0
-                                 - int:  number_of_concat_sent, how many sentences were concatenated
-    """
-    temp_max_concat_sent_len = 0
-    number_of_concat_sent = 1
+tokenized_text = []
+for sent in sentences_duplicated:
+    tokenized_text.append(
+        tokenizer.build_inputs_with_special_tokens(tokenizer.convert_tokens_to_ids(tokenizer.tokenize(sent))))
+max_sent_len = max(len(sen) for sen in tokenized_text)
+tokenized_text = pad_sequences(tokenized_text, maxlen=max_sent_len, dtype="long",
+                               value=0, truncating="post", padding="post")
+tokenized_text = torch.tensor(tokenized_text)
 
-    tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
-    sentences = open(templates_location, 'r').readlines()
-
-    # input_ids = None
-    # target_ids = None
-    # # find the maximum number of possible concatenation of sentences with which we can stay below the maximum threshold
-    # # of BERT_MAX_TOKEN_LEN
-    # while temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
-    #     input_ids_temp = []
-    #     target_ids_temp = []
-    #     for i in range(0, len(sentences) - number_of_concat_sent):
-    #         concatenated_sentence = ""
-    #         for j in range(0, number_of_concat_sent):
-    #             concatenated_sentence += sentences[i + j]
-    #             # append space after every sentence, but not after the last one
-    #             if j != number_of_concat_sent - 1:
-    #                 concatenated_sentence += " "
-    #             # append target sentence
-    #             if j == number_of_concat_sent - 1:
-    #                 target_sentence = sentences[j + i + 1]
-    #         encoded_concatenated_sentence = tokenizer.encode(concatenated_sentence, add_special_tokens=True)
-    #         input_ids_temp.append(encoded_concatenated_sentence)
-    #         assert target_sentence is not None
-    #         encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
-    #         target_ids_temp.append(encoded_target_sentence)
-    #
-    #     temp_max_concat_sent_len = max([len(sen) for sen in input_ids_temp])
-    #     if temp_max_concat_sent_len < BERT_MAX_TOKEN_LEN:
-    #         input_ids = input_ids_temp
-    #         target_ids = target_ids_temp
-    #         number_of_concat_sent += 1
-    #         max_concat_sent_len = temp_max_concat_sent_len
-
-    input_ids = []
-    target_ids = []
-    seq_len = 7
-
-    for i in range(0, len(sentences) - seq_len):
-        input_sentences = sentences[i:i+seq_len]
-        target_sentence = sentences[i+seq_len].strip('\n')
-        concat_sentences = ""
-        for j, sent in enumerate(input_sentences):
-            concat_sentences += sent
-            if j != seq_len - 1:
-                concat_sentences += " "
-        encoded_concatenated_sentence = tokenizer.encode(concat_sentences, add_special_tokens=True)
-        input_ids.append(encoded_concatenated_sentence)
-        assert target_sentence is not None
-        encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
-        target_ids.append(encoded_target_sentence)
-
-    max_concat_sent_len = max([len(sen) for sen in input_ids])
-
-    # for i in range(0, len(sentences) - seq_len):
-    #     concatenated_sentence = ""
-    #     for j in range(0, seq_len):
-    #         concatenated_sentence += sentences[i + j]
-    #         # append space after every sentence, but not after the last one
-    #         if j != seq_len - 1:
-    #             concatenated_sentence += " "
-    #         # append target sentence
-    #         if j == number_of_concat_sent - 1:
-    #             target_sentence = sentences[j + i + 1]
-    #         encoded_concatenated_sentence = tokenizer.encode(concatenated_sentence, add_special_tokens=True)
-    #         input_ids.append(encoded_concatenated_sentence)
-    #         assert target_sentence is not None
-    #         encoded_target_sentence = tokenizer.encode(target_sentence, add_special_tokens=True)
-    #         target_ids.append(encoded_target_sentence)
-
-    print("number_of_concat_sent: {}".format(number_of_concat_sent))
-    assert input_ids is not None, "The longest sentence already produced" \
-                                  "a tokenised sentence that's longer than {}".format(BERT_MAX_TOKEN_LEN)
-
-    padded_input_ids = pad_sequences(input_ids, maxlen=max_concat_sent_len, dtype="long",
-                                     value=0, truncating="post", padding="post")
-
-    max_target_length = max([len(sen) for sen in target_ids])
-
-    padded_target_ids = pad_sequences(target_ids, maxlen=max_target_length, dtype="long",
-                                      value=0, truncating="post", padding="post")
-
-    attention_masks = []
-
-    for sent in padded_input_ids:
-        # Create the attention mask.
-        #   - If a token ID is 0, then it's padding, set the mask to 0.
-        #   - If a token ID is > 0, then it's a real token, set the mask to 1.
-        att_mask = [int(token_id > 0) for token_id in sent]
-
-        # Store the attention mask for this sentence.
-        attention_masks.append(att_mask)
-
-    return padded_input_ids, padded_target_ids, attention_masks, seq_len, max_target_length
-
-
-class BertNSPHead(nn.Module):
-    def __init__(self, config):
-        super(BertNSPHead, self).__init__()
-        # TODO: this has been copied from modeling_bert.BertOnlyNSPHead, where it takes one sentence, and predicts
-        #  the next one, i.e. output of the Linear layer is 2, we change it here according to seq_len + 1
-        self.seq_relationship = nn.Linear(config.hidden_size, 2)
-
-    def forward(self, pooled_output):
-        seq_relationship_score = self.seq_relationship(pooled_output)
-        return seq_relationship_score
-
-
-class BertForNextSequenceClassification(BertPreTrainedModel):
-    r"""
-        **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
-            Labels for computing the sequence classification/regression loss.
-            Indices should be in ``[0, ..., config.num_labels - 1]``.
-            If ``config.num_labels == 1`` a regression loss is computed (Mean-Square loss),
-            If ``config.num_labels > 1`` a classification loss is computed (Cross-Entropy).
-
-    Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
-        **loss**: (`optional`, returned when ``labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
-            Classification (or regression if config.num_labels==1) loss.
-        **logits**: ``torch.FloatTensor`` of shape ``(batch_size, config.num_labels)``
-            Classification (or regression if config.num_labels==1) scores (before SoftMax).
-        **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
-            list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
-            of shape ``(batch_size, sequence_length, hidden_size)``:
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
-        **attentions**: (`optional`, returned when ``config.output_attentions=True``)
-            list of ``torch.FloatTensor`` (one for each layer) of shape ``(batch_size, num_heads, sequence_length, sequence_length)``:
-            Attentions weights after the attention softmax, used to compute the weighted average in the self-attention heads.
-
-    Examples::
-
-        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        model = BertForSequenceClassification.from_pretrained('bert-base-uncased')
-        input_ids = torch.tensor(tokenizer.encode("Hello, my dog is cute", add_special_tokens=True)).unsqueeze(0)  # Batch size 1
-        labels = torch.tensor([1]).unsqueeze(0)  # Batch size 1
-        outputs = model(input_ids, labels=labels)
-        loss, logits = outputs[:2]
-
-    """
-
-    def __init__(self, config):
-        super(BertForNextSequenceClassification, self).__init__(config)
-        self.num_labels = config.num_labels
-
-        self.bert = BertModel(config)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
-
-        self.init_weights()
-
-    def forward(self, input_ids=None, attention_mask=None, token_type_ids=None,
-                position_ids=None, head_mask=None, inputs_embeds=None, labels=None):
-        outputs = self.bert(input_ids,
-                            attention_mask=attention_mask,
-                            token_type_ids=token_type_ids,
-                            position_ids=position_ids,
-                            head_mask=head_mask,
-                            inputs_embeds=inputs_embeds)
-
-        pooled_output = outputs[1]
-
-        pooled_output = self.dropout(pooled_output)
-        logits = self.classifier(pooled_output)
-
-        outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
-
-        loss_fct = MSELoss()
-        loss = loss_fct(logits.view(-1), labels.view(-1).float())
-        outputs = (loss,) + outputs
-
-        return outputs  # (loss), logits, (hidden_states), (attentions)
+# def get_bert_vectors_for_fine_tuning_task(
+#         templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates') -> (list, list):
+#     """
+#
+#     :param templates_location:
+#     :return: tuple containing: - list: padded_input_ids, containing the sentences which were converted into ids
+#                                        and are padded
+#                                - list: attention_masks, containing index 1 for token ids and 0 for padding 0
+#     """
+#
+#     tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
+#     sentences = open(templates_location, 'r').readlines()
+#     tokenized_text_ids = []
+#     mask_positions = []
+#     mask_words = []
+#
+#     for i in range(0, epochs):
+#         for sent in sentences:
+#             # skip empty lines
+#             if sent.strip():
+#                 separated_sent = ("[CLS] " + sent + " [SEP]")
+#                 separated_sent_tokenized = tokenizer.tokenize(separated_sent)
+#                 sentence_length = len(separated_sent_tokenized)
+#                 number_of_masks = math.floor(sentence_length*0.3)
+#                 positions_to_mask = random.sample(range(1, sentence_length - 1), number_of_masks)
+#                 for pos in positions_to_mask:
+#                     mask_words.append(separated_sent_tokenized[pos])
+#                     assert separated_sent_tokenized[pos] is not ('[CLS]' or '[SEP]'), \
+#                         "something wrong with setting the masks"
+#
+#                     temp_separated_sent_tokenized = separated_sent_tokenized.copy()
+#                     temp_separated_sent_tokenized[pos] = '[MASK]'
+#                     assert '[CLS]' in temp_separated_sent_tokenized and '[SEP]' in temp_separated_sent_tokenized, \
+#                         "separators got removed, something is wrong"
+#
+#                     mask_positions.append(pos)
+#                     separated_sent_with_masked_ids = tokenizer.convert_tokens_to_ids(temp_separated_sent_tokenized)
+#                     separated_sent_with_masked_ids[pos] = -1
+#                     tokenized_text_ids.append(separated_sent_with_masked_ids)
+#
+#     # lenght of the longest sentence, needed for padding
+#     max_sent_len = max(len(sen) for sen in tokenized_text_ids)
+#     max_sent_len += 10
+#
+#     padded_input_ids = pad_sequences(tokenized_text_ids, maxlen=max_sent_len, dtype="long",
+#                                      value=0, truncating="post", padding="post")
+#
+#     attention_masks = []
+#     for sent in padded_input_ids:
+#         # Create the attention mask.
+#         #   - If a token ID is 0, then it's padding, set the mask to 0.
+#         #   - If a token ID is > 0, then it's a real token, set the mask to 1.
+#         att_mask = [int(token_id > 0) for token_id in sent]
+#         attention_masks.append(att_mask)
+#
+#     return padded_input_ids, mask_positions, mask_words
 
 
 device = torch.device("cpu")
 
-pad_input_ids, trgt_ids, attent_masks, no_of_concat_sents, max_target_length = get_bert_vectors_for_fine_tuning_task()
+inputs, labels = mask_tokens(tokenized_text, tokenizer)
 
-# Use 90% for training and 10% for validation.
-train_inputs, validation_inputs, train_targets, validation_targets = train_test_split(pad_input_ids, trgt_ids,
-                                                                                      test_size=0.1, shuffle=False)
-# Do the same for the masks.
-train_masks, validation_masks, _, _ = train_test_split(attent_masks, trgt_ids, test_size=0.1, shuffle=False)
+train_inputs, validation_inputs = train_test_split(inputs, random_state=2020, test_size=0.1)
+train_labels, validation_labels = train_test_split(labels, random_state=2020, test_size=0.1)
 
-train_inputs = torch.tensor(train_inputs)
-validation_inputs = torch.tensor(validation_inputs)
-
-train_targets = torch.tensor(train_targets)
-validation_targets = torch.tensor(validation_targets)
-
-train_masks = torch.tensor(train_masks)
-validation_masks = torch.tensor(validation_masks)
-
-batch_size = 32
+batch_size = 4
 
 # Create the DataLoader for our training set.
-train_data = TensorDataset(train_inputs, train_masks, train_targets)
-train_dataloader = DataLoader(train_data, batch_size=batch_size)
+train_data = TensorDataset(train_inputs, train_labels)
+train_sampler = RandomSampler(train_data)
+train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=batch_size)
 
-# Create the DataLoader for our validation set.
-validation_data = TensorDataset(validation_inputs, validation_masks, validation_targets)
-validation_dataloader = DataLoader(validation_data, batch_size=batch_size)
+validation_data = TensorDataset(validation_inputs, validation_labels)
+validation_sampler = RandomSampler(validation_data)
+validation_dataloader = DataLoader(validation_data, sampler=validation_sampler, batch_size=batch_size)
 
-# Load BertForSequenceClassification, the pretrained BERT model with a single
-# linear classification layer on top.
-model = BertForNextSequenceClassification.from_pretrained(
-    "bert-base-uncased",  # Use the 12-layer BERT model, with an uncased vocab.
-    num_labels=max_target_length,  # The number of output labels--2 for binary classification.
-    # You can increase this for multi-class tasks.
-    output_attentions=False,  # Whether the model returns attentions weights.
-    output_hidden_states=False,  # Whether the model returns all hidden-states.
+model = BertForMaskedLM.from_pretrained(
+    "bert-base-uncased",
+    output_attentions=False,
+    output_hidden_states=False
 )
 
 # Tell pytorch to run this model on the GPU.
@@ -265,9 +166,6 @@ optimizer = AdamW(model.parameters(),
                   eps=1e-8  # args.adam_epsilon  - default is 1e-8.
                   )
 
-# Number of training epochs (authors recommend between 2 and 4)
-epochs = 4
-
 # Total number of training steps is number of batches * number of epochs.
 total_steps = len(train_dataloader) * epochs
 
@@ -275,6 +173,13 @@ total_steps = len(train_dataloader) * epochs
 scheduler = get_linear_schedule_with_warmup(optimizer,
                                             num_warmup_steps=0,  # Default value in run_glue.py
                                             num_training_steps=total_steps)
+
+seed_val = 42
+
+random.seed(seed_val)
+np.random.seed(seed_val)
+torch.manual_seed(seed_val)
+torch.cuda.manual_seed_all(seed_val)
 
 loss_values = []
 
@@ -296,10 +201,6 @@ for epoch_i in range(0, epochs):
     # Reset the total loss for this epoch.
     total_loss = 0
 
-    # Put the model into training mode. Don't be mislead--the call to
-    # `train` just changes the *mode*, it doesn't *perform* the training.
-    # `dropout` and `batchnorm` layers behave differently during training
-    # vs. test (source: https://stackoverflow.com/questions/51433378/what-does-model-train-do-in-pytorch)
     model.train()
 
     # For each batch of training data...
@@ -313,58 +214,19 @@ for epoch_i in range(0, epochs):
             # Report progress.
             print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
 
+        # batch: padded_input_ids, mask_positions, mask_words
         # Unpack this training batch from our dataloader.
-        #
-        # As we unpack the batch, we'll also copy each tensor to the GPU using the
-        # `to` method.
-        #
-        # `batch` contains three pytorch tensors:
-        #   [0]: input ids
-        #   [1]: attention masks
-        #   [2]: labels
         b_input_ids = batch[0].to(device)
-        b_input_mask = batch[1].to(device)
-        b_labels = batch[2].to(device)
+        b_input_masks = batch[1].to(device)
 
-        # Always clear any previously calculated gradients before performing a
-        # backward pass. PyTorch doesn't do this automatically because
-        # accumulating the gradients is "convenient while training RNNs".
-        # (source: https://stackoverflow.com/questions/48001598/why-do-we-need-to-call-zero-grad-in-pytorch)
         model.zero_grad()
 
-        # Perform a forward pass (evaluate the model on this training batch).
-        # This will return the loss (rather than the model output) because we
-        # have provided the `labels`.
-        # The documentation for this `model` function is here:
-        # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
-        outputs = model(b_input_ids,
-                        token_type_ids=None,
-                        attention_mask=b_input_mask,
-                        labels=b_labels)
-
-        # The call to `model` always returns a tuple, so we need to pull the
-        # loss value out of the tuple.
+        outputs = model(b_input_ids, masked_lm_labels=b_input_masks)
         loss = outputs[0]
-
-        # Accumulate the training loss over all of the batches so that we can
-        # calculate the average loss at the end. `loss` is a Tensor containing a
-        # single value; the `.item()` function just returns the Python value
-        # from the tensor.
         total_loss += loss.item()
-
-        # Perform a backward pass to calculate the gradients.
         loss.backward()
-
-        # Clip the norm of the gradients to 1.0.
-        # This is to help prevent the "exploding gradients" problem.
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-
-        # Update parameters and take a step using the computed gradient.
-        # The optimizer dictates the "update rule"--how the parameters are
-        # modified based on their gradients, the learning rate, etc.
         optimizer.step()
-
-        # Update the learning rate.
         scheduler.step()
 
     # Calculate the average loss over the training data.
@@ -375,7 +237,7 @@ for epoch_i in range(0, epochs):
 
     print("")
     print("  Average training loss: {0:.2f}".format(avg_train_loss))
-    print("  Training epcoh took: {:}".format(format_time(time.time() - t0)))
+    print("  Training epoch took: {:}".format(format_time(time.time() - t0)))
 
     # ========================================
     #               Validation
@@ -393,8 +255,8 @@ for epoch_i in range(0, epochs):
     model.eval()
 
     # Tracking variables
-    eval_loss, eval_accuracy = 0, 0
-    nb_eval_steps, nb_eval_examples = 0, 0
+    eval_loss = 0
+    nb_eval_steps = 0
 
     # Evaluate data for one epoch
     for batch in validation_dataloader:
@@ -402,42 +264,19 @@ for epoch_i in range(0, epochs):
         batch = tuple(t.to(device) for t in batch)
 
         # Unpack the inputs from our dataloader
-        b_input_ids, b_input_mask, b_labels = batch
+        b_input_ids, b_input_labels = batch
 
         # Telling the model not to compute or store gradients, saving memory and
         # speeding up validation
         with torch.no_grad():
-            # Forward pass, calculate logit predictions.
-            # This will return the logits rather than the loss because we have
-            # not provided labels.
-            # token_type_ids is the same as the "segment ids", which
-            # differentiates sentence 1 and 2 in 2-sentence tasks.
-            # The documentation for this `model` function is here:
-            # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
-            outputs = model(b_input_ids,
-                            token_type_ids=None,
-                            attention_mask=b_input_mask,
-                            labels=b_labels)
+            outputs = model(b_input_ids, masked_lm_labels=b_input_labels)
+            lm_loss = outputs[0]
+            eval_loss = lm_loss.mean().item()
 
-        # Get the "logits" output by the model. The "logits" are the output
-        # values prior to applying an activation function like the softmax.
-        logits = outputs[0]
-
-        # Move logits and labels to CPU
-        logits = logits.detach().cpu().numpy()
-        label_ids = b_labels.to('cpu').numpy()
-
-        # Calculate the accuracy for this batch of test sentences.
-        tmp_eval_accuracy = flat_accuracy(logits, label_ids)
-
-        # Accumulate the total accuracy.
-        eval_accuracy += tmp_eval_accuracy
-
-        # Track the number of batches
         nb_eval_steps += 1
 
     # Report the final accuracy for this validation run.
-    print("  Accuracy: {0:.2f}".format(eval_accuracy / nb_eval_steps))
+    print("  Loss eval: {0:.2f}".format(lm_loss / nb_eval_steps))
     print("  Validation took: {:}".format(format_time(time.time() - t0)))
 
 print("")
