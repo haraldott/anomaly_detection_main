@@ -11,3 +11,4 @@ bert-embedding
 pytorch-pretrained-bert
 transformers
 tensorflow
+tensorboardX

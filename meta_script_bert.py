@@ -70,7 +70,8 @@ if args.full == "True":
     transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
                                     merged_template_path=templates_merged)
 
-    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged)
+    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged,
+                                                            bert_model='wordembeddings/finetuning-models')
 
     # transform output of bert into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=bert_vectors,

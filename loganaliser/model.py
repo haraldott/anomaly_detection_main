@@ -28,7 +28,6 @@ class LSTM(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    # TODO: try to do flag: do dropout only during training
     def forward(self, input, hidden):
         if self.train_mode:
             input = self.dropout(input)

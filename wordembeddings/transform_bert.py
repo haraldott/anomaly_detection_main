@@ -37,8 +37,11 @@ def transform(sentence_embeddings,
 
 
 def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
-                          word_embeddings_location='sasho_bert_vectors_for_cosine.pickle'):
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                          bert_model='bert-base-uncased'):
+
+    # checks, if pre-trained model or directory containing pre-trained model exists, is being done here
+    tokenizer = BertTokenizer.from_pretrained(bert_model)
+    model = BertModel.from_pretrained(bert_model)
 
     lines = open(templates_location, 'r')
 
@@ -59,9 +62,6 @@ def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/log
     # Convert inputs to PyTorch tensors
     tokens_tensors = [torch.tensor([idx_tokens]) for idx_tokens in indexed_tokens]
     seg_tensors = [torch.tensor([seg_ids]) for seg_ids in segments_ids]
-
-    # Load pre-trained model (weights)
-    model = BertModel.from_pretrained('bert-base-uncased')
 
     # Put the model in "evaluation" mode, meaning feed-forward operation.
     model.eval()
@@ -90,8 +90,9 @@ def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/log
 
 
 def dump_word_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
-                      word_embeddings_location='vectors_for_cosine_distance/sasho_bert_vectors_for_cosine.pickle'):
-    token_vecs_cat, _, tokenized_text, _ = _prepare_bert_vectors(templates_location)
+                      word_embeddings_location='vectors_for_cosine_distance/sasho_bert_vectors_for_cosine.pickle',
+                      bert_model='bert-base-uncased'):
+    token_vecs_cat, _, tokenized_text, _ = _prepare_bert_vectors(templates_location, bert_model=bert_model)
     # dump words with according vectors in file
     words = []
     for sent in tokenized_text:
@@ -102,8 +103,10 @@ def dump_word_vectors(templates_location='../data/openstack/sasho/parsed/logs_ag
     pickle.dump(word_embeddings, open(word_embeddings_location, 'wb'))
 
 
-def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates'):
-    token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers = _prepare_bert_vectors(templates_location)
+def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
+                     bert_model='bert-base-uncased'):
+    token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers = _prepare_bert_vectors(
+        templates_location, bert_model=bert_model)
     sentence_embeddings = []
     for t in encoded_layers:
         sentence_embeddings.append(torch.mean(t[0][10][0], dim=0))
@@ -121,3 +124,4 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
 #     tsne_ak_2d = TSNE(perplexity=30, n_components=2, init='pca', n_iter=3500, random_state=32)
 #     embeddings_ak_2d = tsne_ak_2d.fit_transform(token_vecs)
 #     tsne_plot_2d('bert.png', 'Word embeddings', embeddings_ak_2d, flat_tokenized_text, a=0.9)
+
