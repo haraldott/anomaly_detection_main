@@ -66,6 +66,7 @@ def write_to_tsv_files_bert():
             for word in sentence:
                 out_file.write(word + "\n")
 
+
 def write_to_tsv_files_bert_sentences():
     sentences, _, _, _ = transform_bert.get_bert_vectors()
     with open('vectors_bert_sentences.tsv', 'wt') as out_file:

@@ -3,18 +3,8 @@ import pickle
 import pandas as pd
 
 
-def transform(logfile='../data/openstack/utah/parsed/openstack_18k_plus_52k_corpus',
-              vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt',
-              outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle'):
-    """
-
-    :param logfile:
-    :param vectorsfile:
-    :param outputfile:
-    :return:
-    """
-    cosinefile = 'sasho_glove_vectors_for_cosine.pickle'
-
+def _load_word_vectors(logfile='../data/openstack/utah/parsed/openstack_18k_plus_52k_corpus',
+                       vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt'):
     file = open(logfile)
     lines = file.read().splitlines()
     # TODO: Sasho's data contains log lines with empty payload,
@@ -36,11 +26,22 @@ def transform(logfile='../data/openstack/utah/parsed/openstack_18k_plus_52k_corp
         vectors.append(vector_as_array)
     vectors = np.array(vectors)
 
+    return vectors, words, log_lines_per_word
+
+
+def dump_word_vectors(logfile='../data/openstack/utah/parsed/openstack_18k_plus_52k_corpus',
+                       vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt',
+                       words_vectors_file='vectors_for_cosine_distance/sasho_glove_vectors_for_cosine.pickle'):
+    vectors, words, _ = _load_word_vectors(logfile=logfile, vectorsfile=vectorsfile)
     words_vectors = tuple((words, vectors))
-    pickle.dump(words_vectors, open(cosinefile, 'wb'))
+    pickle.dump(words_vectors, open(words_vectors_file, 'wb'))
 
 
-    log_lines_containing_no_payload = []
+def transform(logfile='../data/openstack/utah/parsed/openstack_18k_plus_52k_corpus',
+              vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt',
+              outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle'):
+    vectors, words, log_lines_per_word = _load_word_vectors(logfile=logfile, vectorsfile=vectorsfile)
+
     new_lines_as_vectors = []
     for sublist in log_lines_per_word:
         new_sublist = []
@@ -100,4 +101,3 @@ def extract_event_templates():
     parsed_file = open("52k_normal_event_templates.txt", "w+")
     for sentence in et:
         parsed_file.write(sentence + "\n")
-

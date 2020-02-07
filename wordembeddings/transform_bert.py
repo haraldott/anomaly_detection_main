@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import torch
 from pytorch_pretrained_bert import BertTokenizer, BertModel
-from sklearn.manifold import TSNE
+
 
 # from wordembeddings.visualisation import tsne_plot_2d
 
@@ -14,8 +14,6 @@ def transform(sentence_embeddings,
               logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
               outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle',
               templatefile='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
-
-
     file = open(logfile)
     logfilelines = file.readlines()
 
@@ -38,9 +36,8 @@ def transform(sentence_embeddings,
     pickle.dump(sentences_as_vectors, open(outputfile, 'wb'))
 
 
-def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates'):
-    word_embeddings_location = 'sasho_bert_vectors_for_cosine.pickle'
-
+def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
+                          word_embeddings_location='sasho_bert_vectors_for_cosine.pickle'):
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     lines = open(templates_location, 'r')
@@ -89,6 +86,12 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
     token_vecs_cat = np.asarray(token_vectors_cat)
     token_vecs_sum = np.asarray(token_vectors_sum)
 
+    return token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers
+
+
+def dump_word_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
+                      word_embeddings_location='vectors_for_cosine_distance/sasho_bert_vectors_for_cosine.pickle'):
+    token_vecs_cat, _, tokenized_text, _ = _prepare_bert_vectors(templates_location)
     # dump words with according vectors in file
     words = []
     for sent in tokenized_text:
@@ -98,12 +101,14 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
     word_embeddings = [tuple((word, vec)) for word, vec in zip(words, token_vecs_cat)]
     pickle.dump(word_embeddings, open(word_embeddings_location, 'wb'))
 
+
+def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates'):
+    token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers = _prepare_bert_vectors(templates_location)
     sentence_embeddings = []
     for t in encoded_layers:
         sentence_embeddings.append(torch.mean(t[0][10][0], dim=0))
 
     return sentence_embeddings, token_vecs_cat, token_vecs_sum, tokenized_text
-
 
 # _, token_vecs_cat, token_vecs_sum, tokenized_text = get_bert_vectors()
 # plot_bert(token_vecs_cat, tokenized_text)

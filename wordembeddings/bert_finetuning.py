@@ -1,4 +1,5 @@
 import datetime
+import os
 import random
 import time
 
@@ -11,7 +12,6 @@ from transformers import AdamW, BertForMaskedLM
 from transformers import BertTokenizer as transformers_BertTokenizer
 from transformers import get_linear_schedule_with_warmup
 from typing import Tuple
-from transformers import PreTrainedTokenizer
 import math
 
 epochs = 3
@@ -76,64 +76,6 @@ tokenized_text = pad_sequences(tokenized_text, maxlen=max_sent_len, dtype="long"
                                value=0, truncating="post", padding="post")
 tokenized_text = torch.tensor(tokenized_text)
 
-# def get_bert_vectors_for_fine_tuning_task(
-#         templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates') -> (list, list):
-#     """
-#
-#     :param templates_location:
-#     :return: tuple containing: - list: padded_input_ids, containing the sentences which were converted into ids
-#                                        and are padded
-#                                - list: attention_masks, containing index 1 for token ids and 0 for padding 0
-#     """
-#
-#     tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
-#     sentences = open(templates_location, 'r').readlines()
-#     tokenized_text_ids = []
-#     mask_positions = []
-#     mask_words = []
-#
-#     for i in range(0, epochs):
-#         for sent in sentences:
-#             # skip empty lines
-#             if sent.strip():
-#                 separated_sent = ("[CLS] " + sent + " [SEP]")
-#                 separated_sent_tokenized = tokenizer.tokenize(separated_sent)
-#                 sentence_length = len(separated_sent_tokenized)
-#                 number_of_masks = math.floor(sentence_length*0.3)
-#                 positions_to_mask = random.sample(range(1, sentence_length - 1), number_of_masks)
-#                 for pos in positions_to_mask:
-#                     mask_words.append(separated_sent_tokenized[pos])
-#                     assert separated_sent_tokenized[pos] is not ('[CLS]' or '[SEP]'), \
-#                         "something wrong with setting the masks"
-#
-#                     temp_separated_sent_tokenized = separated_sent_tokenized.copy()
-#                     temp_separated_sent_tokenized[pos] = '[MASK]'
-#                     assert '[CLS]' in temp_separated_sent_tokenized and '[SEP]' in temp_separated_sent_tokenized, \
-#                         "separators got removed, something is wrong"
-#
-#                     mask_positions.append(pos)
-#                     separated_sent_with_masked_ids = tokenizer.convert_tokens_to_ids(temp_separated_sent_tokenized)
-#                     separated_sent_with_masked_ids[pos] = -1
-#                     tokenized_text_ids.append(separated_sent_with_masked_ids)
-#
-#     # lenght of the longest sentence, needed for padding
-#     max_sent_len = max(len(sen) for sen in tokenized_text_ids)
-#     max_sent_len += 10
-#
-#     padded_input_ids = pad_sequences(tokenized_text_ids, maxlen=max_sent_len, dtype="long",
-#                                      value=0, truncating="post", padding="post")
-#
-#     attention_masks = []
-#     for sent in padded_input_ids:
-#         # Create the attention mask.
-#         #   - If a token ID is 0, then it's padding, set the mask to 0.
-#         #   - If a token ID is > 0, then it's a real token, set the mask to 1.
-#         att_mask = [int(token_id > 0) for token_id in sent]
-#         attention_masks.append(att_mask)
-#
-#     return padded_input_ids, mask_positions, mask_words
-
-
 device = torch.device("cpu")
 
 inputs, labels = mask_tokens(tokenized_text, tokenizer)
@@ -190,7 +132,7 @@ for epoch_i in range(0, epochs):
     # ========================================
 
     # Perform one full pass over the training set.
-
+    best_val_loss = None
     print("")
     print('======== Epoch {:} / {:} ========'.format(epoch_i + 1, epochs))
     print('Training...')
@@ -274,6 +216,14 @@ for epoch_i in range(0, epochs):
             eval_loss = lm_loss.mean().item()
 
         nb_eval_steps += 1
+
+    if not best_val_loss or eval_loss < best_val_loss:
+        best_val_loss = eval_loss
+        output_dir = "finetuning-models"
+        os.makedirs(output_dir, exist_ok=True)
+        model.save_pretrained(output_dir)
+        tokenizer.save_pretrained(output_dir)
+
 
     # Report the final accuracy for this validation run.
     print("  Loss eval: {0:.2f}".format(lm_loss / nb_eval_steps))
