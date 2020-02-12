@@ -16,16 +16,16 @@ from tools import distribution_plots as distribution_plots, calc_precision_utah 
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='Sasho')
+parser.add_argument('-option', type=str, default='UtahSorted137')
 parser.add_argument('-seq_len', type=int, default=7)
-parser.add_argument('-full', type=str, default="False")
+parser.add_argument('-full', type=str, default="True")
 parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 args = parser.parse_args()
 
 option = args.option
-results_dir_experiment = "{}_epochs_{}_hiddenunits_{}/".format(settings.settings[option]["resultsdir"], args.epochs, args.hiddenunits)
+results_dir_experiment = "{}_epochs_{}_hiddenunits_{}/".format(settings.settings[option]["resultsdir"]+'bert/', args.epochs, args.hiddenunits)
 combinedinputfile = settings.settings[option]["combinedinputfile"]
 anomalyinputfile = settings.settings[option]["anomalyinputfile"]
 normalinputfile = settings.settings[option]["normalinputfile"]
@@ -35,6 +35,7 @@ resultsdir = settings.settings[option]["resultsdir"]
 embeddingspickledir = settings.settings[option]["embeddingspickledir"]
 embeddingsdir = settings.settings[option]["embeddingsdir"]
 logtype = settings.settings[option]["logtype"]
+instance_information_file = settings.settings[option]['instance_information_file']
 
 # create all directories, if they don't exist yet
 pathlib.Path(resultsdir).mkdir(parents=True, exist_ok=True)
@@ -93,7 +94,8 @@ ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              n_hidden_units=args.hiddenunits,
                              n_layers=args.hiddenlayers,
                              embeddings_model='bert',
-                             train_mode=True)
+                             train_mode=True,
+                             instance_information_file=instance_information_file)
 ad_normal.start_training()
 
 # run normal values once through LSTM to obtain loss values, model will be loaded again in this function call,

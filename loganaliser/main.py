@@ -26,7 +26,8 @@ class AnomalyDetection:
                  batch_size=20,
                  folds=5,
                  clip=0.25,
-                 train_mode=False
+                 train_mode=False,
+                 instance_information_file=None
                  ):
         self.loadvectors = loadvectors
         self.loadautoencodermodel = loadautoencodermodel
@@ -40,14 +41,18 @@ class AnomalyDetection:
         self.folds = folds
         self.clip = clip
         self.train_mode = train_mode
+        self.instance_information_file = instance_information_file
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # select word embeddings
-        if embeddings_model == 'glove':
-            self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
-        elif embeddings_model == 'bert' or embeddings_model == 'embeddings_layer':
-            self.data_x, self.data_y, self.feature_length = self.prepare_data_raw()
+        if instance_information_file is None:
+            if embeddings_model == 'glove':
+                self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
+            elif embeddings_model == 'bert' or embeddings_model == 'embeddings_layer':
+                self.data_x, self.data_y, self.feature_length = self.prepare_data_raw()
+        else:
+            self.data_x, self.data_y, self.feature_length = self.prepare_data_per_request()
 
         self.model = lstm_model.LSTM(n_input=self.feature_length,
                                      n_hidden_units=self.n_hidden_units,
@@ -68,6 +73,24 @@ class AnomalyDetection:
 
         self.train_indices = range(0, train_set_len)
         self.test_indices = range(train_set_len, train_set_len + test_set_len)
+
+    def prepare_data_per_request(self):
+        instance_information = pickle.load(open(self.instance_information_file, 'rb'))
+        embeddings = pickle.load(open(self.loadvectors, 'rb'))
+        feature_length = embeddings[0].size(0)
+
+        data_x = []
+        data_y = []
+        for l in instance_information:
+            begin, end = l[0], l[1]
+            for i in range(0, end - begin - self.seq_length - + 1):
+                data_x.append(embeddings[begin + i:begin + i + self.seq_length])
+                data_y.append(embeddings[begin + i + self.seq_length + 1])
+
+        data_x = torch.stack(data_x).to(self.device)
+        data_y = torch.stack(data_y).to(self.device)
+
+        return data_x, data_y, feature_length
 
     def prepare_data_raw(self):
         embeddings = pickle.load(open(self.loadvectors, 'rb'))

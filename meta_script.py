@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 option = args.option
 results_dir_experiment = "{}_epochs_{}_hiddenunits_{}_embeddingsize_{}/" \
-    .format(settings.settings[option]["resultsdir"], args.epochs, args.hiddenunits, args.embeddingsize)
+    .format(settings.settings[option]["resultsdir"]+'glove/', args.epochs, args.hiddenunits, args.embeddingsize)
 combinedinputfile = settings.settings[option]["combinedinputfile"]
 anomalyinputfile = settings.settings[option]["anomalyinputfile"]
 normalinputfile = settings.settings[option]["normalinputfile"]
