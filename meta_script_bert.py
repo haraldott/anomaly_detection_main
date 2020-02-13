@@ -3,6 +3,7 @@ import os
 import subprocess
 import matplotlib
 import pathlib
+
 matplotlib.use('Agg')
 import settings
 
@@ -14,18 +15,85 @@ import wordembeddings.transform_glove as transform_glove
 from loganaliser.main import AnomalyDetection
 from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
 
+
+def calculate_precision_and_plot(this_results_dir_experiment, log_file_containing_anomalies):
+    precision = calc_precision_utah(
+        log_file_containing_anomalies=log_file_containing_anomalies,
+        outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
+    distribution_plots(this_results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
+
+    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + 'results.tar',
+                     '--directory=' + cwd + this_results_dir_experiment,
+                     'normal_loss_values',
+                     'anomaly_loss_values',
+                     'outliers_values',
+                     'plot.png'])
+
+
+def learning(arg, embeddings_path, epochs):
+    ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
+                                 loadvectors=embeddings_path,
+                                 savemodelpath=lstm_model_save_path,
+                                 seq_length=arg.seq_len,
+                                 num_epochs=epochs,
+                                 n_hidden_units=arg.hiddenunits,
+                                 n_layers=arg.hiddenlayers,
+                                 embeddings_model='bert',
+                                 train_mode=True,
+                                 instance_information_file=instance_information_file)
+
+    ad_normal.start_training()
+    return ad_normal
+
+
+def calculate_normal_loss(normal_lstm_model, results_dir, values_type):
+    normal_loss_values = normal_lstm_model.loss_values(normal=True)
+
+    mean = np.mean(normal_loss_values)
+    std = np.std(normal_loss_values)
+    cut_off = std * 3  # TODO: is this ok?
+    lower, upper = mean - cut_off, mean + cut_off
+    normal_values_file = open(cwd + results_dir + values_type, 'w+')
+    for val in normal_loss_values:
+        normal_values_file.write(str(val) + "\n")
+    normal_values_file.close()
+
+    return lower, upper
+
+
+def calculate_anomaly_loss(anomaly_lstm_model, results_dir, lo, up):
+    anomaly_loss_values = anomaly_lstm_model.loss_values(normal=False)
+
+    anomaly_values_file = open(cwd + results_dir + 'anomaly_loss_values', 'w+')
+    for val in anomaly_loss_values:
+        anomaly_values_file.write(str(val) + "\n")
+    anomaly_values_file.close()
+
+    outliers = []
+    for i, x in enumerate(anomaly_loss_values):
+        if x < lo or x > up:
+            outliers.append(str(i + args.seq_len) + "," + str(x))
+
+    outliers_values_file = open(cwd + results_dir + 'outliers_values', 'w+')
+    for val in outliers:
+        outliers_values_file.write(str(val) + "\n")
+    outliers_values_file.close()
+
+
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='UtahSorted137')
+parser.add_argument('-option', type=str, default='UtahSashoTransfer')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-full', type=str, default="True")
 parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
+parser.add_argument('-transferlearning', action='store_true')
 args = parser.parse_args()
 
 option = args.option
-results_dir_experiment = "{}_epochs_{}_hiddenunits_{}/".format(settings.settings[option]["resultsdir"]+'bert/', args.epochs, args.hiddenunits)
+results_dir_experiment = "{}_epochs_{}_hiddenunits_{}/" \
+    .format(settings.settings[option]["resultsdir"] + 'bert/', args.epochs, args.hiddenunits)
 combinedinputfile = settings.settings[option]["combinedinputfile"]
 anomalyinputfile = settings.settings[option]["anomalyinputfile"]
 normalinputfile = settings.settings[option]["normalinputfile"]
@@ -72,7 +140,7 @@ if args.full == "True":
                                     merged_template_path=templates_merged)
 
     bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged,
-                                                            bert_model='wordembeddings/finetuning-models')
+                                                            bert_model='wordembeddings/finetuning-models/Sasho')
 
     # transform output of bert into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=bert_vectors,
@@ -84,64 +152,54 @@ if args.full == "True":
                              logfile=corpus_anomaly_inputfile,
                              templatefile=templates_merged,
                              outputfile=embeddings_anomalies)
+# -------------------------------------------------------------------------------------------------------
+# --------------------------------NORMAL LEARNING--------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------
+if not args.transferlearning:
+    # learning on normal data
+    ad_normal = learning(arg=args, embeddings_path=embeddings_normal, epochs=args.epochs)
+    # calculate loss on normal data and log
+    lower, upper = calculate_normal_loss(normal_lstm_model=ad_normal,
+                                         results_dir=results_dir_experiment,
+                                         values_type='normal_loss_values')
+    # predict on data containing anomaly and log
+    ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
+                                  loadvectors=embeddings_anomalies,
+                                  savemodelpath=lstm_model_save_path,
+                                  seq_length=args.seq_len,
+                                  num_epochs=args.epochs,
+                                  n_hidden_units=args.hiddenunits,
+                                  n_layers=args.hiddenlayers,
+                                  embeddings_model='bert')
+    calculate_anomaly_loss(ad_anomaly, lower, upper, results_dir_experiment)
+    calculate_precision_and_plot(results_dir_experiment, inputdir + anomalyinputfile)
+# -------------------------------------------------------------------------------------------------------
+# ---------------------------------TRANSFER LEARNING-----------------------------------------------------
+# -------------------------------------------------------------------------------------------------------
+else:
+    # initialise paths
+    normalinputfile_transfer = settings.settings[option]["normalinputfile_transfer"]
+    embeddingspickledir_transfer = settings.settings[option]["embeddingspickledir_transfer"]
+    embeddings_normal_transfer = cwd + embeddingspickledir_transfer + normalinputfile_transfer + '.pickle'
+    embeddings_anomalies_transfer = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
+    results_dir_experiment_transfer = "{}_epochs_{}_hiddenunits_{}/" \
+        .format(settings.settings[option]["resultsdir_transfer"] + 'bert/', args.epochs, args.hiddenunits)
+    anomalyfile_transfer = settings.settings[option]["inputdir_transfer"]["anomalyinputfile_transfer"]
 
-# start LSTM
-ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                             loadvectors=embeddings_normal,
-                             savemodelpath=lstm_model_save_path,
-                             seq_length=args.seq_len,
-                             num_epochs=args.epochs,
-                             n_hidden_units=args.hiddenunits,
-                             n_layers=args.hiddenlayers,
-                             embeddings_model='bert',
-                             train_mode=True,
-                             instance_information_file=instance_information_file)
-ad_normal.start_training()
-
-# run normal values once through LSTM to obtain loss values, model will be loaded again in this function call,
-# train_mode will be set to False
-normal_loss_values = ad_normal.loss_values(normal=True)
-
-mean = np.mean(normal_loss_values)
-std = np.std(normal_loss_values)
-cut_off = std * 3  # TODO: is this ok?
-lower, upper = mean - cut_off, mean + cut_off
-normal_values_file = open(cwd + results_dir_experiment + 'normal_loss_values', 'w+')
-for val in normal_loss_values:
-    normal_values_file.write(str(val) + "\n")
-normal_values_file.close()
-
-ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                              loadvectors=embeddings_anomalies,
-                              savemodelpath=lstm_model_save_path,
-                              seq_length=args.seq_len,
-                              num_epochs=args.epochs,
-                              n_hidden_units=args.hiddenunits,
-                              n_layers=args.hiddenlayers,
-                              embeddings_model='bert')
-anomaly_loss_values = ad_anomaly.loss_values(normal=False)
-
-anomaly_values_file = open(cwd + results_dir_experiment + 'anomaly_loss_values', 'w+')
-for val in anomaly_loss_values:
-    anomaly_values_file.write(str(val) + "\n")
-anomaly_values_file.close()
-
-outliers = []
-for i, x in enumerate(anomaly_loss_values):
-    if x < lower or x > upper:
-        outliers.append(str(i + args.seq_len) + "," + str(x))
-
-outliers_values_file = open(cwd + results_dir_experiment + 'outliers_values', 'w+')
-for val in outliers:
-    outliers_values_file.write(str(val) + "\n")
-outliers_values_file.close()
-
-precision = calc_precision_utah(cwd + results_dir_experiment + 'anomaly_loss_values', cwd + results_dir_experiment + 'outliers_values')
-distribution_plots(results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
-
-subprocess.call(['tar', 'cvf', cwd + results_dir_experiment + 'results.tar',
-                 '--directory=' + cwd + results_dir_experiment,
-                 'normal_loss_values',
-                 'anomaly_loss_values',
-                 'outliers_values',
-                 'plot.png'])
+    # NORMAL TRAINING with dataset 1
+    ad_normal = learning(args, embeddings_normal, args.epochs)
+    # FEW SHOT TRAINING with dataset 2
+    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=5)
+    lower_transfer, upper_transfer = calculate_normal_loss(normal_lstm_model=ad_normal,
+                                                           results_dir=results_dir_experiment_transfer,
+                                                           values_type='transfer_normal_loss_values')
+    ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
+                                  loadvectors=embeddings_anomalies,
+                                  savemodelpath=lstm_model_save_path,
+                                  seq_length=args.seq_len,
+                                  num_epochs=args.epochs,
+                                  n_hidden_units=args.hiddenunits,
+                                  n_layers=args.hiddenlayers,
+                                  embeddings_model='bert')
+    calculate_anomaly_loss(ad_anomaly, lower_transfer, upper_transfer, results_dir_experiment_transfer)
+    calculate_precision_and_plot(results_dir_experiment_transfer, anomalyfile_transfer)

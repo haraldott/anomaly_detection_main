@@ -26,8 +26,8 @@ def distribution_plots(dir, epochs, units, emb_size, precision=0.0):
     plt.clf()
 
 
-def calc_precision_utah(anomalies_file, outliers_file):
-    file = open(anomalies_file)
+def calc_precision_utah(log_file_containing_anomalies, outliers_file):
+    file = open(log_file_containing_anomalies)
     lines = file.readlines()
     outliers = open(outliers_file)
     outliers = outliers.readlines()

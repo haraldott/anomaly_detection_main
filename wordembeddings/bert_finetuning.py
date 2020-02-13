@@ -57,8 +57,11 @@ def mask_tokens(inputs: torch.Tensor, tokenizer: transformers_BertTokenizer) -> 
 
 
 tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
-sentences = open('../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates', 'r').readlines()
+sentences = open('../data/openstack/utah/parsed/openstack_137k_plus_18k_sorted_per_request_templates', 'r').readlines()
+output_dir = 'finetuning-models/utah_137k/'
+os.makedirs(output_dir, exist_ok=True)
 sentences_duplicated = []
+
 for sent in sentences:
     sent_len = len(sent.strip())
     number_of_repititions = math.floor(len(sent.split()) * 0.3)
@@ -219,8 +222,6 @@ for epoch_i in range(0, epochs):
 
     if not best_val_loss or eval_loss < best_val_loss:
         best_val_loss = eval_loss
-        output_dir = "finetuning-models"
-        os.makedirs(output_dir, exist_ok=True)
         model.save_pretrained(output_dir)
         tokenizer.save_pretrained(output_dir)
 
