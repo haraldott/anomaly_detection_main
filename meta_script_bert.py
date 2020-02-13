@@ -184,7 +184,7 @@ else:
     embeddings_anomalies_transfer = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
     results_dir_experiment_transfer = "{}_epochs_{}_hiddenunits_{}/" \
         .format(settings.settings[option]["resultsdir_transfer"] + 'bert/', args.epochs, args.hiddenunits)
-    anomalyfile_transfer = settings.settings[option]["inputdir_transfer"]["anomalyinputfile_transfer"]
+    anomalyfile_transfer = settings.settings[option]["inputdir_transfer"] + settings.settings[option]["anomalyinputfile_transfer"]
 
     # NORMAL TRAINING with dataset 1
     ad_normal = learning(args, embeddings_normal, args.epochs)
