@@ -53,6 +53,7 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type):
     std = np.std(normal_loss_values)
     cut_off = std * 3  # TODO: is this ok?
     lower, upper = mean - cut_off, mean + cut_off
+    os.makedirs(results_dir, exist_ok=True)
     normal_values_file = open(cwd + results_dir + values_type, 'w+')
     for val in normal_loss_values:
         normal_values_file.write(str(val) + "\n")
@@ -84,7 +85,7 @@ cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='UtahSashoTransfer')
 parser.add_argument('-seq_len', type=int, default=7)
-parser.add_argument('-full', type=str, default="True")
+parser.add_argument('-reduced', action='store_true')
 parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
@@ -130,7 +131,7 @@ embeddings_anomalies = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
 vae_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_vae.pth'
 lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_lstm.pth'
 
-if args.full == "True":
+if not args.reduced:
     # start Drain parser
     drain.execute(directory=inputdir, file=combinedinputfile, output=parseddir, logtype=logtype)
     drain.execute(directory=inputdir, file=anomalyinputfile, output=parseddir, logtype=logtype)
@@ -183,7 +184,7 @@ else:
     embeddings_normal_transfer = cwd + embeddingspickledir_transfer + normalinputfile_transfer + '.pickle'
     embeddings_anomalies_transfer = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
     results_dir_experiment_transfer = "{}_epochs_{}_hiddenunits_{}/" \
-        .format(settings.settings[option]["resultsdir_transfer"] + 'bert/', args.epochs, args.hiddenunits)
+        .format(settings.settings[option]["resultsdir_transfer"] + 'bert', args.epochs, args.hiddenunits)
     anomalyfile_transfer = settings.settings[option]["inputdir_transfer"] + settings.settings[option]["anomalyinputfile_transfer"]
 
     # NORMAL TRAINING with dataset 1
