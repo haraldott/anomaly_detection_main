@@ -202,5 +202,6 @@ else:
                                   n_hidden_units=args.hiddenunits,
                                   n_layers=args.hiddenlayers,
                                   embeddings_model='bert')
-    calculate_anomaly_loss(ad_anomaly, lower_transfer, upper_transfer, results_dir_experiment_transfer)
+    calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, lo=lower_transfer, up=upper_transfer,
+                           results_dir=results_dir_experiment_transfer)
     calculate_precision_and_plot(results_dir_experiment_transfer, anomalyfile_transfer)
