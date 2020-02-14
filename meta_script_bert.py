@@ -20,6 +20,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, log_file_containin
     precision = calc_precision_utah(
         log_file_containing_anomalies=log_file_containing_anomalies,
         outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
+    os.makedirs(this_results_dir_experiment, exist_ok=True)
     distribution_plots(this_results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
 
     subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + 'results.tar',
