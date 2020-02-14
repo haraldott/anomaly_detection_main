@@ -194,7 +194,7 @@ else:
     ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=5)
     lower_transfer, upper_transfer = calculate_normal_loss(normal_lstm_model=ad_normal,
                                                            results_dir=results_dir_experiment_transfer,
-                                                           values_type='transfer_normal_loss_values')
+                                                           values_type='normal_loss_values')
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                                   loadvectors=embeddings_anomalies,
                                   savemodelpath=lstm_model_save_path,
