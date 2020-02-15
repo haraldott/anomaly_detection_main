@@ -17,9 +17,8 @@ from tools import distribution_plots as distribution_plots, calc_precision_utah 
 
 
 def calculate_precision_and_plot(this_results_dir_experiment, log_file_containing_anomalies):
-    precision = calc_precision_utah(
-        log_file_containing_anomalies=log_file_containing_anomalies,
-        outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
+    precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
+                                    outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
 
     subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + 'results.tar',
@@ -30,7 +29,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, log_file_containin
                      'plot.png'])
 
 
-def learning(arg, embeddings_path, epochs):
+def learning(arg, embeddings_path, epochs, instance_information_file):
     ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                                  loadvectors=embeddings_path,
                                  savemodelpath=lstm_model_save_path,
@@ -83,7 +82,7 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, lo, up):
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='UtahSorted')
+parser.add_argument('-option', type=str, default='UtahSorted137')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-reduced', action='store_true')
 parser.add_argument('-epochs', type=int, default=100)
@@ -104,7 +103,8 @@ resultsdir = settings.settings[option]["resultsdir"]
 embeddingspickledir = settings.settings[option]["embeddingspickledir"]
 embeddingsdir = settings.settings[option]["embeddingsdir"]
 logtype = settings.settings[option]["logtype"]
-instance_information_file = settings.settings[option]['instance_information_file']
+instance_information_file_normal = settings.settings[option]['instance_information_file_normal']
+instance_information_file_anomalies = settings.settings[option]['instance_information_file_anomalies']
 
 # create all directories, if they don't exist yet
 pathlib.Path(resultsdir).mkdir(parents=True, exist_ok=True)
@@ -158,7 +158,8 @@ if not args.reduced:
 # -------------------------------------------------------------------------------------------------------
 if not args.transferlearning:
     # learning on normal data
-    ad_normal = learning(arg=args, embeddings_path=embeddings_normal, epochs=args.epochs)
+    ad_normal = learning(arg=args, embeddings_path=embeddings_normal, epochs=args.epochs,
+                         instance_information_file=instance_information_file_normal)
     # calculate loss on normal data and log
     lower, upper = calculate_normal_loss(normal_lstm_model=ad_normal,
                                          results_dir=results_dir_experiment,
@@ -171,7 +172,8 @@ if not args.transferlearning:
                                   num_epochs=args.epochs,
                                   n_hidden_units=args.hiddenunits,
                                   n_layers=args.hiddenlayers,
-                                  embeddings_model='bert')
+                                  embeddings_model='bert',
+                                  instance_information_file=instance_information_file_anomalies)
     calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment, lo=lower, up=upper)
     calculate_precision_and_plot(this_results_dir_experiment=results_dir_experiment,
                                  log_file_containing_anomalies=inputdir + anomalyinputfile)
@@ -184,14 +186,19 @@ else:
     embeddingspickledir_transfer = settings.settings[option]["embeddingspickledir_transfer"]
     embeddings_normal_transfer = cwd + embeddingspickledir_transfer + normalinputfile_transfer + '.pickle'
     embeddings_anomalies_transfer = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
-    results_dir_experiment_transfer = "{}_epochs_{}_hiddenunits_{}/" \
-        .format(settings.settings[option]["resultsdir_transfer"] + 'bert', args.epochs, args.hiddenunits)
-    anomalyfile_transfer = settings.settings[option]["inputdir_transfer"] + settings.settings[option]["anomalyinputfile_transfer"]
+    results_dir_experiment_transfer = "{}_epochs_{}_hiddenunits_{}/".format(
+        settings.settings[option]["resultsdir_transfer"] + 'bert', args.epochs, args.hiddenunits)
+    anomalyfile_transfer = settings.settings[option]["inputdir_transfer"] + settings.settings[option][
+        "anomalyinputfile_transfer"]
+    instance_information_file_normal_transfer = settings.settings[option]["instance_information_file_normal_transfer"]
+    instance_information_file_anomalies_transfer = settings.settings[option][
+        "instance_information_file_anomalies_transfer"]
 
     # NORMAL TRAINING with dataset 1
-    ad_normal = learning(args, embeddings_normal, args.epochs)
+    ad_normal = learning(args, embeddings_normal, args.epochs, instance_information_file_normal)
     # FEW SHOT TRAINING with dataset 2
-    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=0)
+    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=0,
+                                  instance_information_file=instance_information_file_normal_transfer)
     lower_transfer, upper_transfer = calculate_normal_loss(normal_lstm_model=ad_normal,
                                                            results_dir=results_dir_experiment_transfer,
                                                            values_type='normal_loss_values')
@@ -202,7 +209,8 @@ else:
                                   num_epochs=args.epochs,
                                   n_hidden_units=args.hiddenunits,
                                   n_layers=args.hiddenlayers,
-                                  embeddings_model='bert')
+                                  embeddings_model='bert',
+                                  instance_information_file=instance_information_file_anomalies_transfer)
     calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, lo=lower_transfer, up=upper_transfer,
                            results_dir=results_dir_experiment_transfer)
     calculate_precision_and_plot(results_dir_experiment_transfer, anomalyfile_transfer)
