@@ -24,12 +24,12 @@ settings = {
         'instance_information_file': None
     },
     'UtahSorted': {
-        'combinedinputfile': 'openstack_18k_plus_52k_sorted_per_request',
+        'combinedinputfile': 'openstack_137k_plus_18k_sorted_per_request',
         'anomalyinputfile': 'openstack_18k_anomalies_sorted_per_request',
-        'normalinputfile': 'openstack_52k_normal_sorted_per_request',
+        'normalinputfile': 'openstack_137k_normal_sorted_per_request',
         'inputdir': 'data/openstack/utah/raw/sorted_per_request/',
         'parseddir': 'data/openstack/utah/parsed/',
-        'resultsdir': 'data/openstack/utah/results/UtahSorted/',
+        'resultsdir': 'data/openstack/utah/results/UtahSorted137/',
         'embeddingspickledir': 'data/openstack/utah/padded_embeddings_pickle/',
         'embeddingsdir': 'data/openstack/utah/embeddings/',
         'logtype': 'OpenStack',

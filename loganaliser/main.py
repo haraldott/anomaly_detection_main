@@ -60,7 +60,7 @@ class AnomalyDetection:
                                      train_mode=self.train_mode).to(self.device)
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
-        #self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))
+        # self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
@@ -83,9 +83,14 @@ class AnomalyDetection:
         data_y = []
         for l in instance_information:
             begin, end = l[0], l[1]
-            for i in range(0, end - begin - self.seq_length - + 1):
-                data_x.append(embeddings[begin + i:begin + i + self.seq_length])
-                data_y.append(embeddings[begin + i + self.seq_length + 1])
+            if end - begin > self.seq_length:
+                index_array = [i for i in range(begin, end + 1)]
+                roll_indices = [np.roll(index_array, -i)[0:self.seq_length + 1] for i in range(0, len(index_array))]
+                for indices in roll_indices:
+                    data_x_temp = []
+                    [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
+                    data_x.append(torch.stack(data_x_temp))
+                    data_y.append(embeddings[indices[-1]])
 
         data_x = torch.stack(data_x).to(self.device)
         data_y = torch.stack(data_y).to(self.device)
@@ -253,7 +258,8 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def loss_values(self, normal: bool = True):
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False).to(self.device)
+        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False).to(
+            self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
         # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,

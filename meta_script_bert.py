@@ -83,10 +83,10 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, lo, up):
 
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='UtahSashoTransfer')
+parser.add_argument('-option', type=str, default='UtahSorted')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-reduced', action='store_true')
-parser.add_argument('-epochs', type=int, default=1)
+parser.add_argument('-epochs', type=int, default=100)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
@@ -172,8 +172,9 @@ if not args.transferlearning:
                                   n_hidden_units=args.hiddenunits,
                                   n_layers=args.hiddenlayers,
                                   embeddings_model='bert')
-    calculate_anomaly_loss(ad_anomaly, lower, upper, results_dir_experiment)
-    calculate_precision_and_plot(results_dir_experiment, inputdir + anomalyinputfile)
+    calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment, lo=lower, up=upper)
+    calculate_precision_and_plot(this_results_dir_experiment=results_dir_experiment,
+                                 log_file_containing_anomalies=inputdir + anomalyinputfile)
 # -------------------------------------------------------------------------------------------------------
 # ---------------------------------TRANSFER LEARNING-----------------------------------------------------
 # -------------------------------------------------------------------------------------------------------
@@ -190,7 +191,7 @@ else:
     # NORMAL TRAINING with dataset 1
     ad_normal = learning(args, embeddings_normal, args.epochs)
     # FEW SHOT TRAINING with dataset 2
-    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=5)
+    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=0)
     lower_transfer, upper_transfer = calculate_normal_loss(normal_lstm_model=ad_normal,
                                                            results_dir=results_dir_experiment_transfer,
                                                            values_type='normal_loss_values')

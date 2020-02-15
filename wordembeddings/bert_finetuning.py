@@ -86,7 +86,7 @@ inputs, labels = mask_tokens(tokenized_text, tokenizer)
 train_inputs, validation_inputs = train_test_split(inputs, random_state=2020, test_size=0.1)
 train_labels, validation_labels = train_test_split(labels, random_state=2020, test_size=0.1)
 
-batch_size = 4
+batch_size = 8
 
 # Create the DataLoader for our training set.
 train_data = TensorDataset(train_inputs, train_labels)

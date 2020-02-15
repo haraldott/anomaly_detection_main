@@ -38,7 +38,6 @@ def transform(sentence_embeddings,
 
 def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
                           bert_model='bert-base-uncased'):
-
     # checks, if pre-trained model or directory containing pre-trained model exists, is being done here
     tokenizer = BertTokenizer.from_pretrained(bert_model)
     model = BertModel.from_pretrained(bert_model)
@@ -113,6 +112,7 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
 
     return sentence_embeddings, token_vecs_cat, token_vecs_sum, tokenized_text
 
+
 # _, token_vecs_cat, token_vecs_sum, tokenized_text = get_bert_vectors()
 # plot_bert(token_vecs_cat, tokenized_text)
 # def plot_bert(token_vecs, tokenized_text):
@@ -125,3 +125,5 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
 #     embeddings_ak_2d = tsne_ak_2d.fit_transform(token_vecs)
 #     tsne_plot_2d('bert.png', 'Word embeddings', embeddings_ak_2d, flat_tokenized_text, a=0.9)
 
+if __name__ == '__main__':
+    _prepare_bert_vectors()
