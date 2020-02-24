@@ -26,7 +26,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, log_file_containin
                      'normal_loss_values',
                      'anomaly_loss_values',
                      'outliers_values',
-                     'anomaly_loss_indices'
+                     'anomaly_loss_indices',
                      'plot.png'])
 
 
