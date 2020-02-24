@@ -14,7 +14,7 @@ from transformers import get_linear_schedule_with_warmup
 from typing import Tuple
 import math
 
-epochs = 3
+epochs = 5
 
 
 def format_time(elapsed):
@@ -57,8 +57,8 @@ def mask_tokens(inputs: torch.Tensor, tokenizer: transformers_BertTokenizer) -> 
 
 
 tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
-sentences = open('../data/openstack/utah/parsed/openstack_137k_plus_18k_sorted_per_request_templates', 'r').readlines()
-output_dir = 'finetuning-models/utah_137k/'
+sentences = open('../data/openstack/utah/parsed/openstack_137k_plus_18k_sorted_per_request_merged_templates', 'r').readlines()
+output_dir = 'finetuning-models/openstack_137k_plus_18k_sorted_per_request_merged_templates/'
 os.makedirs(output_dir, exist_ok=True)
 sentences_duplicated = []
 

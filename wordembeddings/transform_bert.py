@@ -102,6 +102,16 @@ def dump_word_vectors(templates_location='../data/openstack/sasho/parsed/logs_ag
     pickle.dump(word_embeddings, open(word_embeddings_location, 'wb'))
 
 
+def get_sentence_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
+                         bert_model='bert-base-uncased'):
+    token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers = _prepare_bert_vectors(
+        templates_location, bert_model=bert_model)
+    sentence_embeddings = []
+    for t in encoded_layers:
+        sentence_embeddings.append(torch.mean(t[0][10][0], dim=0))
+    return sentence_embeddings
+
+
 def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
                      bert_model='bert-base-uncased'):
     token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers = _prepare_bert_vectors(

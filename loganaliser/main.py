@@ -14,6 +14,7 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 
 class AnomalyDetection:
     def __init__(self,
+                 results_dir=None,
                  embeddings_model='glove',
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
@@ -27,7 +28,8 @@ class AnomalyDetection:
                  folds=5,
                  clip=0.25,
                  train_mode=False,
-                 instance_information_file=None
+                 instance_information_file=None,
+                 anomalies_run=False,
                  ):
         self.loadvectors = loadvectors
         self.loadautoencodermodel = loadautoencodermodel
@@ -42,6 +44,8 @@ class AnomalyDetection:
         self.clip = clip
         self.train_mode = train_mode
         self.instance_information_file = instance_information_file
+        self.anomalies_run = anomalies_run
+        self.results_dir = results_dir
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -81,6 +85,7 @@ class AnomalyDetection:
 
         data_x = []
         data_y = []
+        target_indices = []
         for l in instance_information:
             begin, end = l[0], l[1]
             if end - begin > self.seq_length:
@@ -91,6 +96,15 @@ class AnomalyDetection:
                     [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
                     data_x.append(torch.stack(data_x_temp))
                     data_y.append(embeddings[indices[-1]])
+            # for i in range(0, end - begin - self.seq_length - + 1):
+            #     data_x.append(embeddings[begin + i:begin + i + self.seq_length])
+            #     data_y.append(embeddings[begin + i + self.seq_length + 1])
+            #     target_indices.append(begin + i + self.seq_length + 1)
+        if self.anomalies_run:
+            anomaly_indices_file = open(self.results_dir, 'w+')
+            for val in target_indices:
+                anomaly_indices_file.write(str(val) + "\n")
+            anomaly_indices_file.close()
 
         data_x = torch.stack(data_x).to(self.device)
         data_y = torch.stack(data_y).to(self.device)

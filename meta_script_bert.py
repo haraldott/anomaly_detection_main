@@ -26,6 +26,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, log_file_containin
                      'normal_loss_values',
                      'anomaly_loss_values',
                      'outliers_values',
+                     'anomaly_loss_indices'
                      'plot.png'])
 
 
@@ -173,7 +174,9 @@ if not args.transferlearning:
                                   n_hidden_units=args.hiddenunits,
                                   n_layers=args.hiddenlayers,
                                   embeddings_model='bert',
-                                  instance_information_file=instance_information_file_anomalies)
+                                  instance_information_file=instance_information_file_anomalies,
+                                  anomalies_run=True,
+                                  results_dir=cwd + results_dir_experiment + 'anomaly_loss_indices')
     calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment, lo=lower, up=upper)
     calculate_precision_and_plot(this_results_dir_experiment=results_dir_experiment,
                                  log_file_containing_anomalies=inputdir + anomalyinputfile)

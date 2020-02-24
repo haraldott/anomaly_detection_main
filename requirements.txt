@@ -12,3 +12,5 @@ pytorch-pretrained-bert
 transformers
 tensorflow
 tensorboardX
+requests
+sklearn
