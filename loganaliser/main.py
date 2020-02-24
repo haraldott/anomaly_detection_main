@@ -83,23 +83,27 @@ class AnomalyDetection:
         embeddings = pickle.load(open(self.loadvectors, 'rb'))
         feature_length = embeddings[0].size(0)
 
+        ring = True
         data_x = []
         data_y = []
         target_indices = []
         for l in instance_information:
             begin, end = l[0], l[1]
-            if end - begin > self.seq_length:
-                index_array = [i for i in range(begin, end + 1)]
-                roll_indices = [np.roll(index_array, -i)[0:self.seq_length + 1] for i in range(0, len(index_array))]
-                for indices in roll_indices:
-                    data_x_temp = []
-                    [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
-                    data_x.append(torch.stack(data_x_temp))
-                    data_y.append(embeddings[indices[-1]])
-            # for i in range(0, end - begin - self.seq_length - + 1):
-            #     data_x.append(embeddings[begin + i:begin + i + self.seq_length])
-            #     data_y.append(embeddings[begin + i + self.seq_length + 1])
-            #     target_indices.append(begin + i + self.seq_length + 1)
+            if ring:
+                if end - begin > self.seq_length:
+                    index_array = [i for i in range(begin, end + 1)]
+                    roll_indices = [np.roll(index_array, -i)[0:self.seq_length + 1] for i in range(0, len(index_array))]
+                    for indices in roll_indices:
+                        data_x_temp = []
+                        [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
+                        data_x.append(torch.stack(data_x_temp))
+                        data_y.append(embeddings[indices[-1]])
+                        target_indices.append(indices[-1])
+            else:
+                for i in range(0, end - begin - self.seq_length - + 1):
+                    data_x.append(embeddings[begin + i:begin + i + self.seq_length])
+                    data_y.append(embeddings[begin + i + self.seq_length + 1])
+                    target_indices.append(begin + i + self.seq_length + 1)
         if self.anomalies_run:
             anomaly_indices_file = open(self.results_dir, 'w+')
             for val in target_indices:
