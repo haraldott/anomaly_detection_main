@@ -21,7 +21,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, log_file_containin
                                     outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
     subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_hiddenunits_{}"
-                                    .format('bert', args.epochs, args.hiddenunits) + 'results.tar',
+                                    .format('bert', args.epochs, args.hiddenunits) + '.tar',
                      '--directory=' + cwd + this_results_dir_experiment,
                      'normal_loss_values',
                      'anomaly_loss_values',
