@@ -41,8 +41,8 @@ settings = {
                                                'openstack_18k_anomalies_information.pickle'
     },
     'UtahSorted137': {
-        'combinedinputfile': 'openstack_137k_plus_18k_sorted_per_request',
-        'anomalyinputfile': 'openstack_18k_anomalies_sorted_per_request',
+        'combinedinputfile': 'openstack_137k_plus_18k_self',
+        'anomalyinputfile': 'openstack_18k_self_injected_anomalies',
         'normalinputfile': 'openstack_137k_normal_sorted_per_request',
         'inputdir': 'data/openstack/utah/raw/sorted_per_request/',
         'parseddir': 'data/openstack/utah/parsed/',
@@ -53,7 +53,7 @@ settings = {
         'instance_information_file_normal': 'data/openstack/utah/raw/sorted_per_request_pickle/'
                                             'openstack_137k_normal_information.pickle',
         'instance_information_file_anomalies': 'data/openstack/utah/raw/sorted_per_request_pickle/'
-                                               'openstack_18k_anomalies_information.pickle'
+                                               'openstack_18k_self_injected_anomalies.pickle'
     },
     'UtahSashoTransfer': {
         'combinedinputfile': 'logs_aggregated_full.csv',
