@@ -16,10 +16,10 @@ def parse_and_sort(logfile_path='../data/openstack/sasho/raw/logs_aggregated_nor
     create_instance_intervals(instance_id_dict, output_path, instance_information_path)
 
 
-def parse_sort_and_inject_anomalies(logfile_path='../data/openstack/utah/raw/openstack_137k_normal',
-                                    output_path='../data/openstack/utah/raw/sorted_per_request/openstack_137k_anomalies',
-                                    instance_information_path='../data/openstack/utah/raw/sorted_per_request_pickle/openstack_137k_anomalies.pickle',
-                                    anomaly_indices_output_path='../data/openstack/utah/raw/sorted_per_request/anomaly_indices_137k.txt'):
+def parse_sort_and_inject_anomalies(logfile_path='../data/openstack/utah/raw/openstack_18k_anomalies',
+                                    output_path='../data/openstack/utah/raw/sorted_per_request/openstack_18k_self_injected_anomalies',
+                                    instance_information_path='../data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_self_injected_anomalies.pickle',
+                                    anomaly_indices_output_path='../data/openstack/utah/raw/sorted_per_request/anomaly_indices_18k_self_injected.txt'):
     instance_id_dict = sort_per_instance_id(logfile_path)
     instance_id_dict, line_numbers_containing_anomalies_per_instance = inject_anomalies(instance_id_dict)
     create_instance_intervals_with_anomalies(instance_id_dict,
