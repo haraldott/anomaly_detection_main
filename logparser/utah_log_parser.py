@@ -51,10 +51,14 @@ def inject_anomalies(instance_id_dict):
                                                                 number_of_instances_to_inject_anomalies_in)
     line_numbers_containing_anomalies_per_instance = defaultdict(list)
     for instance_id in instance_ids_selected_for_anomaly_injection:
+        this_anomaly_line = randomly_injected_line_utah.format(instance_id)
         for _ in range(0, max_number_of_anomalies_per_instance):
             line_number_of_anomaly = random.randrange(len(instance_id_dict[instance_id]) + 1)
-            instance_id_dict[instance_id].insert(line_number_of_anomaly, randomly_injected_line_utah.format(instance_id))
-            line_numbers_containing_anomalies_per_instance[instance_id].append(line_number_of_anomaly)
+            instance_id_dict[instance_id].insert(line_number_of_anomaly, this_anomaly_line)
+            #line_numbers_containing_anomalies_per_instance[instance_id].append(line_number_of_anomaly)
+        for i, line in enumerate(instance_id_dict[instance_id]):
+            if this_anomaly_line in line:
+                line_numbers_containing_anomalies_per_instance[instance_id].append(i)
 
     return instance_id_dict, line_numbers_containing_anomalies_per_instance
 
@@ -65,7 +69,7 @@ def create_instance_intervals_with_anomalies(instance_id_dict,
                                              line_numbers_containing_anomalies_per_instance,
                                              anomaly_indices_output_path):
     anomaly_indices = []
-    linecounter = -1
+    linecounter = 0
     instance_information = []
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     output_file = open(output_path, 'w')
@@ -73,23 +77,23 @@ def create_instance_intervals_with_anomalies(instance_id_dict,
         this_list = instance_id_dict.get(inst_id)
         for line in this_list:
             output_file.write(line)
-        begin_line = linecounter + 1
+        instance_block_begin_line = linecounter
         linecounter += len(this_list)
         if inst_id in line_numbers_containing_anomalies_per_instance:
             for index in line_numbers_containing_anomalies_per_instance[inst_id]:
-                anomaly_indices.append(begin_line + index)
-        instance_information.append(tuple((begin_line, linecounter)))
+                anomaly_indices.append(instance_block_begin_line + index)
+        instance_information.append(tuple((instance_block_begin_line, linecounter-1)))
 
     os.makedirs(os.path.dirname(instance_information_path), exist_ok=True)
     pickle.dump(instance_information, open(instance_information_path, 'wb'))
     anomaly_indices_output_file = open(anomaly_indices_output_path, 'w')
     for val in anomaly_indices:
-        anomaly_indices_output_file.write(str(val+1)+"\n")
+        anomaly_indices_output_file.write(str(val)+"\n")
     anomaly_indices_output_file.close()
 
 
 def create_instance_intervals(instance_id_dict, output_path, instance_information_path):
-    linecounter = -1
+    linecounter = 0
     instance_information = []
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     output_file = open(output_path, 'w')
@@ -97,13 +101,13 @@ def create_instance_intervals(instance_id_dict, output_path, instance_informatio
         this_list = instance_id_dict.get(inst_id)
         for line in this_list:
             output_file.write(line)
-        begin_line = linecounter + 1
+        instance_block_begin_line = linecounter
         linecounter += len(this_list)
-        instance_information.append(tuple((begin_line, linecounter)))
+        instance_information.append(tuple((instance_block_begin_line, linecounter-1)))
 
     os.makedirs(os.path.dirname(instance_information_path), exist_ok=True)
     pickle.dump(instance_information, open(instance_information_path, 'wb'))
 
 
-# if __name__ == '__main__':
-#     parse_utah_logs()
+if __name__ == '__main__':
+    parse_sort_and_inject_anomalies()
