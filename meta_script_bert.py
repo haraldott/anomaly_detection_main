@@ -19,9 +19,9 @@ from tools import distribution_plots as distribution_plots, calc_precision_utah 
 def calculate_precision_and_plot(this_results_dir_experiment, log_file_containing_anomalies):
     precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
                                     outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
-    distribution_plots(this_results_dir_experiment, args.epochs, args.hiddenunits, 768, precision)
-    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_hiddenunits_{}"
-                                    .format('bert', args.epochs, args.hiddenunits) + '.tar',
+    distribution_plots(this_results_dir_experiment, args.epochs, args.seq_len, 768, precision)
+    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}"
+                                    .format('bert', args.epochs, args.seq_len) + '.tar',
                      '--directory=' + cwd + this_results_dir_experiment,
                      'normal_loss_values',
                      'anomaly_loss_values',
@@ -81,20 +81,23 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, lo, up):
     outliers_values_file.close()
 
 
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------INITIALISE PARAMETERS---------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='UtahSorted137')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-reduced', action='store_true')
-parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-epochs', type=int, default=0)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
 args = parser.parse_args()
 
 option = args.option
-results_dir_experiment = "{}_epochs_{}_hiddenunits_{}/" \
-    .format(settings.settings[option]["resultsdir"] + 'bert', args.epochs, args.hiddenunits)
+results_dir_experiment = "{}_epochs_{}_seq_len_{}/" \
+    .format(settings.settings[option]["resultsdir"] + 'bert', args.epochs, args.seq_len)
 combinedinputfile = settings.settings[option]["combinedinputfile"]
 anomalyinputfile = settings.settings[option]["anomalyinputfile"]
 normalinputfile = settings.settings[option]["normalinputfile"]
@@ -189,8 +192,8 @@ else:
     embeddingspickledir_transfer = settings.settings[option]["embeddingspickledir_transfer"]
     embeddings_normal_transfer = cwd + embeddingspickledir_transfer + normalinputfile_transfer + '.pickle'
     embeddings_anomalies_transfer = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
-    results_dir_experiment_transfer = "{}_epochs_{}_hiddenunits_{}/".format(
-        settings.settings[option]["resultsdir_transfer"] + 'bert', args.epochs, args.hiddenunits)
+    results_dir_experiment_transfer = "{}_epochs_{}_seq_len_{}/".format(
+        settings.settings[option]["resultsdir_transfer"] + 'bert', args.epochs, args.seq_len)
     anomalyfile_transfer = settings.settings[option]["inputdir_transfer"] + settings.settings[option][
         "anomalyinputfile_transfer"]
     instance_information_file_normal_transfer = settings.settings[option]["instance_information_file_normal_transfer"]

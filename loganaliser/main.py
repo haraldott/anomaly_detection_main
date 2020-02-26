@@ -107,7 +107,7 @@ class AnomalyDetection:
         if self.anomalies_run:
             anomaly_indices_file = open(self.results_dir, 'w+')
             for val in target_indices:
-                anomaly_indices_file.write(str(val) + "\n")
+                anomaly_indices_file.write(str(val+1) + "\n")
             anomaly_indices_file.close()
 
         data_x = torch.stack(data_x).to(self.device)
