@@ -93,7 +93,11 @@ parser.add_argument('-epochs', type=int, default=0)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
+parser.add_argument('-anomaly_only', action='store_true')
 args = parser.parse_args()
+
+# if we do anomaly only, we implicitly also want reduced
+if args.anomaly_only: args.reduced = True
 
 option = args.option
 results_dir_experiment = "{}_epochs_{}_seq_len_{}/" \
@@ -161,13 +165,14 @@ if not args.reduced:
 # --------------------------------NORMAL LEARNING--------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------
 if not args.transferlearning:
-    # learning on normal data
-    ad_normal = learning(arg=args, embeddings_path=embeddings_normal, epochs=args.epochs,
-                         instance_information_file=instance_information_file_normal)
-    # calculate loss on normal data and log
-    lower, upper = calculate_normal_loss(normal_lstm_model=ad_normal,
-                                         results_dir=results_dir_experiment,
-                                         values_type='normal_loss_values')
+    if not args.anomaly_only:
+        # learning on normal data
+        ad_normal = learning(arg=args, embeddings_path=embeddings_normal, epochs=args.epochs,
+                             instance_information_file=instance_information_file_normal)
+        # calculate loss on normal data and log
+        lower, upper = calculate_normal_loss(normal_lstm_model=ad_normal,
+                                             results_dir=results_dir_experiment,
+                                             values_type='normal_loss_values')
     # predict on data containing anomaly and log
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                                   loadvectors=embeddings_anomalies,
