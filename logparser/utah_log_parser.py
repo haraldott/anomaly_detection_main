@@ -2,12 +2,17 @@ import re
 import os
 import pickle
 import random
+import math
 from collections import defaultdict
 
 randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] My personal randomly injected line.\n"
 number_of_instances_to_inject_anomalies_in = 6
 max_number_of_anomalies_per_instance = 3
 number_of_swaps_per_instance = 4
+anomaly_ratio = 0.02
+words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after"]
+max_number_of_words_to_be_altered = 1
+ratio_of_words_to_be_altered_per_line = 0.15
 
 
 def parse_and_sort(logfile_path='../data/openstack/sasho/raw/logs_aggregated_normal_only.csv',
@@ -40,18 +45,28 @@ def parse_sort_and_swap_lines(logfile_path='../data/openstack/utah/raw/openstack
                                                line_numbers_swapped_per_instance, anomaly_indices_output_path)
 
 
+def __sort_per_instance_id_without_dict(log_lines_path):
+    logfile_lines = open(log_lines_path, 'r').readlines()
+    number_of_no_id = 0
+    total_lines = []
+    for line in logfile_lines:
+        m = re.search('\[instance:\s([^\]]+)', line)
+        if m is not None:
+            total_lines.append(line)
+        else:
+            number_of_no_id += 1
+    return total_lines
+
+
 def __sort_per_instance_id(log_lines_path):
     logfile_lines = open(log_lines_path, 'r').readlines()
     number_of_no_id = 0
-    instance_id_dict = {}
+    instance_id_dict = defaultdict
     for line in logfile_lines:
         m = re.search('\[instance:\s([^\]]+)', line)
         if m is not None:
             instance_id = m.group(1)
-            if instance_id_dict.get(instance_id) is None:
-                instance_id_dict[instance_id] = [line]
-            else:
-                instance_id_dict[instance_id].append(line)
+            instance_id_dict[instance_id].append(line)
         else:
             number_of_no_id += 1
     return instance_id_dict
@@ -136,5 +151,44 @@ def __swap_log_lines(instance_id_dict):
         [line_numbers_swapped_per_instance[instance_id].append(index) for index in indices_swapped]
     return instance_id_dict, line_numbers_swapped_per_instance
 
+
+def change_words(input_file_path, output_file_path, anomaly_indices_output_path):
+    total_lines_file = open(input_file_path, 'r')
+    total_lines = total_lines_file.readlines()
+    total_lines_file.close()
+
+    number_of_lines = len(total_lines)
+    # number_of_lines = sum([len(instance_id_dict[x]) for x in instance_id_dict])
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * anomaly_ratio)
+    line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
+    fns = ["remove", "insert"]
+    for index in line_indices_to_be_altered:
+        # select line for altering
+        line = total_lines[index]
+        line = line.split()
+        number_of_words_to_be_altered = max(math.ceil(len(line) * ratio_of_words_to_be_altered_per_line), 1)
+        choice = random.choice(fns)
+        for _ in range(number_of_words_to_be_altered):
+            if choice == "insert":
+                line.insert(random.randrange(0, len(total_lines[index])), random.choice(words_for_random_insert))
+            if choice == "remove":
+                del line[random.randrange(0, len(line))]
+        # re-insert altered line
+        line = " ".join(line) + "\n"
+        total_lines[index] = line
+
+    output_file = open(output_file_path, 'w')
+    for line in total_lines:
+        output_file.write(line)
+    output_file.close()
+
+    anomaly_indices_file = open(anomaly_indices_output_path, 'w')
+    for anomaly_index in line_indices_to_be_altered:
+        anomaly_indices_file.write(str(anomaly_index) + "\n")
+    anomaly_indices_file.close()
+
+
 if __name__ == '__main__':
-    parse_sort_and_swap_lines()
+    change_words(input_file_path="../data/openstack/utah/parsed/openstack_18k_anomalies_sorted_per_request_corpus",
+                 output_file_path="/Users/haraldott/Downloads/anomalies.txt",
+                 anomaly_indices_output_path="/Users/haraldott/Downloads/anomaly_indices.txt")
