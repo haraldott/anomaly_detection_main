@@ -2,7 +2,10 @@ import pickle
 
 import numpy as np
 import torch
-from pytorch_pretrained_bert import BertTokenizer, BertModel
+from pytorch_pretrained_bert import BertTokenizer as pretrained_BertTokenizer
+from pytorch_pretrained_bert import BertModel as pretrained_BertModel
+from transformers import BertTokenizer as transformers_BertTokenizer
+from transformers import BertModel as transformers_BertModel
 
 
 # from wordembeddings.visualisation import tsne_plot_2d
@@ -39,8 +42,8 @@ def transform(sentence_embeddings,
 def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
                           bert_model='bert-base-uncased'):
     # checks, if pre-trained model or directory containing pre-trained model exists, is being done here
-    tokenizer = BertTokenizer.from_pretrained(bert_model)
-    model = BertModel.from_pretrained(bert_model)
+    tokenizer = pretrained_BertTokenizer.from_pretrained(bert_model)
+    model = pretrained_BertModel.from_pretrained(bert_model)
 
     lines = open(templates_location, 'r')
 
@@ -123,6 +126,23 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
     return sentence_embeddings, token_vecs_cat, token_vecs_sum, tokenized_text
 
 
+def get_bert_vectors_from_corpus(outputfile="..data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_changed_words.pickle",
+                                 corpus_location="../data/openstack/utah/parsed/anomalies.txt",
+                                 bert_model="bert-base-uncased"):
+    lines = open(corpus_location, 'r').readlines()
+    tokenizer = transformers_BertTokenizer.from_pretrained(bert_model)
+    model = transformers_BertModel.from_pretrained(bert_model)
+
+    encoded_text = [tokenizer.encode(sentence, add_special_tokens=True) for sentence in lines]
+
+    encoded_text_torch = [torch.tensor(sent) for sent in encoded_text]
+
+    word_embeddings = []
+    with torch.no_grad():
+        [word_embeddings.append(model(encoded_text.unsqueeze(0))[1]) for encoded_text in encoded_text_torch]
+
+    pickle.dump(word_embeddings, open(outputfile, 'wb'))
+
 # _, token_vecs_cat, token_vecs_sum, tokenized_text = get_bert_vectors()
 # plot_bert(token_vecs_cat, tokenized_text)
 # def plot_bert(token_vecs, tokenized_text):
@@ -136,4 +156,4 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
 #     tsne_plot_2d('bert.png', 'Word embeddings', embeddings_ak_2d, flat_tokenized_text, a=0.9)
 
 if __name__ == '__main__':
-    _prepare_bert_vectors()
+    get_bert_vectors_from_corpus()
