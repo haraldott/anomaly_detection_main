@@ -9,25 +9,25 @@ randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 1
 number_of_instances_to_inject_anomalies_in = 6
 max_number_of_anomalies_per_instance = 3
 number_of_swaps_per_instance = 4
-anomaly_ratio = 0.02
+overall_anomaly_ratio = 0.02
 words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after"]
 max_number_of_words_to_be_altered = 1
 ratio_of_words_to_be_altered_per_line = 0.15
 
 
-def parse_and_sort(logfile_path='../data/openstack/sasho/raw/logs_aggregated_normal_only.csv',
-                   output_path='../data/openstack/sasho/raw/sorted_per_request/logs_aggregated_normal_only.csv',
-                   instance_information_path='../data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregated_normal_only.pickle'):
+def parse_and_sort(logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/openstack_137k_plus_18k',
+                   output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/openstack_137k_plus_18k_sorted_per_request',
+                   instance_information_path='../data/openstack/utah/raw/sorted_per_request_pickle/openstack_137k_plus_18k.pickle'):
     instance_id_dict = __sort_per_instance_id(logfile_path)
     __create_instance_intervals(instance_id_dict, output_path, instance_information_path)
 
 
-def parse_sort_and_inject_anomalies(logfile_path='../data/openstack/utah/raw/openstack_18k_anomalies',
-                                    output_path='../data/openstack/utah/raw/sorted_per_request/openstack_18k_self_injected_anomalies',
-                                    instance_information_path='../data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_self_injected_anomalies.pickle',
-                                    anomaly_indices_output_path='../data/openstack/utah/raw/sorted_per_request/anomaly_indices_18k_self_injected.txt'):
+def parse_sort_and_inject_random_lines(logfile_path='../data/openstack/utah/raw/openstack_18k_anomalies',
+                                       output_path='../data/openstack/utah/raw/sorted_per_request/openstack_18k_self_injected_anomalies',
+                                       instance_information_path='../data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_self_injected_anomalies.pickle',
+                                       anomaly_indices_output_path='../data/openstack/utah/raw/sorted_per_request/anomaly_indices_18k_self_injected.txt'):
     instance_id_dict = __sort_per_instance_id(logfile_path)
-    instance_id_dict, line_numbers_containing_anomalies_per_instance = __inject_anomalies(instance_id_dict)
+    instance_id_dict, line_numbers_containing_anomalies_per_instance = __inject_random_line(instance_id_dict)
     __create_instance_intervals_with_anomalies(instance_id_dict,
                                                output_path,
                                                instance_information_path,
@@ -43,6 +43,75 @@ def parse_sort_and_swap_lines(logfile_path='../data/openstack/utah/raw/openstack
     instance_id_dict, line_numbers_swapped_per_instance = __swap_log_lines(instance_id_dict)
     __create_instance_intervals_with_anomalies(instance_id_dict, output_path, instance_information_path,
                                                line_numbers_swapped_per_instance, anomaly_indices_output_path)
+
+def shuffle_log_sequences(corpus_input_file_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
+                          output_file_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/openstack_18k_shuffled_anomalies',
+                          instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_anomalies.pickle',
+                          anomaly_indices_output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/anomaly_indeces/anomaly_indices_18k_shuffled.txt'):
+    shuffle(corpus_input_file_path, output_file_path, instance_information_path,
+            anomaly_indices_output_path)
+
+
+########################################################################################################################
+#                                           HELPER FUNCTIONS
+########################################################################################################################
+
+
+def shuffle(corpus_input_file_path, output_path, instance_information_path,
+            anomaly_indices_output_path):
+
+    shuffle_distances = [-3, -2, 2,3]
+    corpus = open(corpus_input_file_path, 'r').readlines()
+    assert corpus
+    instance_information = pickle.load(open(instance_information_path, 'rb'))
+    assert instance_information
+
+    total_number_of_lines = len(corpus)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(total_number_of_lines * overall_anomaly_ratio)
+    interval_indeces_with_more_than_four_lines = []
+    for interval_index, interval in enumerate(instance_information):
+        if interval[1] - interval[0] > 4:
+            interval_indeces_with_more_than_four_lines.append(interval_index)
+    #TODO: wenn man 18k nimmt, dann gibt es weniger Intervalle, als number_of_anomaly_lines_to_be_manipulated,
+    #   man müsste dann mehrere verschiebungen pro Intervall machen, vielleicht später
+    if number_of_anomaly_lines_to_be_manipulated > len(interval_indeces_with_more_than_four_lines):
+        intervals_to_be_altered = interval_indeces_with_more_than_four_lines
+    else:
+        intervals_to_be_altered = random.sample(interval_indeces_with_more_than_four_lines, number_of_anomaly_lines_to_be_manipulated)
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_file = open(output_path, 'w')
+    anomaly_indices_output_file = open(anomaly_indices_output_path, 'w')
+    for interval_index, interval in enumerate(instance_information):
+        shuffle_indeces = False
+        # check if we're currently looking at an inst_id that's supposed to receive anomalies, and inject them
+        if interval_index in intervals_to_be_altered:
+            shuffle_indeces = True
+            index_to_be_altered = random.choice(list(range(interval[0], interval[1])))
+            shuffle_distance = random.choice(shuffle_distances)
+            shuffle_index = index_to_be_altered + shuffle_distance
+            # check if we're still inside the interval
+            if shuffle_index < interval[0] or shuffle_index > interval[1]:
+                shuffle_index = index_to_be_altered - shuffle_distance
+
+            # if corpus[index_to_be_altered] == corpus[shuffle_index]:
+            #     print("Zeileninhalt: {}, index_to_be_altered: {}, shuffle_index: {}".format(corpus[index_to_be_altered], index_to_be_altered, shuffle_index))
+            line_to_be_altered = corpus[index_to_be_altered]
+            del corpus[index_to_be_altered]
+            corpus[shuffle_index:shuffle_index] = [line_to_be_altered]
+        this_list = corpus[interval[0]:interval[1]+1]
+        # for now, only put in shuffle_index as anomaly
+        # TODO: check, if all indices that were shuffled should be marked as anomalies
+
+
+        for l in this_list:
+            output_file.write(l)
+        if shuffle_indeces:
+            assert(index_to_be_altered is not None)
+            anomaly_indices_output_file.write(str(index_to_be_altered) + "\n")
+        shuffle_index = None
+    anomaly_indices_output_file.close()
+    output_file.close()
 
 
 def __sort_per_instance_id_without_dict(log_lines_path):
@@ -61,18 +130,21 @@ def __sort_per_instance_id_without_dict(log_lines_path):
 def __sort_per_instance_id(log_lines_path):
     logfile_lines = open(log_lines_path, 'r').readlines()
     number_of_no_id = 0
-    instance_id_dict = defaultdict
+    instance_id_dict = {}
     for line in logfile_lines:
         m = re.search('\[instance:\s([^\]]+)', line)
         if m is not None:
             instance_id = m.group(1)
-            instance_id_dict[instance_id].append(line)
+            if instance_id_dict.get(instance_id) is None:
+                instance_id_dict[instance_id] = [line]
+            else:
+                instance_id_dict[instance_id].append(line)
         else:
             number_of_no_id += 1
     return instance_id_dict
 
 
-def __inject_anomalies(instance_id_dict):
+def __inject_random_line(instance_id_dict):
     instance_ids_selected_for_anomaly_injection = random.sample(list(instance_id_dict.keys()),
                                                                 number_of_instances_to_inject_anomalies_in)
     line_numbers_containing_anomalies_per_instance = defaultdict(list)
@@ -130,6 +202,7 @@ def __create_instance_intervals(instance_id_dict, output_path, instance_informat
         instance_block_begin_line = linecounter
         linecounter += len(this_list)
         instance_information.append(tuple((instance_block_begin_line, linecounter - 1)))
+    output_file.close()
 
     os.makedirs(os.path.dirname(instance_information_path), exist_ok=True)
     pickle.dump(instance_information, open(instance_information_path, 'wb'))
@@ -152,27 +225,63 @@ def __swap_log_lines(instance_id_dict):
     return instance_id_dict, line_numbers_swapped_per_instance
 
 
-def change_words(input_file_path, output_file_path, anomaly_indices_output_path):
+def __shuffle_events():
+    instance_id_dict = __sort_per_instance_id('../data/openstack/utah/raw/openstack_137k_normal')
+    number_of_anomalies_per_instance_range = [2, 3]
+    average_number_of_changes_per_instance = 2.5
+    number_of_lines = 0
+    for id in instance_id_dict:
+        number_of_lines += len(instance_id_dict[id])
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
+    instance_ids_to_be_altered = random.sample(instance_id_dict.keys(),
+                                               math.floor(number_of_anomaly_lines_to_be_manipulated / average_number_of_changes_per_instance))
+    for instance_id in instance_ids_to_be_altered:
+        number_of_changes = random.choice(number_of_anomalies_per_instance_range)
+        instance_id_dict[instance_id]
+    print ("hello")
+
+
+def anomaly_change_words(input_file_path, output_file_path, anomaly_indices_output_path):
     total_lines_file = open(input_file_path, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
 
     number_of_lines = len(total_lines)
     # number_of_lines = sum([len(instance_id_dict[x]) for x in instance_id_dict])
-    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * anomaly_ratio)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
     line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
     fns = ["remove", "insert"]
     for index in line_indices_to_be_altered:
         # select line for altering
         line = total_lines[index]
         line = line.split()
+        removed_words = []
         number_of_words_to_be_altered = max(math.ceil(len(line) * ratio_of_words_to_be_altered_per_line), 1)
         choice = random.choice(fns)
         for _ in range(number_of_words_to_be_altered):
             if choice == "insert":
                 line.insert(random.randrange(0, len(total_lines[index])), random.choice(words_for_random_insert))
             if choice == "remove":
-                del line[random.randrange(0, len(line))]
+                # make sure that we don't remove <*>, but an actual word
+                next = True
+                i = 0
+                while i in range(len(line)) and next:
+                    random_index = random.randrange(0, len(line))
+                    # we found a word that is not "<*>", so we can stop our search and continue
+                    if line[random_index] != "<*>":
+                        removed_words.append(line[random_index])
+                        del line[random_index]
+                        next = False
+                    if next and i == len(line) - 1:
+                        print("Warning: During search for a word != \"<*>\","
+                              "all the words were \"<*>\", so we remove the last occurrence")
+                        removed_words.append(line[random_index])
+                        try:
+                            del line[random_index]
+                        except IndexError:
+                            print("tried to delete index {} in line {}".format(random_index, index))
+                    i =+ 1
+
         # re-insert altered line
         line = " ".join(line) + "\n"
         total_lines[index] = line
@@ -189,6 +298,4 @@ def change_words(input_file_path, output_file_path, anomaly_indices_output_path)
 
 
 if __name__ == '__main__':
-    change_words(input_file_path="../data/openstack/utah/parsed/openstack_18k_anomalies_sorted_per_request_corpus",
-                 output_file_path="/Users/haraldott/Downloads/anomalies.txt",
-                 anomaly_indices_output_path="/Users/haraldott/Downloads/anomaly_indices.txt")
+    parse_and_sort()

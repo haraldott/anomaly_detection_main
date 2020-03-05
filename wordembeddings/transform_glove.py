@@ -82,12 +82,16 @@ def merge_templates(*template_files, merged_template_path):
     """
     log_lines = []
     for file in template_files:
-        try:
-            this_file = open(file, "r")
-            for line in this_file.readlines():
+        if type(file) == str:
+            try:
+                this_file = open(file, "r")
+                for line in this_file.readlines():
+                    log_lines.append(line)
+            except FileNotFoundError:
+                print("Could not open file {}".format(file))
+        elif type(file) == list:
+            for line in file:
                 log_lines.append(line)
-        except FileNotFoundError:
-            print("Could not open file {}".format(file))
     log_lines = set(log_lines)
     merged_template_file = open(merged_template_path, 'w+')
     for t in log_lines:
