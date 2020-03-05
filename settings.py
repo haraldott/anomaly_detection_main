@@ -51,7 +51,7 @@ settings = {
         'embeddingsdir': 'data/openstack/utah/embeddings/',
         'logtype': 'OpenStack',
         'instance_information_file_normal': 'data/openstack/utah/raw/sorted_per_request_pickle/'
-                                            'openstack_137k_normal_information.pickle',
+                                            'openstack_137k_normal.pickle',
         'instance_information_file_anomalies': 'data/openstack/utah/raw/sorted_per_request_pickle/'
                                                'openstack_18k_anomalies.pickle'
     },
