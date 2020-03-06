@@ -42,7 +42,7 @@ settings = {
     },
     'UtahSorted137': {
         'combinedinputfile': 'openstack_137k_plus_18k_sorted_per_request',
-        'anomalyinputfile': 'openstack_18k_anomalies_sorted_per_request',
+        'anomalyinputfile': 'openstack_18k_random_lines_anomalies_new',
         'normalinputfile': 'openstack_137k_normal_sorted_per_request',
         'inputdir': 'data/openstack/utah/raw/sorted_per_request/',
         'parseddir': 'data/openstack/utah/parsed/',
@@ -50,10 +50,8 @@ settings = {
         'embeddingspickledir': 'data/openstack/utah/padded_embeddings_pickle/',
         'embeddingsdir': 'data/openstack/utah/embeddings/',
         'logtype': 'OpenStack',
-        'instance_information_file_normal': 'data/openstack/utah/raw/sorted_per_request_pickle/'
-                                            'openstack_137k_normal.pickle',
-        'instance_information_file_anomalies': 'data/openstack/utah/raw/sorted_per_request_pickle/'
-                                               'openstack_18k_anomalies.pickle'
+        'instance_information_file_normal': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_137k_normal.pickle',
+        'instance_information_file_anomalies': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_random_lines_anomalies_new.pickle'
     },
     'UtahSashoTransfer': {
         'combinedinputfile': 'logs_aggregated_full.csv',
@@ -76,9 +74,7 @@ settings = {
         'embeddingspickledir_transfer': 'data/openstack/utah/padded_embeddings_pickle/',
         'embeddingsdir_transfer': 'data/openstack/utah/embeddings/',
         'logtype_transfer': 'OpenStack',
-        'instance_information_file_normal_transfer': 'data/openstack/utah/raw/sorted_per_request_pickle/'
-                                            'openstack_137k_normal_information.pickle',
-        'instance_information_file_anomalies_transfer': 'data/openstack/utah/raw/sorted_per_request_pickle/'
-                                               'openstack_18k_anomalies_information.pickle'
+        'instance_information_file_normal_transfer': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_137k_normal_information.pickle',
+        'instance_information_file_anomalies_transfer': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_anomalies_information.pickle'
     }
 }

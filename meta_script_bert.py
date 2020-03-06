@@ -14,7 +14,6 @@ import wordembeddings.transform_bert as transform_bert
 import wordembeddings.transform_glove as transform_glove
 from loganaliser.main import AnomalyDetection
 from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
-from logparser.utah_log_parser import shuffle_log_sequences, parse_and_sort
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 bert_model_finetune = "wordembeddings/finetuning-models/utah_137k_plus_change_word_anomalies"
@@ -86,14 +85,12 @@ parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
+parser.add_argument('-anomaly_description', type=str, default='None')
 args = parser.parse_args()
 
-# if we do anomaly only, we implicitly also want reduced
-if args.anomaly_only: args.reduced = True
-
 option = args.option
-results_dir_experiment = "{}_epochs_{}_seq_len_{}/" \
-    .format(settings.settings[option]["resultsdir"] + 'bert', args.epochs, args.seq_len)
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}/".format(settings.settings[option]["resultsdir"] + 'bert',
+                                                                            args.epochs, args.seq_len, args.anomaly_description)
 combinedinputfile = settings.settings[option]["combinedinputfile"]
 anomalyinputfile = settings.settings[option]["anomalyinputfile"]
 normalinputfile = settings.settings[option]["normalinputfile"]
@@ -137,27 +134,21 @@ embeddings_anomalies = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
 vae_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_vae.pth'
 lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_lstm.pth'
 
-corpus_anomaly_outputfile = cwd + parseddir + anomalyinputfile + 'anomalies_injected_corpus'
-anomalies_injected_indeces = cwd + anomaly_indeces_dir + anomalyinputfile + 'anomaly_indeces.txt'
+corpus_anomaly_outputfile = cwd + parseddir + anomalies_injected_dir + anomalyinputfile + '_anomalies_injected_corpus'
+anomalies_injected_indeces = cwd + anomaly_indeces_dir + anomalyinputfile + '_anomaly_indeces.txt'
+
 
 
 
 
 if not args.reduced:
-    # parse_and_sort(logfile_path=inputdir + anomalyinputfile,
-    #                output_path=parseddir + corpus_anomaly_outputfile,
-    #                instance_information_path=instance_information_file_anomalies)
     # start Drain parser
-    drain.execute(directory=inputdir, file=combinedinputfile, output=parseddir, logtype=logtype)
-    drain.execute(directory=inputdir, file=anomalyinputfile, output=parseddir, logtype=logtype)
-    drain.execute(directory=inputdir, file=normalinputfile, output=parseddir, logtype=logtype)
+    # drain.execute(directory=inputdir, file=combinedinputfile, output=parseddir, logtype=logtype)
+    # drain.execute(directory=inputdir, file=anomalyinputfile, output=parseddir, logtype=logtype)
+    # drain.execute(directory=inputdir, file=normalinputfile, output=parseddir, logtype=logtype)
 
-    shuffle_log_sequences(corpus_input_file_path=corpus_anomaly_inputfile,
-                          output_file_path=corpus_anomaly_outputfile,
-                          instance_information_path=instance_information_file_anomalies,
-                          anomaly_indices_output_path=anomalies_injected_indeces)
-
-    templates_anomaly = list(set(open(corpus_anomaly_outputfile, 'r').readlines()))
+    # produce templates out of the corpuses that we have from the anomaly file
+    templates_anomaly = list(set(open(corpus_anomaly_inputfile, 'r').readlines()))
     transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
                                     merged_template_path=templates_merged)
 
@@ -168,13 +159,14 @@ if not args.reduced:
                                                             bert_model=bert_model_finetune)
 
     # transform output of bert into numpy word embedding vectors
-    transform_bert.transform(sentence_embeddings=bert_vectors,
-                             logfile=corpus_normal_inputfile,
-                             templatefile=templates_merged,
-                             outputfile=embeddings_normal)
+    if not args.anomaly_only:
+        transform_bert.transform(sentence_embeddings=bert_vectors,
+                                 logfile=corpus_normal_inputfile,
+                                 templatefile=templates_merged,
+                                 outputfile=embeddings_normal)
 
     transform_bert.transform(sentence_embeddings=bert_vectors,
-                             logfile=corpus_anomaly_outputfile,
+                             logfile=corpus_anomaly_inputfile,
                              templatefile=templates_merged,
                              outputfile=embeddings_anomalies)
 # -------------------------------------------------------------------------------------------------------
