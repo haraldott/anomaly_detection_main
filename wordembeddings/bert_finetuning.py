@@ -2,6 +2,7 @@ import datetime
 import os
 import random
 import time
+import argparse
 
 import numpy as np
 import torch
@@ -14,7 +15,7 @@ from transformers import get_linear_schedule_with_warmup
 from typing import Tuple
 import math
 
-epochs = 5
+epochs = 4
 
 
 def format_time(elapsed):
@@ -55,11 +56,24 @@ def mask_tokens(inputs: torch.Tensor, tokenizer: transformers_BertTokenizer) -> 
     # The rest of the time (10% of the time) we keep the masked input tokens unchanged
     return inputs, labels
 
+########################################################################################################################
+#                                               ARGUMENT PARSE
+########################################################################################################################
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-sentences', type=str, default='../data/openstack/utah/parsed/merged_templates/137k+18k_spr_injected_2_words')
+parser.add_argument('-output_dir', type=str, default='finetuning-models/137k+18k_spr_injected_2_words')
+parser.add_argument('-logfile_path', type=str, default='finetuning-models/137k+18k_spr_injected_2_words/log.txt')
+args = parser.parse_args()
+
+# arg parsing and assignment
+sentences = open(args.sentences, 'r').readlines()
+output_dir = args.output_dir
+os.makedirs(output_dir, exist_ok=True)
+logfile = open(args.logfile_path, 'w')
+
 
 tokenizer = transformers_BertTokenizer.from_pretrained('bert-base-uncased')
-sentences = open('../data/openstack/utah/parsed/openstack_137k_plus_18k_sorted_per_request_merged_templates', 'r').readlines()
-output_dir = 'finetuning-models/openstack_137k_plus_18k_sorted_per_request_merged_templates/'
-os.makedirs(output_dir, exist_ok=True)
 sentences_duplicated = []
 
 for sent in sentences:
@@ -137,8 +151,11 @@ for epoch_i in range(0, epochs):
     # Perform one full pass over the training set.
     best_val_loss = None
     print("")
+    logfile.write("\n")
     print('======== Epoch {:} / {:} ========'.format(epoch_i + 1, epochs))
+    logfile.write('======== Epoch {:} / {:} ========\n'.format(epoch_i + 1, epochs))
     print('Training...')
+    logfile.write("Training...\n")
 
     # Measure how long the training epoch takes.
     t0 = time.time()
@@ -158,6 +175,7 @@ for epoch_i in range(0, epochs):
 
             # Report progress.
             print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
+            logfile.write('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.\n'.format(step, len(train_dataloader), elapsed))
 
         # batch: padded_input_ids, mask_positions, mask_words
         # Unpack this training batch from our dataloader.
@@ -181,8 +199,11 @@ for epoch_i in range(0, epochs):
     loss_values.append(avg_train_loss)
 
     print("")
+    logfile.write("\n")
     print("  Average training loss: {0:.2f}".format(avg_train_loss))
+    logfile.write('  Average training loss: {0:.2f}\n'.format(avg_train_loss))
     print("  Training epoch took: {:}".format(format_time(time.time() - t0)))
+    logfile.write('  Training epoch took: {:}\n'.format(format_time(time.time() - t0)))
 
     # ========================================
     #               Validation
@@ -191,7 +212,9 @@ for epoch_i in range(0, epochs):
     # our validation set.
 
     print("")
+    logfile.write("\n")
     print("Running Validation...")
+    logfile.write("Running Validation...\n")
 
     t0 = time.time()
 
@@ -228,7 +251,12 @@ for epoch_i in range(0, epochs):
 
     # Report the final accuracy for this validation run.
     print("  Loss eval: {0:.2f}".format(lm_loss / nb_eval_steps))
+    logfile.write('  Loss eval: {0:.2f}\n'.format(lm_loss / nb_eval_steps))
     print("  Validation took: {:}".format(format_time(time.time() - t0)))
+    logfile.write('  Validation took: {:}\n'.format(format_time(time.time() - t0)))
 
 print("")
+logfile.write("\n")
 print("Training complete!")
+logfile.write("Training complete!\n")
+logfile.close()
