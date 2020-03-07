@@ -43,14 +43,14 @@ settings = {
     'UtahSorted137': {
         'combinedinputfile': 'openstack_137k_plus_18k_sorted_per_request',
         'anomalyinputfile': 'openstack_18k_random_lines_anomalies_new',
-        'normalinputfile': 'openstack_137k_normal_sorted_per_request',
+        'normalinputfile': '137k_spr',
         'inputdir': 'data/openstack/utah/raw/sorted_per_request/',
         'parseddir': 'data/openstack/utah/parsed/',
         'resultsdir': 'data/openstack/utah/results/UtahSorted137/',
         'embeddingspickledir': 'data/openstack/utah/padded_embeddings_pickle/',
         'embeddingsdir': 'data/openstack/utah/embeddings/',
         'logtype': 'OpenStack',
-        'instance_information_file_normal': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_137k_normal.pickle',
+        'instance_information_file_normal': 'data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle',
         'instance_information_file_anomalies': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_random_lines_anomalies_new.pickle'
     },
     'UtahSashoTransfer': {

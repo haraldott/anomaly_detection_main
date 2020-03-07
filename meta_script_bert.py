@@ -16,15 +16,15 @@ from loganaliser.main import AnomalyDetection
 from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
-bert_model_finetune = "wordembeddings/finetuning-models/utah_137k_plus_change_word_anomalies"
+bert_model_finetune = "bert-base-uncased"
 
 
 def calculate_precision_and_plot(this_results_dir_experiment, log_file_containing_anomalies):
-    precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
-                                    outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
-    distribution_plots(this_results_dir_experiment, args.epochs, args.seq_len, 768, precision)
-    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}"
-                                    .format('bert', args.epochs, args.seq_len) + '.tar',
+    # precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
+    #                                 outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
+    distribution_plots(this_results_dir_experiment, args.epochs, args.seq_len, 768, 0)
+    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}"
+                                    .format('bert', args.epochs, args.seq_len, args.anomaly_description) + '.tar',
                      '--directory=' + cwd + this_results_dir_experiment,
                      'normal_loss_values',
                      'anomaly_loss_values',
@@ -54,22 +54,32 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type):
 
     mean = np.mean(normal_loss_values)
     std = np.std(normal_loss_values)
-    cut_off = std * 3  # TODO: is this ok?
+    cut_off = std * 3
     lower, upper = mean - cut_off, mean + cut_off
     os.makedirs(results_dir, exist_ok=True)
     normal_values_file = open(cwd + results_dir + values_type, 'w+')
     for val in normal_loss_values:
         normal_values_file.write(str(val) + "\n")
     normal_values_file.close()
+    return lower, upper
 
 
-def calculate_anomaly_loss(anomaly_lstm_model, results_dir):
+def calculate_anomaly_loss(anomaly_lstm_model, results_dir, lo, up):
     anomaly_loss_values = anomaly_lstm_model.loss_values(normal=False)
 
     anomaly_values_file = open(cwd + results_dir + 'anomaly_loss_values', 'w+')
     for val in anomaly_loss_values:
         anomaly_values_file.write(str(val) + "\n")
     anomaly_values_file.close()
+    outliers = []
+    for i, x in enumerate(anomaly_loss_values):
+        if x < lo or x > up:
+            outliers.append(str(i + args.seq_len) + "," + str(x))
+
+    outliers_values_file = open(cwd + results_dir + 'outliers_values', 'w+')
+    for val in outliers:
+        outliers_values_file.write(str(val) + "\n")
+    outliers_values_file.close()
 
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -86,6 +96,8 @@ parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
 parser.add_argument('-anomaly_description', type=str, default='None')
+parser.add_argument('-corpus_anomaly_inputfile', type=str)
+parser.add_argument('-instance_information_file_anomalies', type=str)
 args = parser.parse_args()
 
 option = args.option
@@ -137,9 +149,9 @@ lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normalinputfile + '_l
 corpus_anomaly_outputfile = cwd + parseddir + anomalies_injected_dir + anomalyinputfile + '_anomalies_injected_corpus'
 anomalies_injected_indeces = cwd + anomaly_indeces_dir + anomalyinputfile + '_anomaly_indeces.txt'
 
-
-
-
+# if parameters come from args, use them, otherwise leave them as they are
+if args.corpus_anomaly_inputfile: corpus_anomaly_inputfile = args.corpus_anomaly_inputfile
+if args.instance_information_file_anomalies: instance_information_file_anomalies = args.instance_information_file_anomalies
 
 if not args.reduced:
     # start Drain parser
@@ -149,14 +161,13 @@ if not args.reduced:
 
     # produce templates out of the corpuses that we have from the anomaly file
     templates_anomaly = list(set(open(corpus_anomaly_inputfile, 'r').readlines()))
-    transform_glove.merge_templates(templates_normal, templates_anomaly, templates_added,
+    transform_glove.merge_templates(templates_normal, templates_anomaly,
                                     merged_template_path=templates_merged)
 
     # do_finetuning(corpus=templates_merged,
     #               output_dir=bert_model_finetune)
 
-    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged,
-                                                            bert_model=bert_model_finetune)
+    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged, bert_model=bert_model_finetune)
 
     # transform output of bert into numpy word embedding vectors
     if not args.anomaly_only:
@@ -173,14 +184,18 @@ if not args.reduced:
 # --------------------------------NORMAL LEARNING--------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------
 if not args.transferlearning:
+
+    # learning on normal data
+    ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path, loadvectors=embeddings_normal, savemodelpath=lstm_model_save_path,
+                                 seq_length=args.seq_len, num_epochs=args.epochs, n_hidden_units=args.hiddenunits,
+                                 n_layers=args.hiddenlayers, embeddings_model='bert', train_mode=True,
+                                 instance_information_file=instance_information_file_normal)
     if not args.anomaly_only:
-        # learning on normal data
-        ad_normal = learning(arg=args, embeddings_path=embeddings_normal, epochs=args.epochs,
-                             instance_information_file=instance_information_file_normal)
+        ad_normal.start_training()
         # calculate loss on normal data and log
-        calculate_normal_loss(normal_lstm_model=ad_normal,
-                              results_dir=results_dir_experiment,
-                              values_type='normal_loss_values')
+    lower, upper = calculate_normal_loss(normal_lstm_model=ad_normal,
+                          results_dir=results_dir_experiment,
+                          values_type='normal_loss_values')
     # predict on data containing anomaly and log
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                                   loadvectors=embeddings_anomalies,
@@ -193,7 +208,7 @@ if not args.transferlearning:
                                   instance_information_file=instance_information_file_anomalies,
                                   anomalies_run=True,
                                   results_dir=cwd + results_dir_experiment + 'anomaly_loss_indices')
-    calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment)
+    calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment, lo=lower, up=upper)
     calculate_precision_and_plot(this_results_dir_experiment=results_dir_experiment,
                                  log_file_containing_anomalies=inputdir + anomalyinputfile)
 # -------------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ from logparser import Drain
 
 
 def execute(directory='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request',
-            file='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/18k_spr',
+            file=     '137k_spr',
             output='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/',
             logtype='OpenStack',
             st=0.2,

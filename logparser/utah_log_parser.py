@@ -21,9 +21,9 @@ ratio_of_words_to_be_altered_per_line = 0.15
 
 ############# BEFORE DRAIN #############
 def instance_id_sort(
-        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/18k',
-        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/18k_spr',
-        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle'):
+        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/137k',
+        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/137k_spr',
+        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle'):
     """
     Takes a raw Openstack log file (logfile_path) as input, sorts per instance_id, removes all lines without instance_id,
     outputs the sorted file to output_path, and saves instance information (i.e. instance_id log line block from i to j)
@@ -513,10 +513,11 @@ def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indice
     pickle.dump(new_instance_information, open(instance_information_path_out, 'wb'))
 
 if __name__ == '__main__':
-    remove_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
-                 "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_3_words_removed",
-                 "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_3_words_removed_indices.txt",
-                 3)
+    instance_id_sort()
+    # remove_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
+    #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_3_words_removed",
+    #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_3_words_removed_indices.txt",
+    #              3)
     # insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_6_words_injected",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_6_words_injected.txt",
