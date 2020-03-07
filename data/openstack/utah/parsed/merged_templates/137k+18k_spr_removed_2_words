@@ -1,0 +1,83 @@
+<*> Deleting files
+<*> Total <*> <*> <*>.<*> <*>
+<*> Took <*>.<*> to deallocate for instance.
+<*> <*> <*> <*> MB, MB
+Took <*>.<*> seconds to deallocate network for
+<*> Instance
+Instance successfully.
+<*> instance files
+Claim
+Deleting instance <*>
+<*> <*> <*> MB, <*> <*>.<*>
+VM <*> (Lifecycle
+During sync_power_state the instance has a pending task (spawning).
+<*> VM (Lifecycle
+Total <*> <*> <*> used: <*>.<*>
+instance
+<*> successfully.
+VM (Lifecycle Event)
+Total <*> <*> <*> <*>.<*> <*>
+During sync_power_state the instance has pending task (spawning). Skip.
+<*> Took <*>.<*> seconds to deallocate network for instance.
+<*> During sync_power_state the instance has a pending task (spawning). Skip.
+<*> <*> (Lifecycle
+VM <*> Event)
+Attempting claim: memory <*> disk <*> GB, vcpus <*> CPU
+<*> Took <*>.<*> seconds to <*> instance on hypervisor.
+<*> <*> limit not specified, defaulting
+Creating
+<*> Terminating instance
+<*> Attempting claim: memory <*> MB, <*> GB, <*> CPU
+<*> <*> <*> used: <*>.<*> <*>
+Took <*>.<*> to build instance.
+<*> During the instance has a task (spawning). Skip.
+successful
+<*> Took <*>.<*> seconds to <*> on the hypervisor.
+<*> <*> Event)
+<*> Deleting <*>
+<*> Claim successful
+<*> Took <*>.<*> seconds to for instance.
+Instance <*>
+<*> Deleting instance files <*>
+Deletion <*>complete
+<*> seconds to <*> the instance on the hypervisor.
+<*> Instance <*> successfully.
+<*> During sync_power_state instance has a pending task Skip.
+<*> Creating image
+<*> <*>
+<*> (Lifecycle Event)
+<*> <*> limit specified, defaulting to
+<*> Total <*> <*> <*> used: <*>.<*> <*>
+<*> Took <*>.<*> seconds to <*> the instance on the hypervisor.
+<*> Deletion
+<*> During the has a pending task (spawning). Skip.
+<*> VM <*>
+<*> not specified, defaulting to unlimited
+<*> Took seconds to deallocate network instance.
+<*> <*> <*> <*> MB, <*>
+<*> sync_power_state instance has a pending task (spawning). Skip.
+<*> Took <*>.<*> seconds to instance on the hypervisor.
+<*> Took seconds to <*> the on the hypervisor.
+<*> <*>.<*> to deallocate network for instance.
+<*> Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU
+instance files <*>
+<*> Attempting claim: memory <*> MB, disk <*> GB, vcpus
+<*> <*> <*> MB, <*>.<*> MB
+<*> VM Event)
+<*> Took <*>.<*> seconds deallocate network for
+<*> <*> limit not specified, defaulting to unlimited
+<*> Took <*>.<*> seconds to the instance the hypervisor.
+<*> Deletion of <*>complete
+<*> <*> <*> MB, <*> MB
+<*> VM <*> (Lifecycle Event)
+<*> <*> <*> <*> <*>.<*> MB
+<*> Took <*>.<*> seconds to build instance.
+of <*>complete
+<*> Total <*> <*> <*> used:
+<*> <*> limit not defaulting to
+<*> <*> limit not specified, unlimited
+<*> During sync_power_state the instance has a pending task <*> Skip.
+<*> <*> <*> <*> MB, <*> <*>.<*> MB
+<*> Took <*>.<*> seconds to network for
+Took <*>.<*> seconds to <*> the instance on hypervisor.
+<*> <*> limit not specified, to

@@ -1,0 +1,60 @@
+<*> Attempting claim: memory <*> MB, <*> GB, vcpus <*> CPU
+<*> Took <*>.<*> to deallocate network for instance.
+<*> Total <*> <*> <*> <*>.<*> <*>
+<*> During sync_power_state the instance has a task (spawning). Skip.
+<*> During the instance has a pending task (spawning). Skip.
+<*> <*> <*> <*> MB, <*>.<*> MB
+<*> successful
+<*> <*> <*> <*> MB, <*> MB
+<*> VM <*> (Lifecycle
+<*> Instance <*>
+<*> Took <*>.<*> seconds to <*> instance on the hypervisor.
+<*> Took <*>.<*> seconds to deallocate network for instance.
+<*> During sync_power_state the instance has a pending task (spawning). Skip.
+<*> Total <*> <*> used: <*>.<*> <*>
+<*> limit not specified, defaulting to unlimited
+<*> During sync_power_state the instance has a pending task (spawning).
+<*> Terminating instance
+<*> <*> limit specified, defaulting to unlimited
+<*> <*> <*> <*> used: <*>.<*> <*>
+<*> Deleting instance files
+<*> Claim successful
+<*> Total <*> <*> <*> used: <*>.<*>
+<*> Terminating
+<*> During sync_power_state the instance has a pending task Skip.
+<*> Claim
+Total <*> <*> <*> used: <*>.<*> <*>
+<*> Deleting instance files <*>
+<*> Instance <*> successfully.
+<*> <*> <*> MB, <*> <*>.<*> MB
+<*> Creating image
+<*> VM (Lifecycle Event)
+Deleting instance files <*>
+<*> Took <*>.<*> seconds to deallocate for instance.
+<*> <*> <*> <*> <*> <*>.<*> MB
+<*> <*> limit not specified, to unlimited
+<*> Total <*> <*> <*> used: <*>.<*> <*>
+<*> Took <*>.<*> seconds to <*> the instance on the hypervisor.
+<*> <*> successfully.
+<*> Deleting instance <*>
+Terminating instance
+<*> Deletion of
+Deletion of <*>complete
+<*> Took <*>.<*> seconds to <*> the instance the hypervisor.
+Claim successful
+<*> Attempting claim: memory <*> MB, disk <*> vcpus <*> CPU
+<*> Took <*>.<*> seconds to the instance on the hypervisor.
+<*> During sync_power_state instance has a pending task (spawning). Skip.
+<*> Instance successfully.
+<*> Took seconds to build instance.
+<*> <*> limit not specified, defaulting to unlimited
+<*> Deletion of <*>complete
+<*> VM <*> Event)
+<*> VM <*> (Lifecycle Event)
+<*> Took <*>.<*> seconds to build instance.
+<*> Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU
+<*> <*> (Lifecycle Event)
+<*> During sync_power_state the instance has a pending task <*> Skip.
+<*> <*> <*> <*> MB, <*> <*>.<*> MB
+VM <*> (Lifecycle Event)
+<*> instance
