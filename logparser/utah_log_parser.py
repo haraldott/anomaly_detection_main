@@ -511,10 +511,10 @@ def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indice
     pickle.dump(new_instance_information, open(instance_information_path_out, 'wb'))
 
 if __name__ == '__main__':
-    parse_sort_and_inject_random_lines(logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/logs_aggregated_normal_only.csv',
-                                       output_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomalies_injected/logs_aggregate_normal_only_spr_inject_random_lines',
-                                       instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregate_normal_only_spr_inject_random_lines.pickle',
-                                       anomaly_indices_output_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomaly_indeces/logs_aggregate_normal_only_spr_inject_random_lines_indeces.txt')
+    parse_sort_and_inject_random_lines(logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/18k',
+                                       output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_random_lines',
+                                       instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_random_lines.pickle',
+                                       anomaly_indices_output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_random_lines_indeces.txt')
     # instance_id_sort()
     # insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/logs_aggregated_normal_only_spr_corpus",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomalies_injected/logs_aggregated_normal_only_spr_corpus_injected_6_words",
