@@ -1,0 +1,17 @@
+<*> My personal randomly injected line.
+<*> <*> limit not specified, defaulting to unlimited
+<*> Deletion of <*>complete
+<*> Instance <*> successfully.
+<*> During sync_power_state the instance has a pending task <*> Skip.
+<*> Deleting instance files <*>
+<*> Terminating instance
+<*> Took <*>.<*> seconds to deallocate network for instance.
+<*> <*> <*> <*> MB, <*> <*>.<*> MB
+<*> VM <*> (Lifecycle Event)
+<*> Total <*> <*> <*> used: <*>.<*> <*>
+<*> Claim successful
+<*> Took <*>.<*> seconds to <*> the instance on the hypervisor.
+<*> Creating image
+<*> Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU
+<*> During sync_power_state the instance has a pending task (spawning). Skip.
+<*> Took <*>.<*> seconds to build instance.

@@ -16,7 +16,6 @@ from loganaliser.main import AnomalyDetection
 from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
-bert_model_finetune = "bert-base-uncased"
 
 
 def calculate_precision_and_plot(this_results_dir_experiment, log_file_containing_anomalies):
@@ -98,6 +97,7 @@ parser.add_argument('-anomaly_only', action='store_true')
 parser.add_argument('-anomaly_description', type=str, default='None')
 parser.add_argument('-corpus_anomaly_inputfile', type=str)
 parser.add_argument('-instance_information_file_anomalies', type=str)
+parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
 args = parser.parse_args()
 
 option = args.option
@@ -167,7 +167,7 @@ if not args.reduced:
     # do_finetuning(corpus=templates_merged,
     #               output_dir=bert_model_finetune)
 
-    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged, bert_model=bert_model_finetune)
+    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged, bert_model=args.bert_model_finetune)
 
     # transform output of bert into numpy word embedding vectors
     if not args.anomaly_only:

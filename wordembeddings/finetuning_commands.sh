@@ -14,7 +14,10 @@ python bert_finetuning.py -sentences='../data/openstack/utah/parsed/merged_templ
 python bert_finetuning.py -sentences='../data/openstack/utah/parsed/merged_templates/137k+18k_spr_removed_2_words' -output_dir='finetuning-models/137k+18k_spr_removed_2_words' -logfile_path='finetuning-models/137k+18k_spr_removed_2_words/log.txt'
 
 python bert_finetuning.py -sentences='../data/openstack/utah/parsed/merged_templates/137k+18k_spr_removed_3_words' -output_dir='finetuning-models/137k+18k_spr_removed_3_words' -logfile_path='finetuning-models/137k+18k_spr_removed_3_words/log.txt'
-
+# normal
 python bert_finetuning.py -sentences='../data/openstack/utah/parsed/openstack_137k_plus_18k_sorted_per_request_templates' -output_dir='finetuning-models/137k_plus_18k_spr' -logfile_path='finetuning-models/137k_plus_18k_spr/log.txt'
+# random lines
+python bert_finetuning.py -sentences='../data/openstack/utah/parsed/merged_templates/137k+18k_random_lines' -output_dir='finetuning-models/137k+18k_random_lines' -logfile_path='finetuning-models/137k+18k_random_lines/log.txt'
 
+# Sasho
 python bert_finetuning.py -sentences='../data/openstack/sasho/parsed/logs_aggregated_normal_only_spr_templates' -output_dir='finetuning-models/sasho_normal_spr' -logfile_path='finetuning-models/sasho_normal_spr/log.txt'
