@@ -6,10 +6,11 @@ import math
 from numpy import mean
 from collections import defaultdict
 
+my_random_line = 'AW6jHxiZRnRNbAqZnom1,flog-2019.11.25,1.0,fluentd,wally117,1f7d6d735d5d4513ae1f7a5ac6888c45,default,2019-11-25 16:12:29.581,2019-11-25T16:12:29.581000000+01:00,INFO,6.0,"[instance: {}] My personal randomly injected line.",f09ddef028834df19337502ece1490c5,nova-compute,0a5bfbed-f4f7-4a42-9333-2d99adb16cdd,nova.compute.claims,openstack.nova,default,-,,,,,,,,,,,'
 randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Openstack connection failure. Unable to establish connection.\n"
 randomly_injected_line_utah_new = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Deleting instance files /var/lib/nova/instances/a6c5e900-d575-4447-a815-3e156c84aa90_del now.\n"
 
-number_of_instances_to_inject_anomalies_in = 8
+number_of_instances_to_inject_anomalies_in = 20
 max_number_of_anomalies_per_instance = 4
 number_of_swaps_per_instance = 4
 overall_anomaly_ratio = 0.02
@@ -223,18 +224,15 @@ def __sort_per_instance_id(log_lines_path):
 
 
 def __inject_random_line(instance_id_dict):
-    instance_ids_selected_for_anomaly_injection = random.sample(list(instance_id_dict.keys()), 2)
-    first = True
+    instance_ids_selected_for_anomaly_injection = random.sample(list(instance_id_dict.keys()),
+                                                                number_of_instances_to_inject_anomalies_in)
     line_numbers_containing_anomalies_per_instance = defaultdict(list)
     for instance_id in instance_ids_selected_for_anomaly_injection:
-        if first:
-            this_anomaly_line = randomly_injected_line_utah.format(instance_id)
-            first = False
-        else:
-            this_anomaly_line = randomly_injected_line_utah_new.format(instance_id)
-
-        line_number_of_anomaly = random.randrange(len(instance_id_dict[instance_id]) + 1)
-        instance_id_dict[instance_id].insert(line_number_of_anomaly, this_anomaly_line)
+        this_anomaly_line = my_random_line.format(instance_id)
+        for _ in range(0, max_number_of_anomalies_per_instance):
+            line_number_of_anomaly = random.randrange(len(instance_id_dict[instance_id]) + 1)
+            instance_id_dict[instance_id].insert(line_number_of_anomaly, this_anomaly_line)
+            # line_numbers_containing_anomalies_per_instance[instance_id].append(line_number_of_anomaly)
         for i, line in enumerate(instance_id_dict[instance_id]):
             if this_anomaly_line in line:
                 line_numbers_containing_anomalies_per_instance[instance_id].append(i)
@@ -513,19 +511,23 @@ def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indice
     pickle.dump(new_instance_information, open(instance_information_path_out, 'wb'))
 
 if __name__ == '__main__':
-    instance_id_sort()
-    # remove_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
-    #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_3_words_removed",
-    #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_3_words_removed_indices.txt",
-    #              3)
+    parse_sort_and_inject_random_lines(logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/logs_aggregated_normal_only.csv',
+                                       output_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomalies_injected/logs_aggregate_normal_only_spr_inject_random_lines',
+                                       instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregate_normal_only_spr_inject_random_lines.pickle',
+                                       anomaly_indices_output_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomaly_indeces/logs_aggregate_normal_only_spr_inject_random_lines_indeces.txt')
+    # instance_id_sort()
+    # insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/logs_aggregated_normal_only_spr_corpus",
+    #              "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomalies_injected/logs_aggregated_normal_only_spr_corpus_injected_6_words",
+    #              "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomaly_indeces/logs_aggregated_normal_only_spr_corpus_injected_6_words.txt",
+    #              6)
     # insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_6_words_injected",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_6_words_injected.txt",
     #              6)
     # delete_or_duplicate_events(
-    #     input_file_path = "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
-    #     output_file_path = "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_duplicated_lines",
-    #     anomaly_indices_output_path = "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/anomaly_indeces/18k_duplicated_lines.txt",
-    #     instance_information_path_in = "/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle",
-    #     instance_information_path_out = "/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_duplicated.pickle",
-    #     mode = "dup")
+    #     input_file_path = "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/logs_aggregated_normal_only_spr_corpus",
+    #     output_file_path = "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomalies_injected/logs_aggregated_normal_only_spr_corpus_deleted_lines",
+    #     anomaly_indices_output_path = "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/anomaly_indeces/logs_aggregated_normal_only_spr_corpus_deleted_lines.txt",
+    #     instance_information_path_in = "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregated_normal_only_spr.pickle",
+    #     instance_information_path_out = "/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request_pickle/anomalies/logs_aggregated_normal_only_spr_deleted_lines.pickle",
+    #     mode = "del")

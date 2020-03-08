@@ -1,0 +1,16 @@
+"<*> <*> <*> <*> <*>
+"<*> Attempting claim on node wally<*>: memory <*> MB
+<*> <*> <*> on node <*>
+<*> Creating image
+<*> VM <*> (Lifecycle Event)
+<*> Instance <*> successfully.
+<*> Took <*>.<*> seconds to <*> the instance on the <*>
+<*> During sync_power_state the instance has a pending
+<*> Took <*>.<*> seconds to build instance.
+<*> Terminating instance
+<*> Deleting instance files <*>
+<*> Deletion of <*>
+<*> Took <*>.<*> seconds to deallocate network for instanc
+<*> Instance failed to spawn: ConnectFailure: Unable to
+<*> Error from last host: wally<*> (node wally<*>.cit.t
+<*> An error occurred while refreshing the network cach
