@@ -18,3 +18,5 @@ python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed
 python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_spr_removed_2_words" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle" -anomaly_description="removed_2_words" -anomaly_only
 
 python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_spr_removed_3_words" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle" -anomaly_description="removed_3_words" -anomaly_only
+
+python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_spr_removed_3_words" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle" -anomaly_description="removed_3_words" -anomaly_only

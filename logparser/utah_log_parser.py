@@ -6,8 +6,9 @@ import math
 from numpy import mean
 from collections import defaultdict
 
-my_random_line = 'AW6jHxiZRnRNbAqZnom1,flog-2019.11.25,1.0,fluentd,wally117,1f7d6d735d5d4513ae1f7a5ac6888c45,default,2019-11-25 16:12:29.581,2019-11-25T16:12:29.581000000+01:00,INFO,6.0,"[instance: {}] My personal randomly injected line.",f09ddef028834df19337502ece1490c5,nova-compute,0a5bfbed-f4f7-4a42-9333-2d99adb16cdd,nova.compute.claims,openstack.nova,default,-,,,,,,,,,,,'
-randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Openstack connection failure. Unable to establish connection.\n"
+my_random_line_sasho = 'AW6jHxiZRnRNbAqZnom1,flog-2019.11.25,1.0,fluentd,wally117,1f7d6d735d5d4513ae1f7a5ac6888c45,default,2019-11-25 16:12:29.581,2019-11-25T16:12:29.581000000+01:00,INFO,6.0,"[instance: {}] My personal randomly injected line.",f09ddef028834df19337502ece1490c5,nova-compute,0a5bfbed-f4f7-4a42-9333-2d99adb16cdd,nova.compute.claims,openstack.nova,default,-,,,,,,,,,,,'
+randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] My personal randomly injected line.\n"
+randomly_injected_line_utah_2 = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Openstack connection failure. Unable to establish connection.\n"
 randomly_injected_line_utah_new = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Deleting instance files /var/lib/nova/instances/a6c5e900-d575-4447-a815-3e156c84aa90_del now.\n"
 
 number_of_instances_to_inject_anomalies_in = 20
@@ -228,7 +229,7 @@ def __inject_random_line(instance_id_dict):
                                                                 number_of_instances_to_inject_anomalies_in)
     line_numbers_containing_anomalies_per_instance = defaultdict(list)
     for instance_id in instance_ids_selected_for_anomaly_injection:
-        this_anomaly_line = my_random_line.format(instance_id)
+        this_anomaly_line = randomly_injected_line_utah.format(instance_id)
         for _ in range(0, max_number_of_anomalies_per_instance):
             line_number_of_anomaly = random.randrange(len(instance_id_dict[instance_id]) + 1)
             instance_id_dict[instance_id].insert(line_number_of_anomaly, this_anomaly_line)
