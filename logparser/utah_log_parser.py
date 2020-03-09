@@ -23,9 +23,9 @@ ratio_of_words_to_be_altered_per_line = 0.15
 
 ############# BEFORE DRAIN #############
 def instance_id_sort(
-        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/137k',
-        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/137k_spr',
-        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle'):
+        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/logs_aggregated_anomalies_only.csv',
+        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request/logs_aggregated_anomalies_only_spr',
+        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregated_anomalies_only_spr.pickle'):
     """
     Takes a raw Openstack log file (logfile_path) as input, sorts per instance_id, removes all lines without instance_id,
     outputs the sorted file to output_path, and saves instance information (i.e. instance_id log line block from i to j)
@@ -516,11 +516,11 @@ if __name__ == '__main__':
     #                                    output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_random_lines',
     #                                    instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_random_lines.pickle',
     #                                    anomaly_indices_output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_random_lines_indeces.txt')
-    # instance_id_sort()
-    insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
-                 "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_injected_1_words",
-                 "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_injected_1_words.txt",
-                 1)
+    instance_id_sort()
+    # insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
+    #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_injected_1_words",
+    #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_injected_1_words.txt",
+    #              1)
     # insert_words("/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_corpus",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected/18k_spr_6_words_injected",
     #              "/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomaly_indeces/18k_spr_6_words_injected.txt",

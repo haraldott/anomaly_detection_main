@@ -14,6 +14,7 @@ import wordembeddings.transform_bert as transform_bert
 import wordembeddings.transform_glove as transform_glove
 from loganaliser.main import AnomalyDetection
 from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
+from wordembeddings.bert_finetuning import finetune
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
@@ -132,7 +133,6 @@ templates_normal = cwd + parseddir + normalinputfile + '_templates'
 templates_anomaly = cwd + parseddir + anomalyinputfile + '_templates'
 templates_added = cwd + parseddir + combinedinputfile + '_templates'
 templates_merged = cwd + parseddir + combinedinputfile + '_merged_templates'
-templates_merged_glove = '../' + parseddir + combinedinputfile + '_merged_templates'
 
 corpus_normal_inputfile = cwd + parseddir + normalinputfile + '_corpus'
 corpus_anomaly_inputfile = cwd + parseddir + anomalyinputfile + '_corpus'
@@ -153,33 +153,30 @@ anomalies_injected_indeces = cwd + anomaly_indeces_dir + anomalyinputfile + '_an
 if args.corpus_anomaly_inputfile: corpus_anomaly_inputfile = args.corpus_anomaly_inputfile
 if args.instance_information_file_anomalies: instance_information_file_anomalies = args.instance_information_file_anomalies
 
-if not args.reduced:
-    # start Drain parser
-    # drain.execute(directory=inputdir, file=combinedinputfile, output=parseddir, logtype=logtype)
-    # drain.execute(directory=inputdir, file=anomalyinputfile, output=parseddir, logtype=logtype)
-    # drain.execute(directory=inputdir, file=normalinputfile, output=parseddir, logtype=logtype)
 
-    # produce templates out of the corpuses that we have from the anomaly file
-    templates_anomaly = list(set(open(corpus_anomaly_inputfile, 'r').readlines()))
-    transform_glove.merge_templates(templates_normal, templates_anomaly,
-                                    merged_template_path=templates_merged)
+# produce templates out of the corpuses that we have from the anomaly file
+templates_anomaly = list(set(open(corpus_anomaly_inputfile, 'r').readlines()))
+transform_glove.merge_templates(templates_normal, templates_anomaly,
+                                merged_template_path=templates_merged)
 
-    # do_finetuning(corpus=templates_merged,
-    #               output_dir=bert_model_finetune)
+if args.finetune:
+    finetune(templates=templates_merged, output_dir=args.bert_model_finetune)
 
-    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged, bert_model=args.bert_model_finetune)
+bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged, bert_model=args.bert_model_finetune)
 
-    # transform output of bert into numpy word embedding vectors
-    if not args.anomaly_only:
-        transform_bert.transform(sentence_embeddings=bert_vectors,
-                                 logfile=corpus_normal_inputfile,
-                                 templatefile=templates_merged,
-                                 outputfile=embeddings_normal)
-
+# transform output of bert into numpy word embedding vectors
+if not args.anomaly_only:
     transform_bert.transform(sentence_embeddings=bert_vectors,
-                             logfile=corpus_anomaly_inputfile,
+                             logfile=corpus_normal_inputfile,
                              templatefile=templates_merged,
-                             outputfile=embeddings_anomalies)
+                             outputfile=embeddings_normal)
+
+transform_bert.transform(sentence_embeddings=bert_vectors,
+                         logfile=corpus_anomaly_inputfile,
+                         templatefile=templates_merged,
+                         outputfile=embeddings_anomalies)
+
+
 # -------------------------------------------------------------------------------------------------------
 # --------------------------------NORMAL LEARNING--------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------
@@ -214,6 +211,8 @@ if not args.transferlearning:
 # -------------------------------------------------------------------------------------------------------
 # ---------------------------------TRANSFER LEARNING-----------------------------------------------------
 # -------------------------------------------------------------------------------------------------------
+
+
 else:
     # initialise paths
     normalinputfile_transfer = settings.settings[option]["normalinputfile_transfer"]
@@ -228,14 +227,24 @@ else:
     instance_information_file_anomalies_transfer = settings.settings[option][
         "instance_information_file_anomalies_transfer"]
 
+    transfer_input_file = "data/openstack/sasho/parsed/logs_aggregated_normal_only_spr_corpus"
+    trasfer_input_file_template = "data/openstack/sasho/parsed/logs_aggregated_normal_only_spr_templates"
+    transfer_instance_information = "data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregated_normal_only_spr.pickle"
+    # get bert vectors for dataset 2
+    bert_vectors, _, _, _ = transform_bert.get_bert_vectors(trasfer_input_file_template, bert_model=args.bert_model_finetune)
+    transform_bert.transform(sentence_embeddings=bert_vectors,
+                             logfile=transfer_input_file,
+                             templatefile=trasfer_input_file_template,
+                             outputfile=embeddings_normal_transfer)
+
     # NORMAL TRAINING with dataset 1
     ad_normal = learning(args, embeddings_normal, args.epochs, instance_information_file_normal)
     # FEW SHOT TRAINING with dataset 2
-    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=0,
-                                  instance_information_file=instance_information_file_normal_transfer)
-    calculate_normal_loss(normal_lstm_model=ad_normal,
-                          results_dir=results_dir_experiment_transfer,
-                          values_type='normal_loss_values')
+    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=5,
+                                  instance_information_file=transfer_instance_information)
+    lower, upper = calculate_normal_loss( normal_lstm_model=ad_normal,
+                                          results_dir=results_dir_experiment_transfer,
+                                          values_type='normal_loss_values')
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                                   loadvectors=embeddings_anomalies,
                                   savemodelpath=lstm_model_save_path,
@@ -245,5 +254,5 @@ else:
                                   n_layers=args.hiddenlayers,
                                   embeddings_model='bert',
                                   instance_information_file=instance_information_file_anomalies_transfer)
-    calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment_transfer)
+    calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment_transfer, lo=lower, up=upper)
     calculate_precision_and_plot(results_dir_experiment_transfer, anomalyfile_transfer)
