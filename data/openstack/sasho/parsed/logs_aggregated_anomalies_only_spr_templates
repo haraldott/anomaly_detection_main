@@ -1,0 +1,15 @@
+<*> VM <*> (Lifecycle Event)
+<*> Instance <*> successfully.
+<*> Took <*>.<*> seconds to <*> the instance on the <*>
+<*> During sync_power_state the instance has a pending
+<*> Took <*>.<*> seconds to build instance.
+<*> Terminating instance
+<*> Deleting instance files <*>
+<*> Deletion of <*>
+<*> Took <*>.<*> seconds to deallocate network for instanc
+"<*> <*> <*> <*> <*>
+<*> <*> <*> on node <*>
+<*> Creating image
+"<*> Attempting claim on node wally<*>: memory <*> MB
+<*> Failed to deallocate network for instance; retrying
+<*> An error occurred while refreshing the network cach
