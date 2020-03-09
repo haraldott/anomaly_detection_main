@@ -52,7 +52,7 @@
 #CUDA_VISIBLE_DEVICES=1 python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_random_lines" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_random_lines.pickle" -anomaly_description="random_lines"  -bert_model_finetune='wordembeddings/finetuning-models/137k+18k_random_lines'
 
 
-CUDA_VISIBLE_DEVICES=1 python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_spr_deleted_lines" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_deleted.pickle" -anomaly_description="deleted_lines" -bert_model_finetune='wordembeddings/finetuning-models/137k_plus_18k_spr'
+CUDA_VISIBLE_DEVICES=1 python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_spr_deleted_lines" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_deleted.pickle" -anomaly_description="deleted_lines" -bert_model_finetune='wordembeddings/finetuning-models/sasho_combined'
 
 CUDA_VISIBLE_DEVICES=1 python meta_script_bert.py -corpus_anomaly_inputfile="data/openstack/utah/parsed/anomalies_injected/18k_spr_duplicated_lines" -instance_information_file_anomalies="data/openstack/utah/raw/sorted_per_request_pickle/anomalies/18k_spr_duplicated.pickle" -anomaly_description="duplicated_lines"  -bert_model_finetune='wordembeddings/finetuning-models/137k_plus_18k_spr'
 

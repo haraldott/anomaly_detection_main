@@ -19,7 +19,7 @@ from wordembeddings.bert_finetuning import finetune
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
 
-def calculate_precision_and_plot(this_results_dir_experiment, log_file_containing_anomalies):
+def calculate_precision_and_plot(this_results_dir_experiment):
     # precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
     #                                 outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, args.epochs, args.seq_len, 768, 0)
@@ -90,7 +90,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='UtahSorted137')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-reduced', action='store_true')
-parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
@@ -206,8 +206,7 @@ if not args.transferlearning:
                                   anomalies_run=True,
                                   results_dir=cwd + results_dir_experiment + 'anomaly_loss_indices')
     calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment, lo=lower, up=upper)
-    calculate_precision_and_plot(this_results_dir_experiment=results_dir_experiment,
-                                 log_file_containing_anomalies=inputdir + anomalyinputfile)
+    calculate_precision_and_plot(this_results_dir_experiment=results_dir_experiment)
 # -------------------------------------------------------------------------------------------------------
 # ---------------------------------TRANSFER LEARNING-----------------------------------------------------
 # -------------------------------------------------------------------------------------------------------
@@ -221,8 +220,6 @@ else:
     embeddings_anomalies_transfer = cwd + embeddingspickledir + anomalyinputfile + '.pickle'
     results_dir_experiment_transfer = "{}_epochs_{}_seq_len_{}/".format(
         settings.settings[option]["resultsdir_transfer"] + 'bert', args.epochs, args.seq_len)
-    anomalyfile_transfer = settings.settings[option]["inputdir_transfer"] + settings.settings[option][
-        "anomalyinputfile_transfer"]
     instance_information_file_normal_transfer = settings.settings[option]["instance_information_file_normal_transfer"]
     instance_information_file_anomalies_transfer = settings.settings[option][
         "instance_information_file_anomalies_transfer"]
@@ -266,4 +263,4 @@ else:
                                   embeddings_model='bert',
                                   instance_information_file=instance_information_file_anomalies_transfer)
     calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment_transfer, lo=lower, up=upper)
-    calculate_precision_and_plot(results_dir_experiment_transfer, anomalyfile_transfer)
+    calculate_precision_and_plot(results_dir_experiment_transfer)
