@@ -30,6 +30,7 @@ class AnomalyDetection:
                  train_mode=False,
                  instance_information_file=None,
                  anomalies_run=False,
+                 transfer_learning=False
                  ):
         self.loadvectors = loadvectors
         self.loadautoencodermodel = loadautoencodermodel
@@ -62,6 +63,8 @@ class AnomalyDetection:
                                      n_hidden_units=self.n_hidden_units,
                                      n_layers=self.n_layers,
                                      train_mode=self.train_mode).to(self.device)
+        if transfer_learning:
+            self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))

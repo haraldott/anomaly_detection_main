@@ -5,10 +5,10 @@ sys.path.append('../../')
 from logparser import Drain
 
 
-def execute(directory='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/',
-            file='18k_random_lines',
-            output='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/anomalies_injected',
-            logtype='OpenStack',
+def execute(directory='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request/',
+            file='combined',
+            output='/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/combined',
+            logtype='OpenStackSasho',
             st=0.2,
             depth=2,
             full_output=False):

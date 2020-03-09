@@ -240,9 +240,20 @@ else:
     # NORMAL TRAINING with dataset 1
     ad_normal = learning(args, embeddings_normal, args.epochs, instance_information_file_normal)
     # FEW SHOT TRAINING with dataset 2
-    ad_normal_transfer = learning(arg=args, embeddings_path=embeddings_normal_transfer, epochs=5,
-                                  instance_information_file=transfer_instance_information)
-    lower, upper = calculate_normal_loss( normal_lstm_model=ad_normal,
+    ad_normal_transfer = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
+                                 loadvectors=embeddings_normal_transfer,
+                                 savemodelpath=lstm_model_save_path,
+                                 seq_length=args.seq_len,
+                                 num_epochs=5,
+                                 n_hidden_units=args.hiddenunits,
+                                 n_layers=args.hiddenlayers,
+                                 embeddings_model='bert',
+                                 train_mode=True,
+                                 instance_information_file=transfer_instance_information,
+                                 transfer_learning=True)
+
+    ad_normal_transfer.start_training()
+    lower, upper = calculate_normal_loss( normal_lstm_model=ad_normal_transfer,
                                           results_dir=results_dir_experiment_transfer,
                                           values_type='normal_loss_values')
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,

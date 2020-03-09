@@ -1,7 +1,7 @@
 settings = {
     'Sasho': {
         'combinedinputfile': 'combined',
-        'anomalyinputfile': 'logs_aggregated_anomalies_only_spr',
+        'anomalyinputfile': 'logs_aggregated_anomalies_only_spr_corpus',
         'normalinputfile': 'logs_aggregated_normal_only_spr.csv',
         'inputdir': 'data/openstack/sasho/raw/',
         'parseddir': 'data/openstack/sasho/parsed/',
