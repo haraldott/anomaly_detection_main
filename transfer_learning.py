@@ -179,7 +179,8 @@ vae_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_vae.pth'
 # take corpus parsed by drain, inject anomalies in this file
 anomaly_injected_corpus_2 = cwd + anomalies_injected_dir_2 + anomaly_2 + "_" + args.anomaly_type
 # put here the information about which line is an anomaly from anomaly injection
-anomaly_indeces_2 = cwd + anomaly_indeces_dir_2 + anomaly_2 + "_" + args.anomaly_type + '_anomaly_indeces.txt'
+anomaly_indeces_2 = cwd + results_dir_experiment + anomaly_2 + "_" + args.anomaly_type + "_" + args.anomaly_amount  + '_anomaly_indeces.txt'
+# anomaly_indeces_2 = cwd + anomaly_indeces_dir_2 + anomaly_2 + "_" + args.anomaly_type + "_" + args.anomaly_amount  + '_anomaly_indeces.txt'
 
 # create all directories, if they don't exist yet
 os.makedirs(results_dir, exist_ok=True)
