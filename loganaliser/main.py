@@ -295,9 +295,6 @@ class AnomalyDetection:
         else:
             n_samples = len(self.data_x)
             indices = np.arange(n_samples)
-            drop_last = len(indices) % self.batch_size - 1
-            if drop_last != 0:
-                indices = indices[:-drop_last]
             loss_values = self.predict(indices)
 
         loss_values = np.array(loss_values)
