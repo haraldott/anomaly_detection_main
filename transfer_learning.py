@@ -216,10 +216,10 @@ bert_vectors_normal_2, _, _, _ = transform_bert.get_bert_vectors(templates_norma
 bert_vectors_anomalies_injected, _, _, _ = transform_bert.get_bert_vectors(templates_anomalies_injected, bert_model="wordembeddings/finetuning-models/" + normal_1)
 
 # transform output of bert into numpy word embedding vectors
-# transform_bert.transform(sentence_embeddings=bert_vectors_normal_1,
-#                          logfile=corpus_normal_1,
-#                          templates=templates_normal_1,
-#                          outputfile=embeddings_normal_1)
+transform_bert.transform(sentence_embeddings=bert_vectors_normal_1,
+                         logfile=corpus_normal_1,
+                         templates=templates_normal_1,
+                         outputfile=embeddings_normal_1)
 
 transform_bert.transform(sentence_embeddings=bert_vectors_normal_2,
                          logfile=corpus_normal_2,
