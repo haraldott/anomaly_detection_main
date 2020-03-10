@@ -194,9 +194,9 @@ os.makedirs(anomalies_injected_dir_2, exist_ok=True)
 os.makedirs(anomaly_indeces_dir_2, exist_ok=True)
 
 ### DRAIN PARSING
-# drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
-# drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
-# drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
+drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
+drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
+drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
 
 ### INJECT ANOMALIES in dataset 2
 inject_anomalies(anomaly_type=args.anomaly_type, corpus_input=corpus_pre_anomaly_2, corpus_output=anomaly_injected_corpus_2,
