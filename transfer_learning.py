@@ -170,10 +170,10 @@ embeddings_normal_2 = cwd + embeddings_dir_2 + normal_2 + '.pickle'
 embeddings_anomalies_injected_2 = cwd + embeddings_dir_2 + anomaly_2 + '.pickle'
 
 
-if args.finetune:
-    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_with_finetune' + '_lstm.pth'
-else:
-    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_lstm.pth'
+# if args.finetune:
+lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_with_finetune' + '_lstm.pth'
+# else:
+#     lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_lstm.pth'
 vae_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_vae.pth'
 
 # take corpus parsed by drain, inject anomalies in this file
