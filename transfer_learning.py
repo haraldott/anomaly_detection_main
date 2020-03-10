@@ -47,8 +47,8 @@ def calculate_precision_and_plot(this_results_dir_experiment):
     # precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
     #                                 outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, args.epochs, args.seq_len, 768, 0)
-    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}"
-                                    .format('bert', args.epochs, args.seq_len, args.anomaly_description) + '.tar',
+    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}"
+                                    .format('bert', args.epochs, args.seq_len, args.anomaly_description, args.anomaly_amount) + '.tar',
                      '--directory=' + cwd + this_results_dir_experiment,
                      'normal_loss_values',
                      'anomaly_loss_values',
@@ -129,8 +129,8 @@ parser.add_argument('-anomaly_amount', type=int, default=1)
 args = parser.parse_args()
 
 option = args.option
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}/".format(settings[option]["dataset_2"]["results_dir"] + 'bert',
-                                                                            args.epochs, args.seq_len, args.anomaly_description)
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(settings[option]["dataset_2"]["results_dir"] + 'bert',
+                                                                            args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal_1 = settings[option]["dataset_1"]["raw_normal"]
 normal_2 = settings[option]["dataset_2"]["raw_normal"]
@@ -232,8 +232,20 @@ transform_bert.transform(sentence_embeddings=bert_vectors_anomalies_injected,
                          templates=templates_anomalies_injected,
                          outputfile=embeddings_anomalies_injected_2)
 
-# NORMAL TRAINING with dataset 1
-ad_normal = learning(args, embeddings_normal_1, args.epochs, instance_information_file_normal_1)
+if not args.anomaly_only:
+    # NORMAL TRAINING with dataset 1
+    ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
+                                 loadvectors=embeddings_normal_1,
+                                 savemodelpath=lstm_model_save_path,
+                                 seq_length=args.seq_len,
+                                 num_epochs=args.epochs,
+                                 n_hidden_units=args.hiddenunits,
+                                 n_layers=args.hiddenlayers,
+                                 embeddings_model='bert',
+                                 train_mode=True,
+                                 instance_information_file=instance_information_file_normal_1)
+
+    ad_normal.start_training()
 # FEW SHOT TRAINING with dataset 2
 ad_normal_transfer = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              loadvectors=embeddings_normal_2,
@@ -246,8 +258,9 @@ ad_normal_transfer = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                              train_mode=True,
                              instance_information_file=instance_information_file_normal_2,
                              transfer_learning=True)
+if not args.anomaly_only:
+    ad_normal_transfer.start_training()
 
-ad_normal_transfer.start_training()
 lower, upper = calculate_normal_loss( normal_lstm_model=ad_normal_transfer,
                                       results_dir=results_dir_experiment,
                                       values_type='normal_loss_values')
