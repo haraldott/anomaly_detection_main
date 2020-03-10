@@ -99,6 +99,7 @@ parser.add_argument('-anomaly_description', type=str, default='None')
 parser.add_argument('-corpus_anomaly_inputfile', type=str)
 parser.add_argument('-instance_information_file_anomalies', type=str)
 parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
+parser.add_argument('-finetune', action='store_true')
 args = parser.parse_args()
 
 option = args.option
@@ -168,12 +169,12 @@ bert_vectors, _, _, _ = transform_bert.get_bert_vectors(templates_merged, bert_m
 if not args.anomaly_only:
     transform_bert.transform(sentence_embeddings=bert_vectors,
                              logfile=corpus_normal_inputfile,
-                             templatefile=templates_merged,
+                             templates=templates_merged,
                              outputfile=embeddings_normal)
 
 transform_bert.transform(sentence_embeddings=bert_vectors,
                          logfile=corpus_anomaly_inputfile,
-                         templatefile=templates_merged,
+                         templates=templates_merged,
                          outputfile=embeddings_anomalies)
 
 
@@ -231,7 +232,7 @@ else:
     bert_vectors, _, _, _ = transform_bert.get_bert_vectors(trasfer_input_file_template, bert_model=args.bert_model_finetune)
     transform_bert.transform(sentence_embeddings=bert_vectors,
                              logfile=transfer_input_file,
-                             templatefile=trasfer_input_file_template,
+                             templates=trasfer_input_file_template,
                              outputfile=embeddings_normal_transfer)
 
     # NORMAL TRAINING with dataset 1

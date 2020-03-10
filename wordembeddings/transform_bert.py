@@ -16,16 +16,21 @@ from transformers import BertModel as transformers_BertModel
 def transform(sentence_embeddings,
               logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
               outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle',
-              templatefile='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
+              templates='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
     file = open(logfile)
     logfilelines = file.readlines()
 
-    file = open(templatefile)
-    templatefilelines = file.readlines()
+    if type(templates) == str:
+        sentences = open(templates, 'r').readlines()
+    elif type(templates) == list:
+        sentences = templates
+    else:
+        print("templates must be either a list of templates or a path str")
+        raise
 
     sentences_as_vectors = []
     for sentence in logfilelines:
-        idx = templatefilelines.index(sentence)
+        idx = sentences.index(sentence)
         if idx is None:
             raise ValueError("{} not found in template file".format(sentence))
         sentences_as_vectors.append(sentence_embeddings[idx])
@@ -39,13 +44,19 @@ def transform(sentence_embeddings,
     pickle.dump(sentences_as_vectors, open(outputfile, 'wb'))
 
 
-def _prepare_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
+def _prepare_bert_vectors(templates='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
                           bert_model='bert-base-uncased'):
     # checks, if pre-trained model or directory containing pre-trained model exists, is being done here
     tokenizer = pretrained_BertTokenizer.from_pretrained(bert_model)
     model = pretrained_BertModel.from_pretrained(bert_model)
 
-    lines = open(templates_location, 'r')
+    if type(templates) == str:
+        lines = open(templates, 'r')
+    elif type(templates) == list:
+        lines = templates
+    else:
+        print("templates must be either a list of templates or a path str")
+        raise
 
     marked_sentences = []
     for line in lines:
@@ -124,6 +135,8 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
         sentence_embeddings.append(torch.mean(t[0][10][0], dim=0))
 
     return sentence_embeddings, token_vecs_cat, token_vecs_sum, tokenized_text
+
+
 
 
 def get_bert_vectors_from_corpus(outputfile="..data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_changed_words.pickle",

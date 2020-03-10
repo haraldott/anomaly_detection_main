@@ -64,7 +64,13 @@ def finetune(templates='../data/openstack/utah/parsed/merged_templates/137k+18k_
              output_dir='finetuning-models/137k+18k_spr_injected_2_words'):
 
     # arg parsing and assignment
-    sentences = open(templates, 'r').readlines()
+    if type(templates) == str:
+        sentences = open(templates, 'r')
+    elif type(templates) == list:
+        sentences = templates
+    else:
+        print("templates must be either a list of templates or a path str")
+        raise
     os.makedirs(output_dir, exist_ok=True)
     logfile_path = open(output_dir + "/log.txt", 'w')
 

@@ -5,11 +5,13 @@ import random
 import math
 from numpy import mean
 from collections import defaultdict
+from shutil import copyfile
 
 my_random_line_sasho = 'AW6jHxiZRnRNbAqZnom1,flog-2019.11.25,1.0,fluentd,wally117,1f7d6d735d5d4513ae1f7a5ac6888c45,default,2019-11-25 16:12:29.581,2019-11-25T16:12:29.581000000+01:00,INFO,6.0,"[instance: {}] My personal randomly injected line.",f09ddef028834df19337502ece1490c5,nova-compute,0a5bfbed-f4f7-4a42-9333-2d99adb16cdd,nova.compute.claims,openstack.nova,default,-,,,,,,,,,,,'
 randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] My personal randomly injected line.\n"
 randomly_injected_line_utah_2 = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Openstack connection failure. Unable to establish connection.\n"
 randomly_injected_line_utah_new = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Deleting instance files /var/lib/nova/instances/a6c5e900-d575-4447-a815-3e156c84aa90_del now.\n"
+utah_new_random_line = "My personal randomly injected line.\n"
 
 number_of_instances_to_inject_anomalies_in = 20
 max_number_of_anomalies_per_instance = 4
@@ -23,9 +25,9 @@ ratio_of_words_to_be_altered_per_line = 0.15
 
 ############# BEFORE DRAIN #############
 def instance_id_sort(
-        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/logs_aggregated_anomalies_only.csv',
-        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request/logs_aggregated_anomalies_only_spr',
-        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/sasho/raw/sorted_per_request_pickle/logs_aggregated_anomalies_only_spr.pickle'):
+        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/137k',
+        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/137k_spr',
+        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle'):
     """
     Takes a raw Openstack log file (logfile_path) as input, sorts per instance_id, removes all lines without instance_id,
     outputs the sorted file to output_path, and saves instance information (i.e. instance_id log line block from i to j)
@@ -135,12 +137,12 @@ def remove_event(corpus_input_file_path, output_path, instance_information_path,
     output_file.close()
 
 
-def shuffle(corpus_input_file_path, output_path, instance_information_path,
-            anomaly_indices_output_path):
+def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
+    copyfile(instance_information_in, instance_information_out)
     shuffle_distances = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
-    corpus = open(corpus_input_file_path, 'r').readlines()
+    corpus = open(corpus_input, 'r').readlines()
     assert corpus
-    instance_information = pickle.load(open(instance_information_path, 'rb'))
+    instance_information = pickle.load(open(instance_information_in, 'rb'))
     assert instance_information
 
     total_number_of_lines = len(corpus)
@@ -157,8 +159,8 @@ def shuffle(corpus_input_file_path, output_path, instance_information_path,
         intervals_to_be_altered = random.sample(interval_indeces_with_more_than_four_lines,
                                                 number_of_anomaly_lines_to_be_manipulated)
 
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    output_file = open(output_path, 'w')
+    os.makedirs(os.path.dirname(corpus_output), exist_ok=True)
+    output_file = open(corpus_output, 'w')
     anomaly_indices_output_file = open(anomaly_indices_output_path, 'w')
     for interval_index, interval in enumerate(instance_information):
         shuffle_indeces = False
@@ -327,9 +329,9 @@ def __shuffle_events():
 ########################################################################################################################
 ########################################################################################################################
 
-
-def insert_words(input_file_path, output_file_path, anomaly_indices_output_path, number_of_words_to_be_added=1):
-    total_lines_file = open(input_file_path, 'r')
+def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, number_of_words_to_be_added=1):
+    copyfile(instance_information_in, instance_information_out)
+    total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
 
@@ -348,7 +350,7 @@ def insert_words(input_file_path, output_file_path, anomaly_indices_output_path,
         line = " ".join(line) + "\n"
         total_lines[index] = line
 
-    output_file = open(output_file_path, 'w')
+    output_file = open(corpus_output, 'w')
     for line in total_lines:
         output_file.write(line)
     output_file.close()
@@ -359,8 +361,9 @@ def insert_words(input_file_path, output_file_path, anomaly_indices_output_path,
     anomaly_indices_file.close()
 
 
-def remove_words(input_file_path, output_file_path, anomaly_indices_output_path, number_of_words_to_be_removed=1):
-    total_lines_file = open(input_file_path, 'r')
+def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, number_of_words_to_be_removed=1):
+    copyfile(instance_information_in, instance_information_out)
+    total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
 
@@ -382,7 +385,7 @@ def remove_words(input_file_path, output_file_path, anomaly_indices_output_path,
         line = " ".join(line) + "\n"
         total_lines[index] = line
 
-    output_file = open(output_file_path, 'w')
+    output_file = open(corpus_output, 'w')
     for line in total_lines:
         output_file.write(line)
     output_file.close()
@@ -449,16 +452,16 @@ def insert_and_remove_words(input_file_path, output_file_path, anomaly_indices_o
 
 
     # this will alter indices file
-def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indices_output_path, instance_information_path_in, instance_information_path_out, mode):
+def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, mode):
     print(mode)
-    if mode not in ["del", "dup"]:
+    if mode not in ["del", "dup", "ins"]:
         print("Allowed modes are del and dup. Exiting")
         return -1
-    total_lines_file = open(input_file_path, 'r')
+    total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
     number_of_deletes = math.floor(len(total_lines) * overall_anomaly_ratio)
-    instance_information = pickle.load(open(instance_information_path_in, 'rb'))
+    instance_information = pickle.load(open(instance_information_in, 'rb'))
 
     instance_id_list = []
 
@@ -478,6 +481,9 @@ def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indice
         print(instance_id_block_to_alter)
         index_to_alter = random.randint(0, len(instance_id_list[instance_id_block_to_alter])-1)
 
+        if mode == "ins":
+            indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
+            instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = [utah_new_random_line]
         if mode == "del":
             indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
             del instance_id_list[instance_id_block_to_alter][index_to_alter]
@@ -496,7 +502,7 @@ def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indice
     # - overwrite instance information with updated (begin, end) intervals
     # - save anomaly indices
     new_instance_information = []
-    output_file = open(output_file_path, 'w')
+    output_file = open(corpus_output, 'w')
     anomaly_indices = open(anomaly_indices_output_path, 'w')
     instance_block_end_line = 0
     for instance_id_block_index, instance_id_block in enumerate(instance_id_list):
@@ -509,7 +515,7 @@ def delete_or_duplicate_events(input_file_path, output_file_path, anomaly_indice
             index_of_altered_line_inside_block = indices_inside_blocks_to_alter.get(instance_id_block_index)
             overall_index_of_deleted_line = instance_block_begin_line + index_of_altered_line_inside_block
             anomaly_indices.write(str(overall_index_of_deleted_line) + "\n")
-    pickle.dump(new_instance_information, open(instance_information_path_out, 'wb'))
+    pickle.dump(new_instance_information, open(instance_information_out, 'wb'))
 
 if __name__ == '__main__':
     # parse_sort_and_inject_random_lines(logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/18k',
