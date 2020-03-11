@@ -43,6 +43,8 @@ def transform(sentence_embeddings,
 
     pickle.dump(sentences_as_vectors, open(outputfile, 'wb'))
 
+    return sentences_as_vectors
+
 
 def _prepare_bert_vectors(templates='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
                           bert_model='bert-base-uncased'):
@@ -154,7 +156,10 @@ def get_bert_vectors_from_corpus(outputfile="..data/openstack/utah/padded_embedd
     with torch.no_grad():
         [word_embeddings.append(model(encoded_text.unsqueeze(0))[1]) for encoded_text in encoded_text_torch]
 
-    pickle.dump(word_embeddings, open(outputfile, 'wb'))
+    if outputfile:
+        pickle.dump(word_embeddings, open(outputfile, 'wb'))
+
+    return word_embeddings
 
 # _, token_vecs_cat, token_vecs_sum, tokenized_text = get_bert_vectors()
 # plot_bert(token_vecs_cat, tokenized_text)

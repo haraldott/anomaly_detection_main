@@ -12,7 +12,8 @@ randomly_injected_line_utah = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 1
 randomly_injected_line_utah_2 = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Openstack connection failure. Unable to establish connection.\n"
 randomly_injected_line_utah_new = "nova-compute.log.2017-05-14_21:27:09 2017-05-14 19:39:22.577 2931 INFO nova.compute.manager [req-3ea4052c-895d-4b64-9e2d-04d64c4d94ab - - - - -] [instance: {}] Deleting instance files /var/lib/nova/instances/a6c5e900-d575-4447-a815-3e156c84aa90_del now.\n"
 utah_new_random_line = "My personal randomly injected line.\n"
-
+"VM resumed"
+"VM for Resumed this"
 number_of_instances_to_inject_anomalies_in = 20
 max_number_of_anomalies_per_instance = 4
 number_of_swaps_per_instance = 4
@@ -162,6 +163,7 @@ def shuffle(corpus_input, corpus_output, instance_information_in, instance_infor
     os.makedirs(os.path.dirname(corpus_output), exist_ok=True)
     output_file = open(corpus_output, 'w')
     anomaly_indices_output_file = open(anomaly_indices_output_path, 'w')
+    anomaly_indices = []
     for interval_index, interval in enumerate(instance_information):
         shuffle_indeces = False
         # check if we're currently looking at an inst_id that's supposed to receive anomalies, and inject them
@@ -181,19 +183,27 @@ def shuffle(corpus_input, corpus_output, instance_information_in, instance_infor
         # for now, only put in shuffle_index as anomaly
         # TODO: check, if all indices that were shuffled should be marked as anomalies
 
+
         for l in this_list:
             output_file.write(l)
         if shuffle_indeces:
             assert (shuffle_index is not None)
             if shuffle_index < index_to_be_altered:
-                anomaly_indices_output_file.write(str(shuffle_index) + "\n")
+                anomaly_indices.append(shuffle_index)
             elif shuffle_index > index_to_be_altered:
-                anomaly_indices_output_file.write(str(index_to_be_altered) + "\n")
+                anomaly_indices.append(index_to_be_altered)
             else:
                 raise Exception ("This shouldn't have happened. Have a look at the logic here.")
         shuffle_index = None
+
+    anomaly_indices.sort()
+    for index in anomaly_indices:
+        anomaly_indices_output_file.write(str(index) + "\n")
+
     anomaly_indices_output_file.close()
     output_file.close()
+
+    return anomaly_indices
 
 
 def __sort_per_instance_id_without_dict(log_lines_path):
@@ -339,15 +349,19 @@ def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
     line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
 
+    lines_before_alter = []
+    lines_after_alter = []
+
     for index in line_indices_to_be_altered:
         # select line for altering
         line = total_lines[index]
+        lines_before_alter.append(line)
         line = line.split()
         for _ in range(0, number_of_words_to_be_added):
             line.insert(random.randrange(0, len(line)), random.choice(words_for_random_insert))
-
         # re-insert altered line
         line = " ".join(line) + "\n"
+        lines_after_alter.append(line)
         total_lines[index] = line
 
     output_file = open(corpus_output, 'w')
@@ -356,9 +370,12 @@ def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     output_file.close()
 
     anomaly_indices_file = open(anomaly_indices_output_path, 'w')
+    line_indices_to_be_altered.sort()
     for anomaly_index in line_indices_to_be_altered:
         anomaly_indices_file.write(str(anomaly_index) + "\n")
     anomaly_indices_file.close()
+
+    return lines_before_alter, lines_after_alter, line_indices_to_be_altered
 
 
 def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, number_of_words_to_be_removed=1):
@@ -367,6 +384,9 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
 
+    lines_before_alter = []
+    lines_after_alter = []
+
     number_of_lines = len(total_lines)
     # number_of_lines = sum([len(instance_id_dict[x]) for x in instance_id_dict])
     number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
@@ -374,15 +394,16 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     for index in line_indices_to_be_altered:
         # select line for altering
         line = total_lines[index]
+        lines_before_alter.append(line)
         line = line.split()
         removed_words = []
         for _ in range(0, number_of_words_to_be_removed):
             random_index = random.randrange(0, len(line))
             removed_words.append(line[random_index])
             del line[random_index]
-
         # re-insert altered line
         line = " ".join(line) + "\n"
+        lines_after_alter.append(line)
         total_lines[index] = line
 
     output_file = open(corpus_output, 'w')
@@ -391,9 +412,11 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     output_file.close()
 
     anomaly_indices_file = open(anomaly_indices_output_path, 'w')
-    for anomaly_index in line_indices_to_be_altered:
+    for anomaly_index in line_indices_to_be_altered.sort():
         anomaly_indices_file.write(str(anomaly_index) + "\n")
     anomaly_indices_file.close()
+
+    return lines_before_alter, lines_after_alter, line_indices_to_be_altered
 
 def insert_and_remove_words(input_file_path, output_file_path, anomaly_indices_output_path):
     total_lines_file = open(input_file_path, 'r')
@@ -503,7 +526,8 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
     # - save anomaly indices
     new_instance_information = []
     output_file = open(corpus_output, 'w')
-    anomaly_indices = open(anomaly_indices_output_path, 'w')
+    anomaly_indices_file = open(anomaly_indices_output_path, 'w')
+    anomaly_indices = []
     instance_block_end_line = 0
     for instance_id_block_index, instance_id_block in enumerate(instance_id_list):
         for line in instance_id_block:
@@ -514,8 +538,13 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
         if instance_id_block_index in instance_id_indices_selected_for_altering:
             index_of_altered_line_inside_block = indices_inside_blocks_to_alter.get(instance_id_block_index)
             overall_index_of_deleted_line = instance_block_begin_line + index_of_altered_line_inside_block
-            anomaly_indices.write(str(overall_index_of_deleted_line) + "\n")
+            anomaly_indices.append(overall_index_of_deleted_line)
     pickle.dump(new_instance_information, open(instance_information_out, 'wb'))
+
+    anomaly_indices.sort()
+    for index in anomaly_indices:
+        anomaly_indices_file.write(str(index) + "\n")
+    return anomaly_indices
 
 if __name__ == '__main__':
     # parse_sort_and_inject_random_lines(logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/18k',

@@ -93,9 +93,11 @@ def merge_templates(*template_files, merged_template_path):
             for line in file:
                 log_lines.append(line)
     log_lines = set(log_lines)
-    merged_template_file = open(merged_template_path, 'w+')
-    for t in log_lines:
-        merged_template_file.write(t)
+    if merged_template_path:
+        merged_template_file = open(merged_template_path, 'w+')
+        for t in log_lines:
+            merged_template_file.write(t)
+    return log_lines
 
 
 def extract_event_templates():
