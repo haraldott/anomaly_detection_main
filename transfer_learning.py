@@ -1,6 +1,4 @@
 import argparse
-import os
-import subprocess
 
 import matplotlib
 
@@ -10,20 +8,19 @@ from wordembeddings.transform_glove import merge_templates
 import numpy as np
 from logparser.utah_log_parser import *
 from scipy.spatial.distance import cosine
-import torch
 from os import path
 from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
-from tools import distribution_plots as distribution_plots, calc_precision_utah as calc_precision_utah
+from tools import distribution_plots as distribution_plots
 from wordembeddings.bert_finetuning import finetune
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
 
-def get_cosine_distance(lines_before_altering, lines_after_altering, templates):
+def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp):
     lines_before_as_bert_vectors = []
     lines_after_as_bert_vectors = []
 
@@ -42,10 +39,10 @@ def get_cosine_distance(lines_before_altering, lines_after_altering, templates):
     cosine_distances = []
     for before, after in zip(lines_before_as_bert_vectors, lines_after_as_bert_vectors):
         cosine_distances.append(cosine(before, after))
-    write_lines_to_file(results_dir_experiment + "lines_before_after_cosine_distances.txt", cosine_distances, new_line=True)
+    write_lines_to_file(results_dir_exp + "lines_before_after_cosine_distances.txt", cosine_distances, new_line=True)
 
 
-def write_lines_to_file(file_path, content, new_line = False):
+def write_lines_to_file(file_path, content, new_line=False):
     file = open(file_path, 'w+')
     if new_line:
         [file.write(str(line) + "\n") for line in content]
@@ -54,27 +51,38 @@ def write_lines_to_file(file_path, content, new_line = False):
     file.close()
 
 
-def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, anomaly_amount):
+def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
+                     instance_information_out, anomaly_amount):
     if anomaly_type in ["insert_words", "remove_words"]:
         if anomaly_type == "insert_words":
-            lines_before_alter, lines_after_alter, anomalies_true = insert_words(corpus_input, corpus_output, anomaly_indices_output_path,
-                                                                                 instance_information_in, instance_information_out, anomaly_amount)
+            lines_before_alter, lines_after_alter, anomalies_true = insert_words(corpus_input, corpus_output,
+                                                                                 anomaly_indices_output_path,
+                                                                                 instance_information_in,
+                                                                                 instance_information_out,
+                                                                                 anomaly_amount)
         elif anomaly_type == "remove_words":
-            lines_before_alter, lines_after_alter, anomalies_true = remove_words(corpus_input, corpus_output, anomaly_indices_output_path,
-                                                                                 instance_information_in, instance_information_out, anomaly_amount)
+            lines_before_alter, lines_after_alter, anomalies_true = remove_words(corpus_input, corpus_output,
+                                                                                 anomaly_indices_output_path,
+                                                                                 instance_information_in,
+                                                                                 instance_information_out,
+                                                                                 anomaly_amount)
 
         write_lines_to_file(results_dir_experiment + "lines_before_altering.txt", lines_before_alter)
         write_lines_to_file(results_dir_experiment + "lines_after_altering.txt", lines_after_alter)
         return anomalies_true, lines_before_alter, lines_after_alter
 
     elif anomaly_type == "duplicate_lines":
-        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, mode="dup")
+        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
+                                                    instance_information_in, instance_information_out, mode="dup")
     elif anomaly_type == "delete_lines":
-        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, mode="del")
+        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
+                                                    instance_information_in, instance_information_out, mode="del")
     elif anomaly_type == "random_lines":
-        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in, instance_information_out, mode="ins")
+        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
+                                                    instance_information_in, instance_information_out, mode="ins")
     elif anomaly_type == "shuffle":
-        anomalies_true = shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path)
+        anomalies_true = shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out,
+                                 anomaly_indices_output_path)
     else:
         print("anomaly type does not exist")
         raise
@@ -134,15 +142,15 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, 
     for index, loss_val in zip(anomaly_loss_order, anomaly_loss_values):
         anomaly_loss_values_correct_order[index] = loss_val
 
-    write_lines_to_file(results_dir_experiment + 'anomaly_loss_values', anomaly_loss_values_correct_order, new_line=True)
+    write_lines_to_file(results_dir + 'anomaly_loss_values', anomaly_loss_values_correct_order, new_line=True)
 
     per = percentile(normal_loss_values, 96.0)
 
     pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
     pred_outliers_values = [val for val in anomaly_loss_values_correct_order if val > per]
 
-    write_lines_to_file(results_dir_experiment + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
-    write_lines_to_file(results_dir_experiment + "pred_outliers_values.txt", pred_outliers_values, new_line=True)
+    write_lines_to_file(results_dir + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
+    write_lines_to_file(results_dir + "pred_outliers_values.txt", pred_outliers_values, new_line=True)
 
     # produce labels for f1 score, precision, etc.
     pred_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
@@ -153,7 +161,7 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, 
     for anomaly_index in anomaly_true_labels:
         true_labels[anomaly_index] = 1
 
-    scores_file = open(results_dir_experiment + "scores.txt", "w+")
+    scores_file = open(results_dir + "scores.txt", "w+")
     f1 = f1_score(true_labels, pred_labels)
     precision = precision_score(true_labels, pred_labels)
     recall = recall_score(true_labels, pred_labels)
@@ -263,7 +271,8 @@ drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=l
 drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
 
 ### INJECT ANOMALIES in dataset 2
-anomalies_true, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type, corpus_input=corpus_pre_anomaly_2,
+anomalies_true, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
+                                                                         corpus_input=corpus_pre_anomaly_2,
                                                                          corpus_output=anomaly_injected_corpus_2,
                                                                          anomaly_indices_output_path=anomaly_indeces_2,
                                                                          instance_information_in=instance_information_file_anomalies_pre_inject_2,
@@ -275,7 +284,8 @@ templates_normal_1 = list(set(open(corpus_normal_1, 'r').readlines()))
 templates_normal_2 = list(set(open(corpus_normal_2, 'r').readlines()))
 # merge_templates(templates_normal_1, templates_normal_2, merged_template_path=parsed_dir_1 + "_merged_templates_normal")
 templates_anomalies_injected = list(set(open(anomaly_injected_corpus_2, 'r').readlines()))
-merged_templates = merge_templates(templates_normal_1, templates_normal_2, templates_anomalies_injected, merged_template_path=None)
+merged_templates = merge_templates(templates_normal_1, templates_normal_2, templates_anomalies_injected,
+                                   merged_template_path=None)
 merged_templates = list(merged_templates)
 
 if args.finetune:
@@ -284,9 +294,8 @@ if args.finetune:
 
 bert_vectors, _, _, _ = transform_bert.get_bert_vectors(merged_templates, bert_model=finetuning_model_dir)
 
-
 if args.anomaly_type in ["insert_words", "remove_words"]:
-    get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates)
+    get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment)
 
 # transform output of bert into numpy word embedding vectors
 transform_bert.transform(sentence_embeddings=bert_vectors,
