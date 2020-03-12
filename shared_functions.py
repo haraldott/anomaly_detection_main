@@ -2,11 +2,12 @@ import matplotlib
 
 matplotlib.use('Agg')
 import numpy as np
-from logparser.utah_log_parser import *
+from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly
 from scipy.spatial.distance import cosine
 from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tools import distribution_plots as distribution_plots
+import os
 
 
 def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp, vectors):
@@ -44,13 +45,13 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
                      instance_information_out, anomaly_amount, results_dir):
     if anomaly_type in ["insert_words", "remove_words"]:
         if anomaly_type == "insert_words":
-            lines_before_alter, lines_after_alter, anomalies_true = insert_words(corpus_input, corpus_output,
+            lines_before_alter, lines_after_alter, anomalies_true_label = insert_words(corpus_input, corpus_output,
                                                                                  anomaly_indices_output_path,
                                                                                  instance_information_in,
                                                                                  instance_information_out,
                                                                                  anomaly_amount)
         elif anomaly_type == "remove_words":
-            lines_before_alter, lines_after_alter, anomalies_true = remove_words(corpus_input, corpus_output,
+            lines_before_alter, lines_after_alter, anomalies_true_label = remove_words(corpus_input, corpus_output,
                                                                                  anomaly_indices_output_path,
                                                                                  instance_information_in,
                                                                                  instance_information_out,
@@ -58,25 +59,28 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
 
         write_lines_to_file(results_dir + "lines_before_altering.txt", lines_before_alter)
         write_lines_to_file(results_dir + "lines_after_altering.txt", lines_after_alter)
-        return anomalies_true, lines_before_alter, lines_after_alter
+        return anomalies_true_label, lines_before_alter, lines_after_alter
 
     elif anomaly_type == "duplicate_lines":
-        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
+        anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                     instance_information_in, instance_information_out, mode="dup")
     elif anomaly_type == "delete_lines":
-        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
+        anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                     instance_information_in, instance_information_out, mode="del")
     elif anomaly_type == "random_lines":
-        anomalies_true = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
+        anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                     instance_information_in, instance_information_out, mode="ins")
     elif anomaly_type == "shuffle":
-        anomalies_true = shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out,
+        anomalies_true_label = shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out,
+                                 anomaly_indices_output_path)
+    elif anomaly_type == "no_anomaly":
+        anomalies_true_label = no_anomaly(corpus_input, corpus_output, instance_information_in, instance_information_out,
                                  anomaly_indices_output_path)
     else:
         print("anomaly type does not exist")
         raise
 
-    return anomalies_true, None, None
+    return anomalies_true_label, None, None
 
 
 def calculate_precision_and_plot(this_results_dir_experiment, arg):

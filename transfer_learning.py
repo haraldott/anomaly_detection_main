@@ -5,12 +5,12 @@ import matplotlib
 matplotlib.use('Agg')
 from settings import settings
 from wordembeddings.transform_glove import merge_templates
-from os import path
 import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
-from shared_functions import *
+from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, get_cosine_distance, inject_anomalies
+import os
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
@@ -133,7 +133,7 @@ merged_templates = merge_templates(templates_normal_1, templates_normal_2, templ
 merged_templates = list(merged_templates)
 
 if args.finetune:
-    if not path.exists(finetuning_model_dir):
+    if not os.path.exists(finetuning_model_dir):
         finetune(templates=templates_normal_1, output_dir=finetuning_model_dir)
 
 bert_vectors, _, _, _ = transform_bert.get_bert_vectors(merged_templates, bert_model=finetuning_model_dir)
