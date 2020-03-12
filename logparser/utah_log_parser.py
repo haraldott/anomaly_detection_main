@@ -330,7 +330,6 @@ def __shuffle_events():
     for instance_id in instance_ids_to_be_altered:
         number_of_changes = random.choice(number_of_anomalies_per_instance_range)
         instance_id_dict[instance_id]
-    print("hello")
 
 
 ########################################################################################################################
@@ -412,7 +411,8 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     output_file.close()
 
     anomaly_indices_file = open(anomaly_indices_output_path, 'w')
-    for anomaly_index in line_indices_to_be_altered.sort():
+    line_indices_to_be_altered.sort()
+    for anomaly_index in line_indices_to_be_altered:
         anomaly_indices_file.write(str(anomaly_index) + "\n")
     anomaly_indices_file.close()
 
@@ -501,7 +501,6 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
 
     # delete lines and keep track of them
     for instance_id_block_to_alter in instance_id_indices_selected_for_altering:
-        print(instance_id_block_to_alter)
         index_to_alter = random.randint(0, len(instance_id_list[instance_id_block_to_alter])-1)
 
         if mode == "ins":

@@ -107,9 +107,10 @@ os.makedirs(anomalies_injected_dir_2, exist_ok=True)
 os.makedirs(anomaly_indeces_dir_2, exist_ok=True)
 
 ### DRAIN PARSING
-drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
-drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
-drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
+if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or not os.path.exists(corpus_pre_anomaly_2):
+    drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
+    drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
+    drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
 
 ### INJECT ANOMALIES in dataset 2
 anomalies_true, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
