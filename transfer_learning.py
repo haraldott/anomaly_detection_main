@@ -9,11 +9,11 @@ import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
-from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, get_cosine_distance, inject_anomalies
+from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, \
+    get_cosine_distance, inject_anomalies
 import os
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
-
 
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------INITIALISE PARAMETERS---------------------------------------------------
@@ -28,7 +28,6 @@ parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
-parser.add_argument('-anomaly_description', type=str, default='None')
 parser.add_argument('-corpus_anomaly_inputfile', type=str)
 parser.add_argument('-instance_information_file_anomalies', type=str)
 parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
@@ -39,9 +38,8 @@ args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
 option = args.option
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-    settings[option]["dataset_2"]["results_dir"] + 'bert',
-    args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/"\
+    .format(settings[option]["dataset_2"]["results_dir"] + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal_1 = settings[option]["dataset_1"]["raw_normal"]
 normal_2 = settings[option]["dataset_2"]["raw_normal"]
@@ -63,11 +61,9 @@ logtype_2 = settings[option]["dataset_2"]["logtype"]
 
 instance_information_file_normal_1 = settings[option]["dataset_1"]['instance_information_file_normal']
 instance_information_file_normal_2 = settings[option]["dataset_2"]['instance_information_file_normal']
-instance_information_file_anomalies_pre_inject_2 = settings[option]["dataset_2"][
-    'instance_information_file_anomalies_pre_inject']
-instance_information_file_anomalies_injected_2 = settings[option]["dataset_2"][
-                                                     'instance_information_file_anomalies_injected'] + anomaly_2 + "_" + args.anomaly_type + "_" + str(
-    args.anomaly_amount)
+instance_information_file_anomalies_pre_inject_2 = settings[option]["dataset_2"]['instance_information_file_anomalies_pre_inject']
+instance_information_file_anomalies_injected_2 = \
+    settings[option]["dataset_2"]['instance_information_file_anomalies_injected'] + anomaly_2 + "_" + args.anomaly_type + "_" + str(args.anomaly_amount)
 
 anomalies_injected_dir_2 = parsed_dir_2 + "anomalies_injected/"
 anomaly_indeces_dir_2 = parsed_dir_2 + "anomalies_injected/anomaly_indeces/"
@@ -108,7 +104,8 @@ os.makedirs(anomalies_injected_dir_2, exist_ok=True)
 os.makedirs(anomaly_indeces_dir_2, exist_ok=True)
 
 ### DRAIN PARSING
-if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or not os.path.exists(corpus_pre_anomaly_2):
+if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or not os.path.exists(
+        corpus_pre_anomaly_2):
     drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
     drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
     drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)

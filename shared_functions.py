@@ -9,6 +9,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 from tools import distribution_plots as distribution_plots
 import os
 import subprocess
+import tarfile
 
 
 def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp, vectors):
@@ -47,16 +48,16 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
     if anomaly_type in ["insert_words", "remove_words"]:
         if anomaly_type == "insert_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = insert_words(corpus_input, corpus_output,
-                                                                                 anomaly_indices_output_path,
-                                                                                 instance_information_in,
-                                                                                 instance_information_out,
-                                                                                 anomaly_amount)
+                                                                                       anomaly_indices_output_path,
+                                                                                       instance_information_in,
+                                                                                       instance_information_out,
+                                                                                       anomaly_amount)
         elif anomaly_type == "remove_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = remove_words(corpus_input, corpus_output,
-                                                                                 anomaly_indices_output_path,
-                                                                                 instance_information_in,
-                                                                                 instance_information_out,
-                                                                                 anomaly_amount)
+                                                                                       anomaly_indices_output_path,
+                                                                                       instance_information_in,
+                                                                                       instance_information_out,
+                                                                                       anomaly_amount)
 
         write_lines_to_file(results_dir + "lines_before_altering.txt", lines_before_alter)
         write_lines_to_file(results_dir + "lines_after_altering.txt", lines_after_alter)
@@ -64,19 +65,20 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
 
     elif anomaly_type == "duplicate_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
-                                                    instance_information_in, instance_information_out, mode="dup")
+                                                          instance_information_in, instance_information_out, mode="dup")
     elif anomaly_type == "delete_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
-                                                    instance_information_in, instance_information_out, mode="del")
+                                                          instance_information_in, instance_information_out, mode="del")
     elif anomaly_type == "random_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
-                                                    instance_information_in, instance_information_out, mode="ins")
+                                                          instance_information_in, instance_information_out, mode="ins")
     elif anomaly_type == "shuffle":
         anomalies_true_label = shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out,
-                                 anomaly_indices_output_path)
+                                       anomaly_indices_output_path)
     elif anomaly_type == "no_anomaly":
-        anomalies_true_label = no_anomaly(corpus_input, corpus_output, instance_information_in, instance_information_out,
-                                 anomaly_indices_output_path)
+        anomalies_true_label = no_anomaly(corpus_input, corpus_output, instance_information_in,
+                                          instance_information_out,
+                                          anomaly_indices_output_path)
     else:
         print("anomaly type does not exist")
         raise
@@ -88,10 +90,14 @@ def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
     # precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
     #                                 outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, arg.epochs, arg.seq_len, 768, 0)
-    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}"
-                    .format('bert', arg.epochs, arg.seq_len, arg.anomaly_description, arg.anomaly_amount) + '.tar',
-                     '--directory=' + cwd + this_results_dir_experiment,
-                     '*'])
+
+    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format('bert', arg.epochs,
+                                                                                                     arg.seq_len,
+                                                                                                     arg.anomaly_type,
+                                                                                                     arg.anomaly_amount) + '.tar'
+
+    with tarfile.open(name=archive_name, mode="w:gz") as tar:
+        tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
 
 
 def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
