@@ -243,3 +243,4 @@ def shuffle(corpus_input, corpus_output, instance_information_in, instance_infor
 def no_anomaly(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
     copyfile(instance_information_in, instance_information_out)
     copyfile(corpus_input, corpus_output)
+    return []

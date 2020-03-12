@@ -8,6 +8,7 @@ from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tools import distribution_plots as distribution_plots
 import os
+import subprocess
 
 
 def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp, vectors):
@@ -83,18 +84,14 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
     return anomalies_true_label, None, None
 
 
-def calculate_precision_and_plot(this_results_dir_experiment, arg):
+def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
     # precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
     #                                 outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, arg.epochs, arg.seq_len, 768, 0)
-    # subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}"
-    #                 .format('bert', args.epochs, args.seq_len, args.anomaly_description, args.anomaly_amount) + '.tar',
-    #                  '--directory=' + cwd + this_results_dir_experiment,
-    #                  'normal_loss_values',
-    #                  'anomaly_loss_values',
-    #                  'outliers_values',
-    #                  'anomaly_loss_indices',
-    #                  'plot.png'])
+    subprocess.call(['tar', 'cvf', cwd + this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}"
+                    .format('bert', arg.epochs, arg.seq_len, arg.anomaly_description, arg.anomaly_amount) + '.tar',
+                     '--directory=' + cwd + this_results_dir_experiment,
+                     '*'])
 
 
 def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):

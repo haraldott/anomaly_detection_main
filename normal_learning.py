@@ -172,4 +172,4 @@ calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_ex
                        anomaly_loss_order=cwd + results_dir_experiment + 'anomaly_loss_indices',
                        anomaly_true_labels=anomalies_true)
 print("done.")
-calculate_precision_and_plot(results_dir_experiment, args)
+calculate_precision_and_plot(results_dir_experiment, args, cwd)
