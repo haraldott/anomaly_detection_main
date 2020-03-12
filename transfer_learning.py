@@ -37,6 +37,7 @@ parser.add_argument('-anomaly_type', type=str, default='insert_words')
 parser.add_argument('-anomaly_amount', type=int, default=8)
 args = parser.parse_args()
 
+print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
 option = args.option
 results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
     settings[option]["dataset_2"]["results_dir"] + 'bert',
@@ -113,14 +114,14 @@ if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or
     drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
 
 ### INJECT ANOMALIES in dataset 2
-anomalies_true, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
-                                                                         corpus_input=corpus_pre_anomaly_2,
-                                                                         corpus_output=anomaly_injected_corpus_2,
-                                                                         anomaly_indices_output_path=anomaly_indeces_2,
-                                                                         instance_information_in=instance_information_file_anomalies_pre_inject_2,
-                                                                         instance_information_out=instance_information_file_anomalies_injected_2,
-                                                                         anomaly_amount=args.anomaly_amount,
-                                                                         results_dir=results_dir_experiment)
+anomalies_true_labels, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
+                                                                                corpus_input=corpus_pre_anomaly_2,
+                                                                                corpus_output=anomaly_injected_corpus_2,
+                                                                                anomaly_indices_output_path=anomaly_indeces_2,
+                                                                                instance_information_in=instance_information_file_anomalies_pre_inject_2,
+                                                                                instance_information_out=instance_information_file_anomalies_injected_2,
+                                                                                anomaly_amount=args.anomaly_amount,
+                                                                                results_dir=results_dir_experiment)
 
 # produce templates out of the corpuses that we have from the anomaly file
 templates_normal_1 = list(set(open(corpus_normal_1, 'r').readlines()))
@@ -203,6 +204,6 @@ ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
 calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                        normal_loss_values=normal_loss_values,
                        anomaly_loss_order=cwd + results_dir_experiment + 'anomaly_loss_indices',
-                       anomaly_true_labels=anomalies_true)
-print("anomaly done.")
+                       anomaly_true_labels=anomalies_true_labels)
+print("done.")
 calculate_precision_and_plot(results_dir_experiment, args)

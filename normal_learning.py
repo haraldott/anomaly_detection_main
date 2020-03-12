@@ -37,6 +37,7 @@ parser.add_argument('-anomaly_type', type=str, default='insert_words')
 parser.add_argument('-anomaly_amount', type=int, default=1)
 args = parser.parse_args()
 
+print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
 option = args.option
 results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
     settings[option]["results_dir"] + 'bert',
@@ -169,5 +170,5 @@ calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_ex
                        normal_loss_values=normal_loss_values,
                        anomaly_loss_order=cwd + results_dir_experiment + 'anomaly_loss_indices',
                        anomaly_true_labels=anomalies_true)
-print("anomaly done.")
+print("done.")
 calculate_precision_and_plot(results_dir_experiment, args)
