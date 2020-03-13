@@ -8,7 +8,6 @@ from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tools import distribution_plots as distribution_plots
 import os
-import subprocess
 import tarfile
 
 
@@ -102,12 +101,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
 
 def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
     normal_loss_values = normal_lstm_model.loss_values(normal=True)
-
-    os.makedirs(results_dir, exist_ok=True)
-    normal_values_file = open(cwd + results_dir + values_type, 'w+')
-    for val in normal_loss_values:
-        normal_values_file.write(str(val) + "\n")
-    normal_values_file.close()
+    write_lines_to_file(cwd + results_dir + values_type, normal_loss_values, True)
     return normal_loss_values
 
 
@@ -124,7 +118,7 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, 
 
     write_lines_to_file(results_dir + 'anomaly_loss_values', anomaly_loss_values_correct_order, new_line=True)
 
-    per = percentile(normal_loss_values, 96.0)
+    per = percentile(normal_loss_values, 96.1)
 
     pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
     pred_outliers_values = [val for val in anomaly_loss_values_correct_order if val > per]

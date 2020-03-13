@@ -11,13 +11,10 @@ normal_loss_values = [float(y) for y in normal_loss_values]
 anomaly_loss_values = [float(y) for y in anomaly_loss_values]
 anomaly_loss_indices = [int(y) for y in anomaly_loss_indices]
 
-per = percentile(normal_loss_values, 96.0)
+per = percentile(normal_loss_values, 96.1)
 
-loss_values_higher_than_per = []
-for index, val in zip(anomaly_loss_indices, anomaly_loss_values):
-    if val > per:
-        loss_values_higher_than_per.append(index)
-
+# loss_values_higher_than_per = []
+pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values) if val > per]
 
 
 # iqr_val = iqr(loss_values_normal)
