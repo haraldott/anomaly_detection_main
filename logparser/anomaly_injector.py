@@ -11,6 +11,7 @@ number_of_swaps_per_instance = 4
 overall_anomaly_ratio = 0.02
 words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after",
                            "brain", "cell", "whatever"]
+words_for_random_replace = ["bullshit", "brain", "cell", "whatever"]
 max_number_of_words_to_be_altered = 1
 ratio_of_words_to_be_altered_per_line = 0.15
 
@@ -110,6 +111,46 @@ def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
         line = line.split()
         for _ in range(0, number_of_words_to_be_added):
             line.insert(random.randrange(0, len(line)), random.choice(words_for_random_insert))
+        # re-insert altered line
+        line = " ".join(line) + "\n"
+        lines_after_alter.append(line)
+        total_lines[index] = line
+
+    output_file = open(corpus_output, 'w')
+    for line in total_lines:
+        output_file.write(line)
+    output_file.close()
+
+    anomaly_indices_file = open(anomaly_indices_output_path, 'w')
+    line_indices_to_be_altered.sort()
+    for anomaly_index in line_indices_to_be_altered:
+        anomaly_indices_file.write(str(anomaly_index) + "\n")
+    anomaly_indices_file.close()
+
+    return lines_before_alter, lines_after_alter, line_indices_to_be_altered
+
+
+def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
+                  instance_information_out, number_of_words_to_be_replaced=1):
+    copyfile(instance_information_in, instance_information_out)
+    total_lines_file = open(corpus_input, 'r')
+    total_lines = total_lines_file.readlines()
+    total_lines_file.close()
+
+    lines_before_alter = []
+    lines_after_alter = []
+
+    number_of_lines = len(total_lines)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
+    line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
+    for index in line_indices_to_be_altered:
+        # select line for altering
+        line = total_lines[index]
+        lines_before_alter.append(line)
+        line = line.split()
+        indeces_to_be_replaced = random.sample(range(len(line)), number_of_words_to_be_replaced)
+        for replace in indeces_to_be_replaced:
+            line[replace] = random.choice(words_for_random_replace)
         # re-insert altered line
         line = " ".join(line) + "\n"
         lines_after_alter.append(line)

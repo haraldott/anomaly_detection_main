@@ -32,15 +32,20 @@ parser.add_argument('-corpus_anomaly_inputfile', type=str)
 parser.add_argument('-instance_information_file_anomalies', type=str)
 parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
 parser.add_argument('-finetune', action='store_true')
-parser.add_argument('-anomaly_type', type=str, default='insert_words')
+parser.add_argument('-anomaly_type', type=str, default='replace_words')
 parser.add_argument('-anomaly_amount', type=int, default=1)
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
 option = args.option
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-    settings[option]["results_dir"] + 'bert',
-    args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+
+if args.finetune:
+    results_dir = settings[option]["results_dir"] + "_finetune/"
+else:
+    results_dir = settings[option]["results_dir"] + "/"
+
+results_dir_experiment = "{}epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
+                            results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal = settings[option]["raw_normal"]
 anomaly = settings[option]["raw_anomaly"]
@@ -48,8 +53,6 @@ anomaly = settings[option]["raw_anomaly"]
 raw_dir = settings[option]["raw_dir"]
 
 parsed_dir = settings[option]["parsed_dir"]
-
-results_dir = settings[option]["results_dir"]
 
 embeddings_dir = settings[option]["embeddings_dir"]
 
@@ -124,7 +127,7 @@ if args.finetune:
 
 bert_vectors, _, _, _ = transform_bert.get_bert_vectors(merged_templates, bert_model=finetuning_model_dir)
 
-if args.anomaly_type in ["insert_words", "remove_words"]:
+if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
     get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment, bert_vectors)
 
 # transform output of bert into numpy word embedding vectors

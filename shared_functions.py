@@ -2,7 +2,7 @@ import matplotlib
 
 matplotlib.use('Agg')
 import numpy as np
-from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly
+from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words
 from scipy.spatial.distance import cosine
 from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
@@ -44,7 +44,7 @@ def write_lines_to_file(file_path, content, new_line=False):
 
 def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
                      instance_information_out, anomaly_amount, results_dir):
-    if anomaly_type in ["insert_words", "remove_words"]:
+    if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
         if anomaly_type == "insert_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = insert_words(corpus_input, corpus_output,
                                                                                        anomaly_indices_output_path,
@@ -53,6 +53,12 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
                                                                                        anomaly_amount)
         elif anomaly_type == "remove_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = remove_words(corpus_input, corpus_output,
+                                                                                       anomaly_indices_output_path,
+                                                                                       instance_information_in,
+                                                                                       instance_information_out,
+                                                                                       anomaly_amount)
+        elif anomaly_type == "replace_words":
+            lines_before_alter, lines_after_alter, anomalies_true_label = replace_words(corpus_input, corpus_output,
                                                                                        anomaly_indices_output_path,
                                                                                        instance_information_in,
                                                                                        instance_information_out,
@@ -86,8 +92,6 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
 
 
 def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
-    # precision = calc_precision_utah(log_file_containing_anomalies=log_file_containing_anomalies,
-    #                                 outliers_file=cwd + this_results_dir_experiment + 'outliers_values')
     distribution_plots(this_results_dir_experiment, arg.epochs, arg.seq_len, 768, 0)
 
     archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format('bert', arg.epochs,

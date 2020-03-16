@@ -12,7 +12,11 @@ python normal_learning.py -finetune -anomaly_type="insert_words" -anomaly_amount
 python normal_learning.py -finetune -anomaly_type="remove_words" -anomaly_amount=1 -anomaly_only
 python normal_learning.py -finetune -anomaly_type="remove_words" -anomaly_amount=2 -anomaly_only
 python normal_learning.py -finetune -anomaly_type="remove_words" -anomaly_amount=3 -anomaly_only
+python normal_learning.py -finetune -anomaly_type="replace_words" -anomaly_amount=1 -anomaly_only
+python normal_learning.py -finetune -anomaly_type="replace_words" -anomaly_amount=2 -anomaly_only
+python normal_learning.py -finetune -anomaly_type="replace_words" -anomaly_amount=3 -anomaly_only
 python normal_learning.py -finetune -anomaly_type="duplicate_lines" -anomaly_only
 python normal_learning.py -finetune -anomaly_type="delete_lines" -anomaly_only
 python normal_learning.py -finetune -anomaly_type="random_lines" -anomaly_only
 python normal_learning.py -finetune -anomaly_type="shuffle" -anomaly_only
+python normal_learning.py -finetune -anomaly_type="no_anomaly" -anomaly_only

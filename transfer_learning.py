@@ -38,8 +38,14 @@ args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
 option = args.option
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/"\
-    .format(settings[option]["dataset_2"]["results_dir"] + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+
+if args.finetune:
+    results_dir = settings[option]["results_dir"] + "_finetune/"
+else:
+    results_dir = settings[option]["results_dir"] + "/"
+
+results_dir_experiment = "{}epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
+                            results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal_1 = settings[option]["dataset_1"]["raw_normal"]
 normal_2 = settings[option]["dataset_2"]["raw_normal"]
@@ -135,7 +141,7 @@ if args.finetune:
 
 bert_vectors, _, _, _ = transform_bert.get_bert_vectors(merged_templates, bert_model=finetuning_model_dir)
 
-if args.anomaly_type in ["insert_words", "remove_words"]:
+if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
     get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment, bert_vectors)
 
 # transform output of bert into numpy word embedding vectors

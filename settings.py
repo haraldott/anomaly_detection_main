@@ -61,7 +61,7 @@ settings = {
             # dirs
             "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
             "parsed_dir": "data/openstack/utah/parsed/",
-            "results_dir": "data/openstack/utah/results/UtahSorted/",
+            "results_dir": "data/openstack/utah/results/UtahSorted",
             "embeddings_dir": "data/openstack/utah/embeddings/",
             # logtype for drain parsing
             "logtype": "OpenStack",
@@ -93,7 +93,7 @@ settings = {
                 # dirs
                 "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
                 "parsed_dir": "data/openstack/utah/parsed/",
-                "results_dir": "data/openstack/utah/results/UtahSashoTransfer/",
+                "results_dir": "data/openstack/utah/results/UtahSashoTransfer",
                 "embeddings_dir": "data/openstack/utah/embeddings/",
                 # logtype for drain parsing
                 "logtype": "OpenStack",
