@@ -40,9 +40,9 @@ print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
 option = args.option
 
 if args.finetune:
-    results_dir = settings[option]["results_dir"] + "_finetune/"
+    results_dir = settings[option]["dataset_2"]["results_dir"] + "_finetune/"
 else:
-    results_dir = settings[option]["results_dir"] + "/"
+    results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
 
 results_dir_experiment = "{}epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
                             results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
