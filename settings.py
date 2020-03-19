@@ -54,7 +54,7 @@ settings = {
         'instance_information_file_anomalies': 'data/openstack/utah/raw/sorted_per_request_pickle/openstack_18k_random_lines_anomalies_new.pickle'
     },
 
-    'UtahSorted': {
+    'Normal': {
             # files
             "raw_normal": "137k_spr",
             "raw_anomaly": "18k_spr",

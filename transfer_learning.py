@@ -44,7 +44,7 @@ if args.finetune:
 else:
     results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
 
-results_dir_experiment = "{}epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
                             results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal_1 = settings[option]["dataset_1"]["raw_normal"]

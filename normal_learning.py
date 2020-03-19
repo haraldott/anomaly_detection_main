@@ -20,7 +20,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------------------------------------------------------------------------------
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='UtahSorted')
+parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-reduced', action='store_true')
 parser.add_argument('-epochs', type=int, default=100)
@@ -44,7 +44,7 @@ if args.finetune:
 else:
     results_dir = settings[option]["results_dir"] + "/"
 
-results_dir_experiment = "{}epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
                             results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal = settings[option]["raw_normal"]
