@@ -4,13 +4,13 @@ from numpy import percentile
 
 
 def calc_mean():
-    with open('/Users/haraldott/Downloads/results/Utah with finetuning/bertepochs_100_seq_len:_7_anomaly_type:replace_words_2/lines_before_after_cosine_distances.txt') as f:
-        distances_replace_2 = [float(x) for x in f.readlines()]
-    with open('/Users/haraldott/Downloads/results/Utah with finetuning/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_7/lines_before_after_cosine_distances.txt') as f:
-        distances_insert_7 = [float(x) for x in f.readlines()]
+    with open('/Users/haraldott/Downloads/results/with finetuning/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_after_cosine_distances.txt') as f:
+        with_finetune_9 = [float(x) for x in f.readlines()]
+    with open('/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_after_cosine_distances.txt') as f:
+        without_finetune_9 = [float(x) for x in f.readlines()]
 
-    print("mean replace 2: {}".format(np.mean(distances_replace_2)))
-    print("mean insert 7: {}".format(np.mean(distances_insert_7)))
+    print("with_finetune_9: {}".format(np.mean(with_finetune_9)))
+    print("without_finetune_9: {}".format(np.mean(without_finetune_9)))
 
 
 
@@ -53,4 +53,4 @@ def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downlo
 
 
 if __name__ == '__main__':
-    calc_f1_based_on_percentile()
+    calc_mean()

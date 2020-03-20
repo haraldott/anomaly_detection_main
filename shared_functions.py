@@ -2,7 +2,7 @@ import matplotlib
 
 matplotlib.use('Agg')
 import numpy as np
-from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words
+from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words, reverse_order
 from scipy.spatial.distance import cosine
 from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
@@ -78,10 +78,15 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                           instance_information_in, instance_information_out, mode="ins")
     elif anomaly_type == "shuffle":
-        anomalies_true_label = shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out,
+        anomalies_true_label = shuffle(corpus_input, corpus_output, instance_information_in,
+                                       instance_information_out,
                                        anomaly_indices_output_path)
     elif anomaly_type == "no_anomaly":
         anomalies_true_label = no_anomaly(corpus_input, corpus_output, instance_information_in,
+                                          instance_information_out,
+                                          anomaly_indices_output_path)
+    elif anomaly_type == "reverse_order":
+        anomalies_true_label = reverse_order(corpus_input, corpus_output, instance_information_in,
                                           instance_information_out,
                                           anomaly_indices_output_path)
     else:

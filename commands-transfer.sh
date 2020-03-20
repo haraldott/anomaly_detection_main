@@ -20,4 +20,4 @@ python transfer_learning.py -finetune -anomaly_type="delete_lines" -anomaly_only
 python transfer_learning.py -finetune -anomaly_type="random_lines" -anomaly_only
 python transfer_learning.py -finetune -anomaly_type="shuffle" -anomaly_only
 python transfer_learning.py -finetune -anomaly_type="no_anomaly" -anomaly_only
-
+python transfer_learning.py -finetune -anomaly_type="reverse_order" -anomaly_only

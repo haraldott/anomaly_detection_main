@@ -3,6 +3,7 @@ import os
 import pickle
 import random
 from shutil import copyfile
+import numpy as np
 
 utah_new_random_line = "My personal randomly injected line.\n"
 number_of_instances_to_inject_anomalies_in = 20
@@ -211,6 +212,33 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
     anomaly_indices_file.close()
 
     return lines_before_alter, lines_after_alter, line_indices_to_be_altered
+
+
+def reverse_order(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
+    copyfile(instance_information_in, instance_information_out)
+    with open(corpus_input, 'r') as f:
+        total_lines = f.readlines()
+    instance_information = pickle.load(open(instance_information_in, 'rb'))
+
+    instance_id_list = []
+    for instance in instance_information:
+        instance_block = []
+        for i in range(instance[0], instance[1] + 1):
+            instance_block.append(total_lines[i])
+        instance_id_list.append(instance_block)
+
+    flipped_instanced_id_list = []
+    for instance_block in instance_id_list:
+        flipped_instanced_id_list.append(np.flip(instance_block, 0))
+
+    with open(corpus_output, 'w') as f:
+        for block in flipped_instanced_id_list:
+            for line in block:
+                f.write(str(line))
+
+    with open(anomaly_indices_output_path, 'w') as f:
+        for i in range(0, len(total_lines)):
+            f.write(str(i))
 
 
 def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):

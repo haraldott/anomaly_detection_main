@@ -68,8 +68,8 @@ def write_to_tsv_files_bert():
 
 
 def write_to_tsv_files_bert_sentences():
-    sentences, _, _, _ = transform_bert.get_bert_vectors()
-    with open('vectors_bert_sentences.tsv', 'wt') as out_file:
+    sentences, _, _, _ = transform_bert.get_bert_vectors("/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_altering.txt")
+    with open('vectors_bert_sentences_before_altering.tsv', 'wt') as out_file:
         tsv_writer = csv.writer(out_file, delimiter='\t')
         for word in sentences:
             tsv_writer.writerow(word)
