@@ -12,6 +12,7 @@ from wordembeddings.bert_finetuning import finetune
 from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, \
     get_cosine_distance, inject_anomalies
 import os
+from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
@@ -140,6 +141,10 @@ if args.finetune:
         finetune(templates=templates_normal_1, output_dir=finetuning_model_dir)
 
 bert_vectors, _, _, _ = transform_bert.get_bert_vectors(merged_templates, bert_model=finetuning_model_dir)
+
+write_to_tsv_files_bert_sentences(vectors=bert_vectors, sentences=merged_templates,
+                                  tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
+                                  tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
 if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
     get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment, bert_vectors)

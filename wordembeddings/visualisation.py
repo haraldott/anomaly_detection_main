@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import csv
 from wordembeddings import transform_bert as transform_bert
+import os
 
 
 def tsne_plot_2d(filename, label, emb, words=[], a=1):
@@ -67,14 +68,19 @@ def write_to_tsv_files_bert():
                 out_file.write(word + "\n")
 
 
-def write_to_tsv_files_bert_sentences():
-    sentences, _, _, _ = transform_bert.get_bert_vectors("/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_altering.txt")
-    with open('vectors_bert_sentences_before_altering.tsv', 'wt') as out_file:
-        tsv_writer = csv.writer(out_file, delimiter='\t')
-        for word in sentences:
-            tsv_writer.writerow(word)
+def write_to_tsv_files_bert_sentences(vectors,
+                                      sentences,
+                                      tsv_file_vectors='vectors_bert_sentences_before_altering.tsv',
+                                      tsv_file_sentences='bert_sentences_before_altering.tsv'):
+    # sentences, _, _, _ = transform_bert.get_bert_vectors(
+    #     templates_location="/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_altering.txt")
+    os.makedirs(os.path.dirname(tsv_file_vectors), exist_ok=True)
 
-    # with open('sentences_bert.tsv', 'wt') as out_file:
-    #     for sentence in tokenized_text:
-    #         for word in sentence:
-    #             out_file.write(word + "\n")
+    with open(tsv_file_vectors, 'wt') as out_file:
+        tsv_writer = csv.writer(out_file, delimiter='\t')
+        for vector in vectors:
+            tsv_writer.writerow(vector)
+
+    with open(tsv_file_sentences, 'wt') as out_file:
+        for sentence in sentences:
+            out_file.write(sentence)

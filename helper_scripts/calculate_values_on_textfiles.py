@@ -4,13 +4,13 @@ from numpy import percentile
 
 
 def calc_mean():
-    with open('/Users/haraldott/Downloads/results/with finetuning/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_after_cosine_distances.txt') as f:
-        with_finetune_9 = [float(x) for x in f.readlines()]
-    with open('/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_after_cosine_distances.txt') as f:
-        without_finetune_9 = [float(x) for x in f.readlines()]
+    with open('/Users/haraldott/Downloads/results/no finetune/bert_epochs_0_seq_len_7_description__reverse_order_0/anomaly_loss_values') as f:
+        reverse_order_loss = [float(x) for x in f.readlines()]
+    with open('/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len_7_description__no_anomaly_1/anomaly_loss_values') as f:
+        no_anomaly_loss = [float(x) for x in f.readlines()]
 
-    print("with_finetune_9: {}".format(np.mean(with_finetune_9)))
-    print("without_finetune_9: {}".format(np.mean(without_finetune_9)))
+    print("reverse_order_loss: {}, std: {}".format(np.mean(reverse_order_loss), np.std(reverse_order_loss)))
+    print("no_anomaly_loss: {}, std: {}".format(np.mean(no_anomaly_loss), np.std(no_anomaly_loss)))
 
 
 
@@ -52,5 +52,5 @@ def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downlo
     print("precision: {}".format(precision_score(true_labels, pred_labels)))
 
 
-if __name__ == '__main__':
-    calc_mean()
+# if __name__ == '__main__':
+#     calc_mean()
