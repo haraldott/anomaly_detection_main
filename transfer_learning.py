@@ -84,13 +84,14 @@ corpus_pre_anomaly_2 = cwd + parsed_dir_2 + anomaly_2 + '_corpus'
 embeddings_normal_1 = cwd + embeddings_dir_1 + normal_1 + '.pickle'
 embeddings_normal_2 = cwd + embeddings_dir_2 + normal_2 + '.pickle'
 embeddings_anomalies_injected_2 = cwd + embeddings_dir_2 + anomaly_2 + '.pickle'
-finetuning_model_dir = "wordembeddings/finetuning-models/" + normal_1
+
 
 if args.finetune:
     lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_with_finetune' + '_lstm.pth'
+    finetuning_model_dir = "wordembeddings/finetuning-models/" + normal_1
 else:
     lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_lstm.pth'
-vae_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_vae.pth'
+    finetuning_model_dir = "bert-base-uncased"
 
 # take corpus parsed by drain, inject anomalies in this file
 anomaly_injected_corpus_2 = cwd + anomalies_injected_dir_2 + anomaly_2 + "_" + args.anomaly_type
@@ -167,8 +168,7 @@ transform_bert.transform(sentence_embeddings=bert_vectors,
 
 if not args.anomaly_only:
     # NORMAL TRAINING with dataset 1
-    ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                                 loadvectors=embeddings_normal_1,
+    ad_normal = AnomalyDetection(loadvectors=embeddings_normal_1,
                                  savemodelpath=lstm_model_save_path,
                                  seq_length=args.seq_len,
                                  num_epochs=args.epochs,
@@ -180,8 +180,7 @@ if not args.anomaly_only:
 
     ad_normal.start_training()
 # FEW SHOT TRAINING with dataset 2
-ad_normal_transfer = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                                      loadvectors=embeddings_normal_2,
+ad_normal_transfer = AnomalyDetection(loadvectors=embeddings_normal_2,
                                       savemodelpath=lstm_model_save_path,
                                       seq_length=args.seq_len,
                                       num_epochs=5,
@@ -198,8 +197,7 @@ normal_loss_values = calculate_normal_loss(normal_lstm_model=ad_normal_transfer,
                                            results_dir=results_dir_experiment,
                                            values_type='normal_loss_values',
                                            cwd=cwd)
-ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                              loadvectors=embeddings_anomalies_injected_2,
+ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected_2,
                               savemodelpath=lstm_model_save_path,
                               seq_length=args.seq_len,
                               num_epochs=args.epochs,
