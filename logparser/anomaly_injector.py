@@ -236,9 +236,12 @@ def reverse_order(corpus_input, corpus_output, instance_information_in, instance
             for line in block:
                 f.write(str(line))
 
+    anomaly_indices = np.arange(len(total_lines))
     with open(anomaly_indices_output_path, 'w') as f:
-        for i in range(0, len(total_lines)):
-            f.write(str(i))
+        for i in anomaly_indices:
+            f.write(str(i) + "\n")
+
+    return anomaly_indices
 
 
 def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
