@@ -32,13 +32,10 @@ class LSTM(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
-        if self.train_mode:
-            input = nn.Dropout(p=0.2)(input)
-
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
-
         output, hidden = self.lstm(input, hidden)
-        output = nn.Dropout(p=0.2)(output)
+        if self.train_mode:
+            output = nn.Dropout(p=0.2)(output)
         decoded = self.decoder(output[:, -1, :])
         return decoded, hidden
 

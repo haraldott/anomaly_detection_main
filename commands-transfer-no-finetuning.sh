@@ -21,3 +21,5 @@ CUDA_VISIBLE_DEVICES=1 python transfer_learning.py -anomaly_type="random_lines" 
 CUDA_VISIBLE_DEVICES=1 python transfer_learning.py -anomaly_type="shuffle" -anomaly_only
 CUDA_VISIBLE_DEVICES=1 python transfer_learning.py -anomaly_type="no_anomaly" -anomaly_only
 CUDA_VISIBLE_DEVICES=1 python transfer_learning.py -anomaly_type="reverse_order" -anomaly_only
+
+tar cvf transfer.tar *
