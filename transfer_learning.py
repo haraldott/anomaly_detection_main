@@ -34,7 +34,7 @@ parser.add_argument('-instance_information_file_anomalies', type=str)
 parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
 parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='insert_words')
-parser.add_argument('-anomaly_amount', type=int, default=8)
+parser.add_argument('-anomaly_amount', type=int, default=0)
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
