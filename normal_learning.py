@@ -37,7 +37,7 @@ parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased
 parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='reverse_order')
 parser.add_argument('-anomaly_amount', type=int, default=0)
-parser.add_argument('-embeddings_model', type=str, default="bert")
+parser.add_argument('-embeddings_model', type=str, default="gpt2")
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))

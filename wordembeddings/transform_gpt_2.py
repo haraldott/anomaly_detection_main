@@ -15,7 +15,7 @@ def get_gpt2_embeddings(templates, model):
     word_embeddings = [tuple((word, vec)) for word, vec in zip(words, encoded_layers)]
     sentence_embeddings_mean = []
     for sentence in word_embeddings:
-        sentence_embeddings_mean.append(sentence[1].mean(dim=1))
+        sentence_embeddings_mean.append(torch.squeeze(sentence[1].mean(dim=1)))
     return sentence_embeddings_mean
 
 

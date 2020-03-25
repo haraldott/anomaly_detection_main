@@ -99,7 +99,7 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
 def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
     distribution_plots(this_results_dir_experiment, arg.epochs, arg.seq_len, 768, 0)
 
-    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format('bert', arg.epochs,
+    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format(arg.embeddings_model, arg.epochs,
                                                                                                      arg.seq_len,
                                                                                                      arg.anomaly_type,
                                                                                                      arg.anomaly_amount) + '.tar'
