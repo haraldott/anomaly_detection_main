@@ -49,7 +49,7 @@ else:
     results_dir = settings[option]["results_dir"] + "/"
 
 results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-    results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+    results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal = settings[option]["raw_normal"]
 anomaly = settings[option]["raw_anomaly"]
