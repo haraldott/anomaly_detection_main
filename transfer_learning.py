@@ -13,6 +13,8 @@ from shared_functions import calculate_precision_and_plot, calculate_anomaly_los
     get_cosine_distance, inject_anomalies
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
+from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
+from wordembeddings.transform_bert import get_bert_embeddings
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
@@ -35,6 +37,7 @@ parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased
 parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='insert_words')
 parser.add_argument('-anomaly_amount', type=int, default=0)
+parser.add_argument('-embeddings_model', type=str, default="bert")
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
@@ -46,7 +49,7 @@ else:
     results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
 
 results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-                            results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+    results_dir + 'bert', args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
 normal_1 = settings[option]["dataset_1"]["raw_normal"]
 normal_2 = settings[option]["dataset_2"]["raw_normal"]
@@ -68,9 +71,12 @@ logtype_2 = settings[option]["dataset_2"]["logtype"]
 
 instance_information_file_normal_1 = settings[option]["dataset_1"]['instance_information_file_normal']
 instance_information_file_normal_2 = settings[option]["dataset_2"]['instance_information_file_normal']
-instance_information_file_anomalies_pre_inject_2 = settings[option]["dataset_2"]['instance_information_file_anomalies_pre_inject']
+instance_information_file_anomalies_pre_inject_2 = settings[option]["dataset_2"][
+    'instance_information_file_anomalies_pre_inject']
 instance_information_file_anomalies_injected_2 = \
-    settings[option]["dataset_2"]['instance_information_file_anomalies_injected'] + anomaly_2 + "_" + args.anomaly_type + "_" + str(args.anomaly_amount)
+    settings[option]["dataset_2"][
+        'instance_information_file_anomalies_injected'] + anomaly_2 + "_" + args.anomaly_type + "_" + str(
+        args.anomaly_amount)
 
 anomalies_injected_dir_2 = parsed_dir_2 + "anomalies_injected/"
 anomaly_indeces_dir_2 = parsed_dir_2 + "anomalies_injected/anomaly_indeces/"
@@ -84,7 +90,6 @@ corpus_pre_anomaly_2 = cwd + parsed_dir_2 + anomaly_2 + '_corpus'
 embeddings_normal_1 = cwd + embeddings_dir_1 + normal_1 + '.pickle'
 embeddings_normal_2 = cwd + embeddings_dir_2 + normal_2 + '.pickle'
 embeddings_anomalies_injected_2 = cwd + embeddings_dir_2 + anomaly_2 + '.pickle'
-
 
 if args.finetune:
     lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_with_finetune' + '_lstm.pth'
@@ -141,27 +146,33 @@ if args.finetune:
     if not os.path.exists(finetuning_model_dir):
         finetune(templates=templates_normal_1, output_dir=finetuning_model_dir)
 
-bert_vectors, _, _, _ = transform_bert.get_bert_vectors(merged_templates, bert_model=finetuning_model_dir)
+if args.embeddings_model == "bert":
+    word_embeddings = get_bert_embeddings(merged_templates, model=finetuning_model_dir)
+elif args.embeddings_model == "gpt2":
+    word_embeddings = get_gpt2_embeddings(merged_templates, model='gpt2')
+else:
+    raise Exception("unknown embeddings model selected")
 
-write_to_tsv_files_bert_sentences(vectors=bert_vectors, sentences=merged_templates,
+write_to_tsv_files_bert_sentences(vectors=word_embeddings, sentences=merged_templates,
                                   tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
                                   tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
 if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-    get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment, bert_vectors)
+    get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment,
+                        word_embeddings)
 
 # transform output of bert into numpy word embedding vectors
-transform_bert.transform(sentence_embeddings=bert_vectors,
+transform_bert.transform(sentence_embeddings=word_embeddings,
                          logfile=corpus_normal_1,
                          templates=merged_templates,
                          outputfile=embeddings_normal_1)
 
-transform_bert.transform(sentence_embeddings=bert_vectors,
+transform_bert.transform(sentence_embeddings=word_embeddings,
                          logfile=corpus_normal_2,
                          templates=merged_templates,
                          outputfile=embeddings_normal_2)
 
-transform_bert.transform(sentence_embeddings=bert_vectors,
+transform_bert.transform(sentence_embeddings=word_embeddings,
                          logfile=anomaly_injected_corpus_2,
                          templates=merged_templates,
                          outputfile=embeddings_anomalies_injected_2)

@@ -8,10 +8,15 @@ from transformers import BertTokenizer as transformers_BertTokenizer
 from transformers import BertModel as transformers_BertModel
 
 
-# from wordembeddings.visualisation import tsne_plot_2d
+def get_bert_embeddings(templates_location, model):
+    token_vecs_cat, token_vecs_sum, tokenized_text, encoded_layers = _prepare_bert_vectors(
+        templates_location, bert_model=model)
+    sentence_embeddings = []
+    for t in encoded_layers:
+        sentence_embeddings.append(torch.mean(t[0][10][0], dim=0))
 
+    return sentence_embeddings
 
-# ref: https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
 
 def transform(sentence_embeddings,
               logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
@@ -139,11 +144,10 @@ def get_bert_vectors(templates_location='../data/openstack/sasho/parsed/logs_agg
     return sentence_embeddings, token_vecs_cat, token_vecs_sum, tokenized_text
 
 
-
-
-def get_bert_vectors_from_corpus(outputfile="..data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_changed_words.pickle",
-                                 corpus_location="../data/openstack/utah/parsed/anomalies.txt",
-                                 bert_model="bert-base-uncased"):
+def get_bert_vectors_from_corpus(
+        outputfile="..data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_changed_words.pickle",
+        corpus_location="../data/openstack/utah/parsed/anomalies.txt",
+        bert_model="bert-base-uncased"):
     lines = open(corpus_location, 'r').readlines()
     tokenizer = transformers_BertTokenizer.from_pretrained(bert_model)
     model = transformers_BertModel.from_pretrained(bert_model)
@@ -160,6 +164,7 @@ def get_bert_vectors_from_corpus(outputfile="..data/openstack/utah/padded_embedd
         pickle.dump(word_embeddings, open(outputfile, 'wb'))
 
     return word_embeddings
+
 
 # _, token_vecs_cat, token_vecs_sum, tokenized_text = get_bert_vectors()
 # plot_bert(token_vecs_cat, tokenized_text)
