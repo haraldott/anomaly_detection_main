@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+import torch.nn.functional as F
 
 
 class LSTM(nn.Module):
@@ -37,12 +38,16 @@ class LSTM(nn.Module):
         if self.train_mode:
             output = nn.Dropout(p=0.2)(output)
         decoded = self.decoder(output[:, -1, :])
-        return decoded, hidden
+        return F.log_softmax(decoded, dim=1), hidden
 
     def init_hidden(self, bsz, device):
         weight = next(self.parameters())
         return (weight.new_zeros(self.n_layers, bsz, self.n_hidden_units).to(device),
                 weight.new_zeros(self.n_layers, bsz, self.n_hidden_units).to(device))
+
+
+
+
 
 
 class EmbeddingLSTM(nn.Module):

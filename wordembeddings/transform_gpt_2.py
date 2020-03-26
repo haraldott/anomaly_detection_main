@@ -44,7 +44,7 @@ def _prepare_gpt2_vectors(templates='../data/openstack/sasho/parsed/logs_aggrega
 def dump_word_vectors(templates_location='../data/openstack/utah/parsed/18k_spr_templates',
                       word_embeddings_location='vectors_for_cosine_distance/sasho_gpt2_vectors_for_cosine.pickle',
                       bert_model='gpt2'):
-    tokenized_text, encoded_layers = _prepare_gpt2_vectors(templates_location=templates_location, gpt2_model=bert_model)
+    tokenized_text, encoded_layers = _prepare_gpt2_vectors(templates=templates_location, gpt2_model=bert_model)
     # dump words with according vectors in file
     words = []
     for sent in tokenized_text:
