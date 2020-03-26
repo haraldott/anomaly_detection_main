@@ -244,7 +244,8 @@ def reverse_order(corpus_input, corpus_output, instance_information_in, instance
     return anomaly_indices
 
 
-def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
+def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path,
+            shuffles_per_instance=1):
     copyfile(instance_information_in, instance_information_out)
     shuffle_distances = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
     corpus = open(corpus_input, 'r').readlines()

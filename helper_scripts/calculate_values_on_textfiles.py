@@ -14,9 +14,9 @@ def calc_mean():
 
 
 
-def calc_percentile_outliers(normal_loss_values_path="/Users/haraldott/Downloads/results/Transfer Sasho Utah/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_1/normal_loss_values",
-                             anomaly_loss_values_path="/Users/haraldott/Downloads/results/Transfer Sasho Utah/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_1/anomaly_loss_values",
-                             perc=96.1):
+def calc_percentile_outliers(normal_loss_values_path="/Users/haraldott/Downloads/results/50e0bcf5 dropout an den richtigen stellen/normal/bert_epochs_100_seq_len:_7_anomaly_type:no_anomaly_0/normal_loss_values",
+                             anomaly_loss_values_path="/Users/haraldott/Downloads/results/50e0bcf5 dropout an den richtigen stellen/normal/bert_epochs_100_seq_len:_7_anomaly_type:no_anomaly_0/anomaly_loss_values",
+                             perc=100):
     with open(normal_loss_values_path) as f:
         normal_loss_values = [float(y) for y in f.readlines()]
     with open(anomaly_loss_values_path) as f:
@@ -30,8 +30,8 @@ def calc_percentile_outliers(normal_loss_values_path="/Users/haraldott/Downloads
 
 
 
-def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downloads/results/Transfer Sasho Utah/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_1/normal_loss_values",
-                                anomaly_loss_values_path="/Users/haraldott/Downloads/results/Transfer Sasho Utah/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_1/anomaly_loss_values",
+def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downloads/results/50e0bcf5 dropout an den richtigen stellen/normal/bert_epochs_100_seq_len:_7_anomaly_type:no_anomaly_0/normal_loss_values",
+                                anomaly_loss_values_path="/Users/haraldott/Downloads/results/50e0bcf5 dropout an den richtigen stellen/normal/bert_epochs_100_seq_len:_7_anomaly_type:no_anomaly_0/anomaly_loss_values",
                                 ground_truth_path="/Users/haraldott/Downloads/results/Transfer Sasho Utah/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_1/18k_spr_insert_words_1_anomaly_indeces.txt"):
     with open(ground_truth_path) as f:
         ground_truth = [int(y) for y in f.readlines()]
@@ -52,5 +52,5 @@ def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downlo
     print("precision: {}".format(precision_score(true_labels, pred_labels)))
 
 
-# if __name__ == '__main__':
-#     calc_mean()
+if __name__ == '__main__':
+    calc_percentile_outliers()
