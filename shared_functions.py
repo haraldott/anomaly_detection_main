@@ -13,6 +13,7 @@ from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
 from wordembeddings.transform_bert import get_bert_embeddings
 from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
+import pickle
 
 
 class TemplatesDataset(Dataset):
@@ -188,9 +189,11 @@ def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, enco
         if anomaly_type == "random_lines":
             encoder = LabelEncoder()
             encoder.fit(merged_templates)
+            pickle.dump(encoder, open("encoder_normal.pickle", 'wb'))
         else:
             raise Exception("Label encoder shall only be initialised with random_lines as anomaly type")
     target_normal_labels = encoder.transform(normal_corpus)
     target_anomaly_labels = encoder.transform(anomaly_corpus)
-    return target_normal_labels, target_anomaly_labels
+    n_classes = len(encoder.classes_)
+    return target_normal_labels, target_anomaly_labels, n_classes
 

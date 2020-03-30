@@ -20,7 +20,6 @@ ratio_of_words_to_be_altered_per_line = 0.15
 # this will alter indices file
 def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
                                instance_information_out, mode):
-    print(mode)
     if mode not in ["del", "dup", "ins"]:
         print("Allowed modes are del and dup. Exiting")
         return -1

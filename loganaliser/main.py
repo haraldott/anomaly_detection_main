@@ -14,6 +14,7 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 
 class AnomalyDetection:
     def __init__(self,
+                 n_classes,
                  target_labels,
                  results_dir=None,
                  embeddings_model='glove',
@@ -51,6 +52,7 @@ class AnomalyDetection:
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.target_labels = target_labels
+        self.n_classes = n_classes
 
         # select word embeddings
         if instance_information_file is None:
@@ -65,7 +67,7 @@ class AnomalyDetection:
                                      n_hidden_units=self.n_hidden_units,
                                      n_layers=self.n_layers,
                                      train_mode=self.train_mode,
-                                     n_classes=self.data_y.max().item()+1).to(self.device)
+                                     n_classes=self.n_classes).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -282,8 +284,8 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def loss_values(self, normal: bool = True):
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False).to(
-            self.device)
+        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,
+                                     n_classes=self.n_classes).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
         # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,

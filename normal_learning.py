@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=10)
 parser.add_argument('-reduced', action='store_true')
-parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-hiddenunits', type=int, default=250)
 parser.add_argument('-hiddenlayers', type=int, default=4)
 parser.add_argument('-transferlearning', action='store_true')
@@ -138,13 +138,14 @@ transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_nor
 transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus,
                          templates=merged_templates, outputfile=embeddings_anomalies_injected)
 
-target_normal_labels, target_anomaly_labels = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
-                                                                     anomaly_corpus=open(anomaly_injected_corpus, 'r').readlines(),
-                                                                     merged_templates=merged_templates,
-                                                                     encoder=args.label_encoder, anomaly_type=args.anomaly_type)
+target_normal_labels, target_anomaly_labels, n_classes = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
+                                                                                anomaly_corpus=open(anomaly_injected_corpus, 'r').readlines(),
+                                                                                merged_templates=merged_templates,
+                                                                                encoder=args.label_encoder, anomaly_type=args.anomaly_type)
 
 # NORMAL TRAINING with dataset 1
-ad_normal = AnomalyDetection(target_labels=target_normal_labels,
+ad_normal = AnomalyDetection(n_classes=n_classes,
+                             target_labels=target_normal_labels,
                              loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path,
                              seq_length=args.seq_len,
@@ -162,7 +163,9 @@ normal_loss_values = calculate_normal_loss(normal_lstm_model=ad_normal,
                                            results_dir=results_dir_experiment,
                                            values_type='normal_loss_values',
                                            cwd=cwd)
-ad_anomaly = AnomalyDetection(target_labels=target_anomaly_labels,
+ad_anomaly = AnomalyDetection(n_classes=n_classes,
+                              loadvectors=embeddings_anomalies_injected,
+                              target_labels=target_anomaly_labels,
                               savemodelpath=lstm_model_save_path,
                               seq_length=args.seq_len,
                               num_epochs=args.epochs,
