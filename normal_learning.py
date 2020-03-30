@@ -23,7 +23,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
-parser.add_argument('-seq_len', type=int, default=7)
+parser.add_argument('-seq_len', type=int, default=10)
 parser.add_argument('-reduced', action='store_true')
 parser.add_argument('-epochs', type=int, default=100)
 parser.add_argument('-hiddenunits', type=int, default=250)
@@ -36,7 +36,7 @@ parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased
 parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='reverse_order')
 parser.add_argument('-anomaly_amount', type=int, default=0)
-parser.add_argument('-embeddings_model', type=str, default="gpt2")
+parser.add_argument('-embeddings_model', type=str, default="bert")
 parser.add_argument('-label_encoder', type=str, default=None)
 args = parser.parse_args()
 
