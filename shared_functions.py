@@ -9,6 +9,8 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 from tools import distribution_plots as distribution_plots
 import os
 import tarfile
+from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
+from wordembeddings.transform_bert import get_bert_embeddings
 
 
 def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp, vectors):
@@ -155,3 +157,13 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, 
     scores_file.write("Recall-Score: {}\n".format(str(recall)))
     scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
     scores_file.close()
+
+
+def get_embeddings(type, templates_location, finetuning_model_dir):
+    if type == "bert":
+        word_embeddings = get_bert_embeddings(templates_location, model=finetuning_model_dir)
+    elif type == "gpt2":
+        word_embeddings = get_gpt2_embeddings(templates_location, model='gpt2')
+    else:
+        raise Exception("unknown embeddings model selected")
+    return word_embeddings

@@ -13,8 +13,7 @@ from shared_functions import calculate_precision_and_plot, calculate_anomaly_los
     get_cosine_distance, inject_anomalies
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
-from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
-from wordembeddings.transform_bert import get_bert_embeddings
+from shared_functions import get_embeddings
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
@@ -146,12 +145,7 @@ if args.finetune:
     if not os.path.exists(finetuning_model_dir):
         finetune(templates=templates_normal_1, output_dir=finetuning_model_dir)
 
-if args.embeddings_model == "bert":
-    word_embeddings = get_bert_embeddings(merged_templates, model=finetuning_model_dir)
-elif args.embeddings_model == "gpt2":
-    word_embeddings = get_gpt2_embeddings(merged_templates, model='gpt2')
-else:
-    raise Exception("unknown embeddings model selected")
+word_embeddings = get_embeddings(args.embeddings_model, merged_templates, finetuning_model_dir)
 
 write_to_tsv_files_bert_sentences(vectors=word_embeddings, sentences=merged_templates,
                                   tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
@@ -162,20 +156,14 @@ if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
                         word_embeddings)
 
 # transform output of bert into numpy word embedding vectors
-transform_bert.transform(sentence_embeddings=word_embeddings,
-                         logfile=corpus_normal_1,
-                         templates=merged_templates,
-                         outputfile=embeddings_normal_1)
+transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal_1,
+                         templates=merged_templates, outputfile=embeddings_normal_1)
 
-transform_bert.transform(sentence_embeddings=word_embeddings,
-                         logfile=corpus_normal_2,
-                         templates=merged_templates,
-                         outputfile=embeddings_normal_2)
+transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal_2,
+                         templates=merged_templates, outputfile=embeddings_normal_2)
 
-transform_bert.transform(sentence_embeddings=word_embeddings,
-                         logfile=anomaly_injected_corpus_2,
-                         templates=merged_templates,
-                         outputfile=embeddings_anomalies_injected_2)
+transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus_2,
+                         templates=merged_templates, outputfile=embeddings_anomalies_injected_2)
 
 if not args.anomaly_only:
     # NORMAL TRAINING with dataset 1
