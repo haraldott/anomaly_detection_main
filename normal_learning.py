@@ -10,10 +10,10 @@ import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
 from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, \
-    get_cosine_distance, inject_anomalies
+    get_cosine_distance, inject_anomalies, get_embeddings, get_labels_from_corpus
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
-from shared_functions import get_embeddings
+
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
@@ -37,6 +37,7 @@ parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='reverse_order')
 parser.add_argument('-anomaly_amount', type=int, default=0)
 parser.add_argument('-embeddings_model', type=str, default="gpt2")
+parser.add_argument('-label_encoder', type=str, default=None)
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
@@ -50,31 +51,23 @@ else:
 results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
     results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
 
-normal = settings[option]["raw_normal"]
-anomaly = settings[option]["raw_anomaly"]
-
-raw_dir = settings[option]["raw_dir"]
-
-parsed_dir = settings[option]["parsed_dir"]
-
-embeddings_dir = settings[option]["embeddings_dir"]
-
-logtype = settings[option]["logtype"]
-
+normal = settings[option]["raw_normal"]  # path of normal file for training
+anomaly = settings[option]["raw_anomaly"]  # path of file in which anomalies will be injected
+raw_dir = settings[option]["raw_dir"]  # dir in which training and anomaly files are in, for drain
+parsed_dir = settings[option]["parsed_dir"]  # dir where parsed training and pre-anomaly file will be
+embeddings_dir = settings[option]["embeddings_dir"]  # dir for embeddings vectors
+logtype = settings[option]["logtype"]  # logtype for drain parser
 instance_information_file_normal = settings[option]['instance_information_file_normal']
 instance_information_file_anomalies_pre_inject = settings[option][
     'instance_information_file_anomalies_pre_inject']
-instance_information_file_anomalies_injected = settings[option][
-                                                   'instance_information_file_anomalies_injected'] + anomaly + "_" + args.anomaly_type + "_" + str(
-    args.anomaly_amount)
+instance_information_file_anomalies_injected = settings[option]['instance_information_file_anomalies_injected'] + \
+                                               anomaly + "_" + args.anomaly_type + "_" + str(args.anomaly_amount)
 
 anomalies_injected_dir = parsed_dir + "anomalies_injected/"
 anomaly_indeces_dir = parsed_dir + "anomalies_injected/anomaly_indeces/"
-
 # corpus files produced by Drain
 corpus_normal = cwd + parsed_dir + normal + '_corpus'
 corpus_pre_anomaly = cwd + parsed_dir + anomaly + '_corpus'
-
 # bert vectors as pickle files
 embeddings_normal = cwd + embeddings_dir + normal + '.pickle'
 embeddings_anomalies_injected = cwd + embeddings_dir + anomaly + '.pickle'
@@ -145,8 +138,14 @@ transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_nor
 transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus,
                          templates=merged_templates, outputfile=embeddings_anomalies_injected)
 
+target_normal_labels, target_anomaly_labels = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
+                                                                     anomaly_corpus=open(anomaly_injected_corpus, 'r').readlines(),
+                                                                     merged_templates=merged_templates,
+                                                                     encoder=args.label_encoder, anomaly_type=args.anomaly_type)
+
 # NORMAL TRAINING with dataset 1
-ad_normal = AnomalyDetection(loadvectors=embeddings_normal,
+ad_normal = AnomalyDetection(target_labels=target_normal_labels,
+                             loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path,
                              seq_length=args.seq_len,
                              num_epochs=args.epochs,
@@ -163,7 +162,7 @@ normal_loss_values = calculate_normal_loss(normal_lstm_model=ad_normal,
                                            results_dir=results_dir_experiment,
                                            values_type='normal_loss_values',
                                            cwd=cwd)
-ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected,
+ad_anomaly = AnomalyDetection(target_labels=target_anomaly_labels,
                               savemodelpath=lstm_model_save_path,
                               seq_length=args.seq_len,
                               num_epochs=args.epochs,

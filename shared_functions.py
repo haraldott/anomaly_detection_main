@@ -11,7 +11,20 @@ import os
 import tarfile
 from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
 from wordembeddings.transform_bert import get_bert_embeddings
+from torch.utils.data import Dataset
+from sklearn.preprocessing import LabelEncoder
 
+
+class TemplatesDataset(Dataset):
+    def __init__(self, corpus):
+        self.le = LabelEncoder
+        self.le.fit(corpus)
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, sentence):
+        return self.le.transform([sentence])[0]
 
 def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp, vectors):
     lines_before_as_bert_vectors = []
@@ -167,3 +180,17 @@ def get_embeddings(type, templates_location, finetuning_model_dir):
     else:
         raise Exception("unknown embeddings model selected")
     return word_embeddings
+
+
+# encode corpus into labels
+def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, encoder, anomaly_type):
+    if not encoder:
+        if anomaly_type == "random_lines":
+            encoder = LabelEncoder()
+            encoder.fit(merged_templates)
+        else:
+            raise Exception("Label encoder shall only be initialised with random_lines as anomaly type")
+    target_normal_labels = encoder.transform(normal_corpus)
+    target_anomaly_labels = encoder.transform(anomaly_corpus)
+    return target_normal_labels, target_anomaly_labels
+

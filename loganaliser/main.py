@@ -14,6 +14,7 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 
 class AnomalyDetection:
     def __init__(self,
+                 target_labels,
                  results_dir=None,
                  embeddings_model='glove',
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
@@ -49,6 +50,7 @@ class AnomalyDetection:
         self.results_dir = results_dir
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.target_labels = target_labels
 
         # select word embeddings
         if instance_information_file is None:
@@ -62,7 +64,8 @@ class AnomalyDetection:
         self.model = lstm_model.LSTM(n_input=self.feature_length,
                                      n_hidden_units=self.n_hidden_units,
                                      n_layers=self.n_layers,
-                                     train_mode=self.train_mode).to(self.device)
+                                     train_mode=self.train_mode,
+                                     n_classes=self.data_y.max().item()+1).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -73,7 +76,7 @@ class AnomalyDetection:
         #  überprüfe was mse genau macht, abspeichern
         #  zb jede 10. epoche die distanz plotten
         #  quadrat mean squared error mal probieren
-        self.distance = nn.MSELoss()
+        self.distance = nn.NLLLoss()
 
         test_set_len = math.floor(self.data_x.size(0) / 10)
         train_set_len = self.data_x.size(0) - test_set_len
@@ -89,7 +92,6 @@ class AnomalyDetection:
         ring = True
         data_x = []
         data_y = []
-        target_indices = []
         for l in instance_information:
             begin, end = l[0], l[1]
             if ring:
@@ -100,21 +102,19 @@ class AnomalyDetection:
                         data_x_temp = []
                         [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
                         data_x.append(torch.stack(data_x_temp))
-                        data_y.append(embeddings[indices[-1]])
-                        target_indices.append(indices[-1])
+                        data_y.append(self.target_labels[indices[-1]])
             else:
                 for i in range(0, end - begin - self.seq_length - + 1):
                     data_x.append(embeddings[begin + i:begin + i + self.seq_length])
-                    data_y.append(embeddings[begin + i + self.seq_length + 1])
-                    target_indices.append(begin + i + self.seq_length + 1)
+                    data_y.append(self.target_labels[begin + i + self.seq_length + 1])
         if self.anomalies_run:
             anomaly_indices_file = open(self.results_dir, 'w+')
-            for val in target_indices:
+            for val in data_y:
                 anomaly_indices_file.write(str(val) + "\n")
             anomaly_indices_file.close()
 
         data_x = torch.stack(data_x).to(self.device)
-        data_y = torch.stack(data_y).to(self.device)
+        data_y = torch.tensor(data_y).to(self.device)
 
         return data_x, data_y, feature_length
 
@@ -212,7 +212,7 @@ class AnomalyDetection:
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                loss = self.distance(prediction.reshape(-1), target.reshape(-1))
+                loss = self.distance(prediction, target.flatten())
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
         return total_loss / len(idx), loss_distribution
@@ -222,15 +222,15 @@ class AnomalyDetection:
         # TODO: since we want to predict *every* loss of every line, we don't use batches, so here we use batch_size
         #   1 is this ok?
         hidden = self.model.init_hidden(1, self.device)
-        loss_distribution = []
+        predicted_labels = []
         with torch.no_grad():
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
+                pred_label = prediction.cpu().data.max(1)[1].numpy()
+                predicted_labels.append(pred_label)
                 hidden = self.repackage_hidden(hidden)
-                loss = self.distance(prediction.reshape(-1), target.reshape(-1))  # TODO check if reshape is necessary
-                loss_distribution.append(loss.item())
-        return loss_distribution
+        return predicted_labels
 
     def train(self, idx):
         self.model.train()
@@ -241,7 +241,8 @@ class AnomalyDetection:
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
-            loss = self.distance(prediction.reshape(-1), target.reshape(-1))
+            #pred_label = prediction.cpu().data.max(1)[1].numpy()
+            loss = self.distance(prediction, target.flatten())
             loss.backward()
 
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
@@ -254,6 +255,7 @@ class AnomalyDetection:
             loss_values = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
             for epoch in range(1, self.num_epochs + 1):
+                loss_this_epoch = []
                 val_loss = 0
                 epoch_start_time = time.time()
                 for i in range(0, self.folds):
@@ -262,6 +264,7 @@ class AnomalyDetection:
 
                     self.train(train_incides)
                     this_loss, _ = self.evaluate(eval_indices)
+                    loss_this_epoch.append(this_loss)
                     self.optimizer.step()
                     self.scheduler.step(this_loss)
                     val_loss += this_loss
@@ -286,20 +289,16 @@ class AnomalyDetection:
         # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,
         # these have not been used in trainig phase, and have not been seen by the model
         if normal:
-            loss_values = []
             indices = self.test_indices
-            loss_distribution = self.predict(indices)
-            loss_values.append(loss_distribution)
+            predicted_labels = self.predict(indices)
         # if normal is set to false, we want to get the loss distribution of a dataset which contains anomalies,
         # so we want to process the complete dataset
         else:
             n_samples = len(self.data_x)
             indices = np.arange(n_samples)
-            loss_values = self.predict(indices)
+            predicted_labels = self.predict(indices)
 
-        loss_values = np.array(loss_values)
-        loss_values = loss_values.flatten()
-        return loss_values
+        return predicted_labels
 
 
 if __name__ == '__main__':
