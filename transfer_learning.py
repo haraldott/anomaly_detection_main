@@ -9,7 +9,7 @@ import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
-from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, \
+from shared_functions import calculate_precision_and_plot, determine_anomalies, calculate_normal_loss, \
     get_cosine_distance, inject_anomalies
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
@@ -206,9 +206,9 @@ ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected_2,
                               instance_information_file=instance_information_file_anomalies_injected_2,
                               anomalies_run=True,
                               results_dir=cwd + results_dir_experiment + 'anomaly_loss_indices')
-calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
-                       normal_loss_values=normal_loss_values,
-                       anomaly_loss_order=cwd + results_dir_experiment + 'anomaly_loss_indices',
-                       anomaly_true_labels=anomalies_true_labels)
+determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
+                    normal_labels=normal_loss_values,
+                    order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_loss_indices',
+                    labels_of_file_containing_anomalies=anomalies_true_labels)
 print("done.")
 calculate_precision_and_plot(results_dir_experiment, args, cwd)

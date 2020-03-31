@@ -94,6 +94,7 @@ class AnomalyDetection:
         ring = True
         data_x = []
         data_y = []
+        target_indices = []
         for l in instance_information:
             begin, end = l[0], l[1]
             if ring:
@@ -105,13 +106,15 @@ class AnomalyDetection:
                         [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
                         data_x.append(torch.stack(data_x_temp))
                         data_y.append(self.target_labels[indices[-1]])
+                        target_indices.append(indices[-1])
             else:
                 for i in range(0, end - begin - self.seq_length - + 1):
                     data_x.append(embeddings[begin + i:begin + i + self.seq_length])
                     data_y.append(self.target_labels[begin + i + self.seq_length + 1])
+                    target_indices.append(begin + i + self.seq_length + 1)
         if self.anomalies_run:
             anomaly_indices_file = open(self.results_dir, 'w+')
-            for val in data_y:
+            for val in target_indices:
                 anomaly_indices_file.write(str(val) + "\n")
             anomaly_indices_file.close()
 
@@ -229,7 +232,7 @@ class AnomalyDetection:
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(1)[1].numpy()
+                pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
                 predicted_labels.append(pred_label)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
@@ -243,7 +246,7 @@ class AnomalyDetection:
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
-            #pred_label = prediction.cpu().data.max(1)[1].numpy()
+            #pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
             loss = self.distance(prediction, target.flatten())
             loss.backward()
 
@@ -283,7 +286,7 @@ class AnomalyDetection:
             print('-' * 89)
             print('Exiting from training early')
 
-    def loss_values(self, normal: bool = True):
+    def calc_labels(self, normal: bool = True):
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,
                                      n_classes=self.n_classes).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))

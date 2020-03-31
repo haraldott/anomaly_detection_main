@@ -4,7 +4,6 @@ matplotlib.use('Agg')
 import numpy as np
 from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words, reverse_order
 from scipy.spatial.distance import cosine
-from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tools import distribution_plots as distribution_plots
 import os
@@ -124,40 +123,32 @@ def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
 
 
-def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
-    normal_loss_values = normal_lstm_model.loss_values(normal=True)
-    write_lines_to_file(cwd + results_dir + values_type, normal_loss_values, True)
-    return normal_loss_values
+def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, labels_of_file_containing_anomalies, lines_that_have_anomalies):
+    predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels(normal=False)
+    order_of_values_of_file_containing_anomalies = open(order_of_values_of_file_containing_anomalies, 'rb').readlines()
+    order_of_values_of_file_containing_anomalies = [int(x) for x in order_of_values_of_file_containing_anomalies]
 
+    assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
+    labels_of_file_containing_anomalies_correct_order = [0] * len(order_of_values_of_file_containing_anomalies)
+    for index, label in zip(order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
+        labels_of_file_containing_anomalies_correct_order[index] = label
 
-def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, anomaly_loss_order,
-                           anomaly_true_labels):
-    anomaly_loss_values = anomaly_lstm_model.loss_values(normal=False)
-    anomaly_loss_order = open(anomaly_loss_order, 'rb').readlines()
-    anomaly_loss_order = [int(x) for x in anomaly_loss_order]
+    write_lines_to_file(results_dir + 'anomaly_labels', labels_of_file_containing_anomalies_correct_order, new_line=True)
 
-    assert len(anomaly_loss_order) == len(anomaly_loss_values)
-    anomaly_loss_values_correct_order = [0] * len(anomaly_loss_order)
-    for index, loss_val in zip(anomaly_loss_order, anomaly_loss_values):
-        anomaly_loss_values_correct_order[index] = loss_val
-
-    write_lines_to_file(results_dir + 'anomaly_loss_values', anomaly_loss_values_correct_order, new_line=True)
-
-    per = percentile(normal_loss_values, 96.1)
-
-    pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
-    pred_outliers_values = [val for val in anomaly_loss_values_correct_order if val > per]
+    pred_outliers_indeces = []
+    for index, (pred, true) in enumerate(zip(labels_of_file_containing_anomalies_correct_order, labels_of_file_containing_anomalies)):
+        if pred != true:
+            pred_outliers_indeces.append(index)
 
     write_lines_to_file(results_dir + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
-    write_lines_to_file(results_dir + "pred_outliers_values.txt", pred_outliers_values, new_line=True)
 
     # produce labels for f1 score, precision, etc.
-    pred_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
+    pred_labels = np.zeros(len(labels_of_file_containing_anomalies_correct_order), dtype=int)
     for anomaly_index in pred_outliers_indeces:
         pred_labels[anomaly_index] = 1
 
-    true_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
-    for anomaly_index in anomaly_true_labels:
+    true_labels = np.zeros(len(labels_of_file_containing_anomalies_correct_order), dtype=int)
+    for anomaly_index in lines_that_have_anomalies:
         true_labels[anomaly_index] = 1
 
     scores_file = open(results_dir + "scores.txt", "w+")
@@ -184,14 +175,16 @@ def get_embeddings(type, templates_location, finetuning_model_dir):
 
 
 # encode corpus into labels
-def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, encoder, anomaly_type):
-    if not encoder:
+def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, encoder_path, anomaly_type):
+    if not encoder_path:
         if anomaly_type == "random_lines":
             encoder = LabelEncoder()
             encoder.fit(merged_templates)
             pickle.dump(encoder, open("encoder_normal.pickle", 'wb'))
         else:
             raise Exception("Label encoder shall only be initialised with random_lines as anomaly type")
+    else:
+        encoder = pickle.load(open(encoder_path, 'rb'))
     target_normal_labels = encoder.transform(normal_corpus)
     target_anomaly_labels = encoder.transform(anomaly_corpus)
     n_classes = len(encoder.classes_)

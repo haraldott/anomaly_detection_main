@@ -50,7 +50,7 @@ def learning(arg, embeddings_path, epochs, instance_information_file):
 
 
 def calculate_normal_loss(normal_lstm_model, results_dir, values_type):
-    normal_loss_values = normal_lstm_model.loss_values(normal=True)
+    normal_loss_values = normal_lstm_model.calc_labels(normal=True)
 
     mean = np.mean(normal_loss_values)
     std = np.std(normal_loss_values)
@@ -65,7 +65,7 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type):
 
 
 def calculate_anomaly_loss(anomaly_lstm_model, results_dir, lo, up):
-    anomaly_loss_values = anomaly_lstm_model.loss_values(normal=False)
+    anomaly_loss_values = anomaly_lstm_model.calc_labels(normal=False)
 
     anomaly_values_file = open(cwd + results_dir + 'anomaly_loss_values', 'w+')
     for val in anomaly_loss_values:

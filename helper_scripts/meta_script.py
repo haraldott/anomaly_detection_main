@@ -109,7 +109,7 @@ ad_normal.start_training()
 
 # run normal values once through LSTM to obtain loss values, model will be loaded again in this function call,
 # train_mode will be set to False
-normal_loss_values = ad_normal.loss_values(normal=True)
+normal_loss_values = ad_normal.calc_labels(normal=True)
 
 mean = np.mean(normal_loss_values)
 std = np.std(normal_loss_values)
@@ -127,7 +127,7 @@ ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
                               num_epochs=args.epochs,
                               n_hidden_units=args.hiddenunits,
                               embeddings_model='glove')
-anomaly_loss_values = ad_anomaly.loss_values(normal=False)
+anomaly_loss_values = ad_anomaly.calc_labels(normal=False)
 
 anomaly_values_file = open(cwd + results_dir_experiment + 'anomaly_loss_values', 'w+')
 for val in anomaly_loss_values:
