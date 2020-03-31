@@ -98,7 +98,7 @@ class AnomalyDetection:
                     roll_indices = [np.roll(index_array, -i)[0:self.seq_length + 1] for i in range(0, len(index_array))]
                     for indices in roll_indices:
                         data_x_temp = []
-                        [data_x_temp.append(embeddings[i]) for i in range(0, len(indices) - 1)]
+                        [data_x_temp.append(embeddings[i]) for i in indices[:-1]]
                         data_x.append(torch.stack(data_x_temp))
                         data_y.append(embeddings[indices[-1]])
                         target_indices.append(indices[-1])
