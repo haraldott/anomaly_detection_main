@@ -178,9 +178,6 @@ class AnomalyDetection:
         data_y = torch.Tensor(data_y).to(self.device)
 
         # samples, timesteps, features
-        # dataloader_x = DataLoader(data_x, batch_size=64)
-        # dataloader_y = DataLoader(data_y, batch_size=64)
-        # data_x = np.reshape(data_x, (n_patterns, self.seq_length, feature_length))
 
         return data_x, data_y, feature_length
 
@@ -217,7 +214,7 @@ class AnomalyDetection:
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
                 hidden = self.repackage_hidden(hidden)
-                loss = self.distance(prediction, target.flatten())
+                loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
         return total_loss / len(idx), loss_distribution
@@ -247,7 +244,7 @@ class AnomalyDetection:
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
             #pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
-            loss = self.distance(prediction, target.flatten())
+            loss = self.distance(prediction, target)
             loss.backward()
 
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
