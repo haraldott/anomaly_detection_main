@@ -254,7 +254,7 @@ class AnomalyDetection:
     def start_training(self):
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
-        loss_over_time = open(self.results_dir + 'loss_over_time.txt')
+        loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
         try:
             loss_values = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
