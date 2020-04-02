@@ -87,7 +87,8 @@ class AnomalyDetection:
         self.test_indices = range(train_set_len, train_set_len + test_set_len)
 
         self.train_file = open(self.results_dir + "train_vals.txt", "w")
-        self.eval_file = open(self.results_dir + "eval_vals_txt", "w")
+        self.eval_file = open(self.results_dir + "eval_vals.txt", "w")
+        self.train_labels_file = open(self.results_dir + "train_labels.txt", "w")
 
     def prepare_data_per_request(self):
         instance_information = pickle.load(open(self.instance_information_file, 'rb'))
@@ -251,6 +252,7 @@ class AnomalyDetection:
             prediction, hidden = self.model(data, hidden)
             pred_label = prediction.cpu().data.max(1)[1].numpy()
             self.train_file.write(str(pred_label) + "\n")
+            self.train_labels_file.write(str(target) + "\n")
             loss = self.distance(prediction, target)
             loss.backward()
 
@@ -294,6 +296,9 @@ class AnomalyDetection:
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
+        self.train_file.close()
+        self.eval_file.close()
+        self.train_labels_file.close()
 
     def calc_labels(self):
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,

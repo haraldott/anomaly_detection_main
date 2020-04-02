@@ -124,7 +124,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
 
 
 def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, labels_of_file_containing_anomalies, lines_that_have_anomalies):
-    predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels(normal=False)
+    predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels()
     order_of_values_of_file_containing_anomalies = open(order_of_values_of_file_containing_anomalies, 'rb').readlines()
     order_of_values_of_file_containing_anomalies = [int(x) for x in order_of_values_of_file_containing_anomalies]
 
