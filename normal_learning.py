@@ -24,7 +24,7 @@ cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=10)
-parser.add_argument('-epochs', type=int, default=3)
+parser.add_argument('-epochs', type=int, default=100)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
 parser.add_argument('-instance_information_file_anomalies', type=str)
