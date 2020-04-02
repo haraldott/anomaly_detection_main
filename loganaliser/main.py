@@ -21,7 +21,7 @@ class AnomalyDetection:
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
                  savemodelpath='saved_models/lstm.pth',
-                 n_layers=3,
+                 n_layers=1,
                  n_hidden_units=250,
                  seq_length=7,
                  num_epochs=100,
@@ -73,7 +73,7 @@ class AnomalyDetection:
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1, betas=(0.9, 0.999))
-        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
+        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', verbose=True)
         # optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
         #  überprüfe was mse genau macht, abspeichern
         #  zb jede 10. epoche die distanz plotten

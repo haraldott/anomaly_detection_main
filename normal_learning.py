@@ -108,8 +108,7 @@ anomaly_lines, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_
 templates_normal = list(set(open(corpus_normal, 'r').readlines()))
 # merge_templates(templates_normal_1, templates_normal_2, merged_template_path=parsed_dir_1 + "_merged_templates_normal")
 templates_anomalies_injected = list(set(open(anomaly_injected_corpus, 'r').readlines()))
-merged_templates = merge_templates(templates_normal, templates_anomalies_injected,
-                                   merged_template_path=None)
+merged_templates = merge_templates(templates_normal, templates_anomalies_injected, merged_template_path=None)
 merged_templates = list(merged_templates)
 
 if args.finetune:
