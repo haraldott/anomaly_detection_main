@@ -147,7 +147,7 @@ if not args.anomaly_only:
 ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_anomaly_labels,
                               savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                               embeddings_model='bert',instance_information_file=instance_information_file_anomalies_injected,
-                              anomalies_run=True, results_dir=cwd + results_dir_experiment + 'anomaly_label_indices')
+                              anomalies_run=True, results_dir=cwd + results_dir_experiment)
 
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
