@@ -86,6 +86,9 @@ class AnomalyDetection:
         self.train_indices = range(0, train_set_len)
         self.test_indices = range(train_set_len, train_set_len + test_set_len)
 
+        self.train_file = open(self.results_dir + "train_vals.txt", "w")
+        self.eval_file = open(self.results_dir + "eval_vals_txt", "w")
+
     def prepare_data_per_request(self):
         instance_information = pickle.load(open(self.instance_information_file, 'rb'))
         embeddings = pickle.load(open(self.loadvectors, 'rb'))
@@ -213,6 +216,8 @@ class AnomalyDetection:
         with torch.no_grad():
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
+                pred_label = prediction.cpu().data.max(1)[1].numpy()
+                self.eval_file.write(str(pred_label) + "\n")
                 hidden = self.repackage_hidden(hidden)
                 loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
@@ -229,7 +234,8 @@ class AnomalyDetection:
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
+                pred_label = prediction.cpu().data.max(1)[1].numpy()
+                print(pred_label)
                 predicted_labels.append(pred_label)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
@@ -243,7 +249,8 @@ class AnomalyDetection:
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
-            #pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
+            pred_label = prediction.cpu().data.max(1)[1].numpy()
+            self.train_file.write(str(pred_label) + "\n")
             loss = self.distance(prediction, target)
             loss.backward()
 
@@ -277,6 +284,8 @@ class AnomalyDetection:
                        + '-' * 89
                 print(output)
                 log_output.write(output + "\n")
+                self.train_file.write(output)
+                self.eval_file.write(output)
                 loss_over_time.write(str(val_loss) + "\n")
                 if not best_val_loss or val_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
@@ -286,22 +295,14 @@ class AnomalyDetection:
             print('-' * 89)
             print('Exiting from training early')
 
-    def calc_labels(self, normal: bool = True):
+    def calc_labels(self):
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,
                                      n_classes=self.n_classes).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
-        # in normal mode, we want to get the loss distribution for the test dataset, i.e. self.test_indices,
-        # these have not been used in trainig phase, and have not been seen by the model
-        if normal:
-            indices = self.test_indices
-            predicted_labels = self.predict(indices)
-        # if normal is set to false, we want to get the loss distribution of a dataset which contains anomalies,
-        # so we want to process the complete dataset
-        else:
-            n_samples = len(self.data_x)
-            indices = np.arange(n_samples)
-            predicted_labels = self.predict(indices)
+        n_samples = len(self.data_x)
+        indices = np.arange(n_samples)
+        predicted_labels = self.predict(indices)
 
         return predicted_labels
 
