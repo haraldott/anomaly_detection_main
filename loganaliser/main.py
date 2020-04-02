@@ -21,7 +21,7 @@ class AnomalyDetection:
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
                  savemodelpath='saved_models/lstm.pth',
-                 n_layers=1,
+                 n_layers=2,
                  n_hidden_units=250,
                  seq_length=7,
                  num_epochs=100,
@@ -113,7 +113,7 @@ class AnomalyDetection:
                     data_y.append(self.target_labels[begin + i + self.seq_length + 1])
                     target_indices.append(begin + i + self.seq_length + 1)
         if self.anomalies_run:
-            anomaly_indices_file = open(self.results_dir, 'w+')
+            anomaly_indices_file = open(self.results_dir + 'anomaly_label_indices', 'w+')
             for val in target_indices:
                 anomaly_indices_file.write(str(val) + "\n")
             anomaly_indices_file.close()
@@ -253,6 +253,8 @@ class AnomalyDetection:
 
     def start_training(self):
         best_val_loss = None
+        log_output = open(self.results_dir + 'training_output.txt', 'w')
+        loss_over_time = open(self.results_dir + 'loss_over_time.txt')
         try:
             loss_values = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
@@ -270,11 +272,12 @@ class AnomalyDetection:
                     self.optimizer.step()
                     self.scheduler.step(this_loss)
                     val_loss += this_loss
-                print('-' * 89)
-                print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
-                      'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
-                                            val_loss, math.exp(val_loss)))
-                print('-' * 89)
+                output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | ' 'valid ppl {} \n'\
+                       .format(epoch, (time.time() - epoch_start_time), val_loss, math.exp(val_loss))\
+                       + '-' * 89
+                print(output)
+                log_output.write(output + "\n")
+                loss_over_time.write(str(val_loss) + "\n")
                 if not best_val_loss or val_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
                     best_val_loss = val_loss
