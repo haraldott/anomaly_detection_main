@@ -24,15 +24,10 @@ cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=10)
-parser.add_argument('-reduced', action='store_true')
-parser.add_argument('-epochs', type=int, default=1)
-parser.add_argument('-hiddenunits', type=int, default=250)
-parser.add_argument('-hiddenlayers', type=int, default=4)
+parser.add_argument('-epochs', type=int, default=3)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
-parser.add_argument('-corpus_anomaly_inputfile', type=str)
 parser.add_argument('-instance_information_file_anomalies', type=str)
-parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
 parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='reverse_order')
 parser.add_argument('-anomaly_amount', type=int, default=0)
@@ -145,17 +140,15 @@ target_normal_labels, target_anomaly_labels, n_classes = get_labels_from_corpus(
 
 ad_normal = AnomalyDetection(n_classes=n_classes, target_labels=target_normal_labels, loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
-                             n_hidden_units=args.hiddenunits, n_layers=args.hiddenlayers, embeddings_model='bert',
-                             train_mode=True, instance_information_file=instance_information_file_normal)
+                             embeddings_model='bert', train_mode=True, instance_information_file=instance_information_file_normal)
 
 if not args.anomaly_only:
     ad_normal.start_training()
 
 ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_anomaly_labels,
                               savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
-                              n_hidden_units=args.hiddenunits, n_layers=args.hiddenlayers, embeddings_model='bert',
-                              instance_information_file=instance_information_file_anomalies_injected, anomalies_run=True,
-                              results_dir=cwd + results_dir_experiment + 'anomaly_label_indices')
+                              embeddings_model='bert',instance_information_file=instance_information_file_anomalies_injected,
+                              anomalies_run=True, results_dir=cwd + results_dir_experiment + 'anomaly_label_indices')
 
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',

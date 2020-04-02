@@ -26,7 +26,7 @@ class AnomalyDetection:
                  seq_length=7,
                  num_epochs=100,
                  learning_rate=1e-5,
-                 batch_size=20,
+                 batch_size=10,
                  folds=5,
                  clip=0.25,
                  train_mode=False,
