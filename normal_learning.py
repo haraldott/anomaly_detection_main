@@ -139,7 +139,8 @@ target_normal_labels, target_anomaly_labels, n_classes = get_labels_from_corpus(
 
 ad_normal = AnomalyDetection(n_classes=n_classes, target_labels=target_normal_labels, loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
-                             embeddings_model='bert', train_mode=True, instance_information_file=instance_information_file_normal)
+                             embeddings_model='bert', train_mode=True, instance_information_file=instance_information_file_normal,
+                             results_dir=cwd + results_dir_experiment)
 
 if not args.anomaly_only:
     ad_normal.start_training()
