@@ -16,6 +16,7 @@ class AnomalyDetection:
     def __init__(self,
                  n_classes,
                  target_labels,
+                 debug_embeddings,
                  results_dir=None,
                  embeddings_model='glove',
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
@@ -53,6 +54,7 @@ class AnomalyDetection:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.target_labels = target_labels
         self.n_classes = n_classes
+        self.debug_embeddings = debug_embeddings
 
         # select word embeddings
         if instance_information_file is None:
@@ -85,10 +87,6 @@ class AnomalyDetection:
 
         self.train_indices = range(0, train_set_len)
         self.test_indices = range(train_set_len, train_set_len + test_set_len)
-
-        self.train_file = open(self.results_dir + "train_vals.txt", "w")
-        self.eval_file = open(self.results_dir + "eval_vals.txt", "w")
-        self.train_labels_file = open(self.results_dir + "train_labels.txt", "w")
 
     def prepare_data_per_request(self):
         instance_information = pickle.load(open(self.instance_information_file, 'rb'))
@@ -219,6 +217,7 @@ class AnomalyDetection:
                 prediction, hidden = self.model(data, hidden)
                 pred_label = prediction.cpu().data.max(1)[1].numpy()
                 self.eval_file.write(str(pred_label) + "\n")
+                self.eval_file.flush()
                 hidden = self.repackage_hidden(hidden)
                 loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
@@ -236,7 +235,6 @@ class AnomalyDetection:
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
                 pred_label = prediction.cpu().data.max(1)[1].numpy()
-                print(pred_label)
                 predicted_labels.append(pred_label)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
@@ -252,7 +250,9 @@ class AnomalyDetection:
             prediction, hidden = self.model(data, hidden)
             pred_label = prediction.cpu().data.max(1)[1].numpy()
             self.train_file.write(str(pred_label) + "\n")
+            self.train_file.flush()
             self.train_labels_file.write(str(target) + "\n")
+            self.train_labels_file.flush()
             loss = self.distance(prediction, target)
             loss.backward()
 
@@ -261,6 +261,9 @@ class AnomalyDetection:
                 p.data.add_(-self.learning_rate, p.grad.data)
 
     def start_training(self):
+        self.train_file = open(self.results_dir + "train_pred.txt", "w")
+        self.eval_file = open(self.results_dir + "eval_pred.txt", "w")
+        self.train_labels_file = open(self.results_dir + "train_true_labels.txt", "w")
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')

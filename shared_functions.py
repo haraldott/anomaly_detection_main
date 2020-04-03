@@ -5,7 +5,6 @@ import numpy as np
 from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words, reverse_order
 from scipy.spatial.distance import cosine
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
-from tools import distribution_plots as distribution_plots
 import os
 import tarfile
 from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
@@ -13,6 +12,8 @@ from wordembeddings.transform_bert import get_bert_embeddings
 from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
 import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class TemplatesDataset(Dataset):
@@ -190,3 +191,21 @@ def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, enco
     n_classes = len(encoder.classes_)
     return target_normal_labels, target_anomaly_labels, n_classes
 
+
+def distribution_plots(dir, vals1, vals2):
+    vals1 = [float(x) for x in vals1]
+    vals2 = [float(x) for x in vals2]
+
+    sns.distplot(vals1, rug=True, kde=False,
+                 kde_kws={'linewidth': 3},
+                 label='normal')
+
+    sns.distplot(vals2, rug=True, kde=False,
+                 kde_kws={'linewidth': 3},
+                 label='anomaly')
+
+    plt.legend(prop={'size': 16}, title='n and a')
+    plt.xlabel('Label')
+    plt.ylabel('Density')
+    plt.savefig(dir + 'plot')
+    plt.clf()
