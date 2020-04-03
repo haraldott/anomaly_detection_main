@@ -215,7 +215,7 @@ class AnomalyDetection:
         with torch.no_grad():
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(1)[1].numpy()
+                #pred_label = prediction.cpu().data.max(1)[1].numpy()
                 hidden = self.repackage_hidden(hidden)
                 loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
@@ -246,7 +246,7 @@ class AnomalyDetection:
             self.optimizer.zero_grad()
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
-            pred_label = prediction.cpu().data.max(1)[1].numpy()
+            #pred_label = prediction.cpu().data.max(1)[1].numpy()
             loss = self.distance(prediction, target)
             loss.backward()
 
