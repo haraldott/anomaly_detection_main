@@ -24,7 +24,7 @@ cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=10)
-parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
 parser.add_argument('-instance_information_file_anomalies', type=str)
@@ -140,7 +140,7 @@ target_normal_labels, target_anomaly_labels, n_classes = get_labels_from_corpus(
 ad_normal = AnomalyDetection(n_classes=n_classes, target_labels=target_normal_labels, loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                              embeddings_model='bert', train_mode=True, instance_information_file=instance_information_file_normal,
-                             results_dir=cwd + results_dir_experiment)
+                             results_dir=cwd + results_dir_experiment, debug_embeddings=word_embeddings)
 
 if not args.anomaly_only:
     ad_normal.start_training()
@@ -148,7 +148,7 @@ if not args.anomaly_only:
 ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_anomaly_labels,
                               savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                               embeddings_model='bert',instance_information_file=instance_information_file_anomalies_injected,
-                              anomalies_run=True, results_dir=cwd + results_dir_experiment)
+                              anomalies_run=True, results_dir=cwd + results_dir_experiment, debug_embeddings=word_embeddings)
 
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
