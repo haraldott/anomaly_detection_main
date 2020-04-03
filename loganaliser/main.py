@@ -216,8 +216,6 @@ class AnomalyDetection:
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction, hidden = self.model(data, hidden)
                 pred_label = prediction.cpu().data.max(1)[1].numpy()
-                self.eval_file.write(str(pred_label) + "\n")
-                self.eval_file.flush()
                 hidden = self.repackage_hidden(hidden)
                 loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
@@ -249,10 +247,6 @@ class AnomalyDetection:
             hidden = self.repackage_hidden(hidden)
             prediction, hidden = self.model(data, hidden)
             pred_label = prediction.cpu().data.max(1)[1].numpy()
-            self.train_file.write(str(pred_label) + "\n")
-            self.train_file.flush()
-            self.train_labels_file.write(str(target) + "\n")
-            self.train_labels_file.flush()
             loss = self.distance(prediction, target)
             loss.backward()
 
@@ -261,9 +255,6 @@ class AnomalyDetection:
                 p.data.add_(-self.learning_rate, p.grad.data)
 
     def start_training(self):
-        self.train_file = open(self.results_dir + "train_pred.txt", "w")
-        self.eval_file = open(self.results_dir + "eval_pred.txt", "w")
-        self.train_labels_file = open(self.results_dir + "train_true_labels.txt", "w")
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
@@ -289,8 +280,6 @@ class AnomalyDetection:
                        + '-' * 89
                 print(output)
                 log_output.write(output + "\n")
-                self.train_file.write(output)
-                self.eval_file.write(output)
                 loss_over_time.write(str(val_loss) + "\n")
                 if not best_val_loss or val_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
@@ -299,9 +288,6 @@ class AnomalyDetection:
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
-        self.train_file.close()
-        self.eval_file.close()
-        self.train_labels_file.close()
 
     def calc_labels(self):
         self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,

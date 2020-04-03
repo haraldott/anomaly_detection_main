@@ -56,7 +56,7 @@ settings = {
 
     'Normal': {
             # files
-            "raw_normal": "137k_spr_corpus_delete_15",
+            "raw_normal": "137k_remove_15",
             "raw_anomaly": "18k_spr",
             # dirs
             "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
@@ -66,7 +66,7 @@ settings = {
             # logtype for drain parsing
             "logtype": "OpenStack",
             # instance information files
-            "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle",
+            "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k_remove_15.pickle",
             "instance_information_file_anomalies_pre_inject": "data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle",
             "instance_information_file_anomalies_injected": "data/openstack/utah/raw/sorted_per_request_pickle/anomalies/"
     },

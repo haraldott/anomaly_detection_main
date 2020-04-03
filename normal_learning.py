@@ -61,7 +61,7 @@ instance_information_file_anomalies_injected = settings[option]['instance_inform
 anomalies_injected_dir = parsed_dir + "anomalies_injected/"
 anomaly_indeces_dir = parsed_dir + "anomalies_injected/anomaly_indeces/"
 # corpus files produced by Drain
-corpus_normal = cwd + parsed_dir + normal
+corpus_normal = cwd + parsed_dir + normal + '_corpus'
 corpus_pre_anomaly = cwd + parsed_dir + anomaly + '_corpus'
 # bert vectors as pickle files
 embeddings_normal = cwd + embeddings_dir + normal + '.pickle'
