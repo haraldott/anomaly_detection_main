@@ -23,10 +23,10 @@ ratio_of_words_to_be_altered_per_line = 0.15
 
 ############# BEFORE DRAIN #############
 def instance_id_sort(
-        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/137k',
-        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/137k_spr',
-        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle'):
-    """
+        logfile_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/52k',
+        output_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/52k_spr',
+        instance_information_path='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request_pickle/52k_spr.pickle'):
+    """refre
     Takes a raw Openstack log file (logfile_path) as input, sorts per instance_id, removes all lines without instance_id,
     outputs the sorted file to output_path, and saves instance information (i.e. instance_id log line block from i to j)
     to instance_information_path

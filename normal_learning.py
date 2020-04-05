@@ -10,7 +10,7 @@ import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
 from shared_functions import calculate_precision_and_plot, determine_anomalies, \
-    get_cosine_distance, inject_anomalies, get_embeddings, get_labels_from_corpus
+    get_cosine_distance, inject_anomalies, get_embeddings, get_labels_from_corpus, pre_process_log_events
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 
@@ -93,6 +93,8 @@ os.makedirs(anomaly_indeces_dir, exist_ok=True)
 if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
     drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
     drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
+
+pre_process_log_events(corpus_pre_anomaly, corpus_normal)
 
 ### INJECT ANOMALIES in dataset 2
 anomaly_lines, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
