@@ -66,7 +66,7 @@ settings = {
             # logtype for drain parsing
             "logtype": "OpenStack",
             # instance information files
-            "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k.pickle",
+            "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle",
             "instance_information_file_anomalies_pre_inject": "data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle",
             "instance_information_file_anomalies_injected": "data/openstack/utah/raw/sorted_per_request_pickle/anomalies/"
     },
