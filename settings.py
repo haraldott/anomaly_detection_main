@@ -56,7 +56,7 @@ settings = {
 
     'Normal': {
             # files
-            "raw_normal": "137k",
+            "raw_normal": "137k_spr",
             "raw_anomaly": "18k_spr",
             # dirs
             "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
