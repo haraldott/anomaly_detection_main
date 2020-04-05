@@ -190,6 +190,8 @@ def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, enco
     target_anomaly_labels = encoder.transform(anomaly_corpus)
     n_classes = len(encoder.classes_)
     return target_normal_labels, target_anomaly_labels, n_classes
+    # unique, counts = np.unique(a, return_counts=True)
+    # dict(zip(unique, counts))
 
 
 def distribution_plots(dir, vals1, vals2):
@@ -209,3 +211,19 @@ def distribution_plots(dir, vals1, vals2):
     plt.ylabel('Density')
     plt.savefig(dir + 'plot')
     plt.clf()
+
+def pre_process_log_events(*file):
+    for f in file:
+        text = open(f, "r").readlines()
+        new_text = open(f, "w")
+        for line in text:
+            line = line.replace(".", "")
+            line = line.replace("<*>", "")
+            line = line.replace("(", "")
+            line = line.replace(")", "")
+            line = line.replace(",", "")
+            line = line.replace(":", "")
+            line = line.replace("[", "")
+            line = line.replace("]", "")
+            new_text.write(line)
+        new_text.close()
