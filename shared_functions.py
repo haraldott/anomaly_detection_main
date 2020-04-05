@@ -164,7 +164,7 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
     scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
     conf = confusion_matrix(true_labels, pred_labels)
     scores_file.write("confusion matrix:\n")
-    scores_file.write(np.matrix(conf).tostring())
+    scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in conf))
     scores_file.close()
 
 
