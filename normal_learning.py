@@ -63,6 +63,9 @@ anomaly_indeces_dir = parsed_dir + "anomalies_injected/anomaly_indeces/"
 # corpus files produced by Drain
 corpus_normal = cwd + parsed_dir + normal + '_corpus'
 corpus_pre_anomaly = cwd + parsed_dir + anomaly + '_corpus'
+# template files produced by Drain
+templates_normal = cwd + parsed_dir + normal + '_templates'
+templates_pre_anomaly = cwd + parsed_dir + anomaly + '_templates'
 # bert vectors as pickle files
 embeddings_normal = cwd + embeddings_dir + normal + '.pickle'
 embeddings_anomalies_injected = cwd + embeddings_dir + anomaly + '.pickle'
@@ -94,7 +97,7 @@ if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
     drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
     drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
 
-pre_process_log_events(corpus_pre_anomaly, corpus_normal)
+pre_process_log_events(corpus_pre_anomaly, corpus_normal, templates_normal, templates_pre_anomaly)
 
 ### INJECT ANOMALIES in dataset 2
 anomaly_lines, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
