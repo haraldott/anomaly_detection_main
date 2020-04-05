@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 import numpy as np
 from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words, reverse_order
 from scipy.spatial.distance import cosine
-from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 import os
 import tarfile
 from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
@@ -162,6 +162,9 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
     scores_file.write("Precision-Score: {}\n".format(str(precision)))
     scores_file.write("Recall-Score: {}\n".format(str(recall)))
     scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
+    conf = confusion_matrix(true_labels, pred_labels)
+    scores_file.write("confusion matrix:\n")
+    scores_file.write(np.matrix(conf).tostring())
     scores_file.close()
 
 
