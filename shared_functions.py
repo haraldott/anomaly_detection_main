@@ -7,14 +7,13 @@ from scipy.spatial.distance import cosine
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 import os
 import tarfile
-from wordembeddings.transform_gpt_2 import get_gpt2_embeddings
-from wordembeddings.transform_bert import get_bert_embeddings
+from wordembeddings.transform_gpt_2 import get_word_embeddings
 from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
 
 class TemplatesDataset(Dataset):
     def __init__(self, corpus):
@@ -103,8 +102,8 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
                                           anomaly_indices_output_path)
     elif anomaly_type == "reverse_order":
         anomalies_true_label = reverse_order(corpus_input, corpus_output, instance_information_in,
-                                          instance_information_out,
-                                          anomaly_indices_output_path)
+                                             instance_information_out,
+                                             anomaly_indices_output_path)
     else:
         print("anomaly type does not exist")
         raise
@@ -124,77 +123,87 @@ def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
 
 
-def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, labels_of_file_containing_anomalies, lines_that_have_anomalies):
+def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, lines_that_have_anomalies,
+                        normal_label_embedding_mapping, embeddings_of_log_containing_anomalies):
+    # hyperparameters
+    thresh = 0.1
     predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels()
     order_of_values_of_file_containing_anomalies = open(order_of_values_of_file_containing_anomalies, 'rb').readlines()
     order_of_values_of_file_containing_anomalies = [int(x) for x in order_of_values_of_file_containing_anomalies]
-
+    embeddings_of_log_containing_anomalies = pickle.load(open(embeddings_of_log_containing_anomalies, "rb"))
     assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
-    labels_of_file_containing_anomalies_correct_order = [0] * len(order_of_values_of_file_containing_anomalies)
+    predicted_labels_of_file_containing_anomalies_correct_order = [0] * len(order_of_values_of_file_containing_anomalies)
     for index, label in zip(order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
-        labels_of_file_containing_anomalies_correct_order[index] = label
+        predicted_labels_of_file_containing_anomalies_correct_order[index] = label
 
-    write_lines_to_file(results_dir + 'anomaly_labels', labels_of_file_containing_anomalies_correct_order, new_line=True)
+    write_lines_to_file(results_dir + 'anomaly_labels', predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
 
+    label_to_normal_embeddings_to_anomaly_embeddings_dict = {}
+    for label, emb in normal_label_embedding_mapping.items():
+        cosine_distances = [cosine(emb, a_emb) for a_emb in embeddings_of_log_containing_anomalies]
+        label_to_normal_embeddings_to_anomaly_embeddings_dict.update({label: cosine_distances})
+
+
+    # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
+    pred_anomaly_labels = []
     pred_outliers_indeces = []
-    for index, (pred, true) in enumerate(zip(labels_of_file_containing_anomalies_correct_order, labels_of_file_containing_anomalies)):
-        if pred != true:
-            pred_outliers_indeces.append(index)
+    for i, label in enumerate(predicted_labels_of_file_containing_anomalies_correct_order):
+        cos_distances = label_to_normal_embeddings_to_anomaly_embeddings_dict.get(label)
+        if any(x <= thresh for x in cos_distances):
+            pred_anomaly_labels.append(0)
+        else:
+            pred_outliers_indeces.append(i)
+            pred_anomaly_labels.append(1)
 
     write_lines_to_file(results_dir + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
 
     # produce labels for f1 score, precision, etc.
-    pred_labels = np.zeros(len(labels_of_file_containing_anomalies_correct_order), dtype=int)
-    for anomaly_index in pred_outliers_indeces:
-        pred_labels[anomaly_index] = 1
-
-    true_labels = np.zeros(len(labels_of_file_containing_anomalies_correct_order), dtype=int)
+    true_labels = np.zeros(len(predicted_labels_of_file_containing_anomalies_correct_order), dtype=int)
     for anomaly_index in lines_that_have_anomalies:
         true_labels[anomaly_index] = 1
 
     scores_file = open(results_dir + "scores.txt", "w+")
-    f1 = f1_score(true_labels, pred_labels)
-    precision = precision_score(true_labels, pred_labels)
-    recall = recall_score(true_labels, pred_labels)
-    accuracy = accuracy_score(true_labels, pred_labels)
+    f1 = f1_score(true_labels, pred_anomaly_labels)
+    precision = precision_score(true_labels, pred_anomaly_labels)
+    recall = recall_score(true_labels, pred_anomaly_labels)
+    accuracy = accuracy_score(true_labels, pred_anomaly_labels)
 
     scores_file.write("F1-Score: {}\n".format(str(f1)))
     scores_file.write("Precision-Score: {}\n".format(str(precision)))
     scores_file.write("Recall-Score: {}\n".format(str(recall)))
     scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
-    conf = confusion_matrix(true_labels, pred_labels)
+    conf = confusion_matrix(true_labels, pred_anomaly_labels)
     scores_file.write("confusion matrix:\n")
     scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in conf))
     scores_file.close()
 
 
-def get_embeddings(type, templates_location, finetuning_model_dir):
+def get_embeddings(type, templates_location):
     if type == "bert":
-        word_embeddings = get_bert_embeddings(templates_location, model=finetuning_model_dir)
+        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='bert-base-uncased',
+                                              tokenizer_class=BertTokenizer, model_class=BertModel)
     elif type == "gpt2":
-        word_embeddings = get_gpt2_embeddings(templates_location, model='gpt2')
+        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='gpt2',
+                                              tokenizer_class=GPT2Tokenizer, model_class=GPT2Model)
     else:
         raise Exception("unknown embeddings model selected")
     return word_embeddings
 
 
 # encode corpus into labels
-def get_labels_from_corpus(normal_corpus, anomaly_corpus, merged_templates, encoder_path, anomaly_type):
+def get_labels_from_corpus(normal_corpus, encoder_path, templates, embeddings):
     if not encoder_path:
-        if anomaly_type == "random_lines":
-            encoder = LabelEncoder()
-            encoder.fit(merged_templates)
-            pickle.dump(encoder, open("encoder_normal.pickle", 'wb'))
-        else:
-            raise Exception("Label encoder shall only be initialised with random_lines as anomaly type")
+        encoder = LabelEncoder()
+        encoder.fit(normal_corpus)
+        pickle.dump(encoder, open("encoder_normal.pickle", 'wb'))
     else:
         encoder = pickle.load(open(encoder_path, 'rb'))
     target_normal_labels = encoder.transform(normal_corpus)
-    target_anomaly_labels = encoder.transform(anomaly_corpus)
+    normal_label_embeddings_map = {}
+    for sent in templates:
+        normal_label_embeddings_map.update({encoder.transform([sent])[0]: embeddings.get(sent)})
     n_classes = len(encoder.classes_)
-    return target_normal_labels, target_anomaly_labels, n_classes
-    # unique, counts = np.unique(a, return_counts=True)
-    # dict(zip(unique, counts))
+    return target_normal_labels, n_classes, normal_label_embeddings_map
 
 
 def distribution_plots(dir, vals1, vals2):

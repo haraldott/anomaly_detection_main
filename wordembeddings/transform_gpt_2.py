@@ -1,11 +1,12 @@
 import torch
-from transformers import GPT2Model, GPT2Tokenizer
 import pickle
 
 
-def get_gpt2_embeddings(templates, model):
-    tokenized_text, encoded_layers = _prepare_gpt2_vectors(templates=templates,
-                                                           gpt2_model=model)
+def get_word_embeddings(templates, pretrained_weights, tokenizer_class, model_class):
+    tokenized_text, encoded_layers = _prepare_vectors(templates=templates,
+                                                      pretrained_weights=pretrained_weights,
+                                                      tokenizer_class=tokenizer_class,
+                                                      model_class=model_class)
     # dump words with according vectors in file
     words = []
     for sent in tokenized_text:
@@ -13,14 +14,13 @@ def get_gpt2_embeddings(templates, model):
             words.append(word)
 
     word_embeddings = [tuple((word, vec)) for word, vec in zip(words, encoded_layers)]
-    sentence_embeddings_mean = []
-    for sentence in word_embeddings:
-        sentence_embeddings_mean.append(torch.squeeze(sentence[1].mean(dim=1)))
-    return sentence_embeddings_mean
+    sentence_embeddings_dict = {}
+    for template, sentence_embedding in zip(templates, word_embeddings):
+        sentence_embeddings_dict.update({template: torch.squeeze(sentence_embedding[1].mean(dim=1))})
+    return sentence_embeddings_dict
 
 
-def _prepare_gpt2_vectors(templates='../data/openstack/sasho/parsed/logs_aggregated_full.csv_templates',
-                          gpt2_model='gpt2'):
+def _prepare_vectors(templates, pretrained_weights, tokenizer_class, model_class):
     if type(templates) == str:
         lines = open(templates, 'r')
     elif type(templates) == list:
@@ -28,8 +28,9 @@ def _prepare_gpt2_vectors(templates='../data/openstack/sasho/parsed/logs_aggrega
     else:
         print("templates must be either a list of templates or a path str")
         raise
-    tokenizer = GPT2Tokenizer.from_pretrained(gpt2_model)
-    model = GPT2Model.from_pretrained(gpt2_model)
+
+    tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
+    model = model_class.from_pretrained(pretrained_weights)
 
     tokenized_text = [tokenizer.tokenize(sentence) for sentence in lines]
 
@@ -44,7 +45,7 @@ def _prepare_gpt2_vectors(templates='../data/openstack/sasho/parsed/logs_aggrega
 def dump_word_vectors(templates_location='../data/openstack/utah/parsed/18k_spr_templates',
                       word_embeddings_location='vectors_for_cosine_distance/sasho_gpt2_vectors_for_cosine.pickle',
                       bert_model='gpt2'):
-    tokenized_text, encoded_layers = _prepare_gpt2_vectors(templates=templates_location, gpt2_model=bert_model)
+    tokenized_text, encoded_layers = _prepare_vectors(templates=templates_location, pretrained_weights=bert_model)
     # dump words with according vectors in file
     words = []
     for sent in tokenized_text:

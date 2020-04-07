@@ -20,25 +20,16 @@ def get_bert_embeddings(templates_location, model):
 
 def transform(sentence_embeddings,
               logfile='../data/openstack/utah/parsed/openstack_18k_anomalies_corpus',
-              outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle',
-              templates='../data/openstack/utah/parsed/openstack_18k_plus_52k_merged_templates'):
+              outputfile='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies_embeddings.pickle'):
     file = open(logfile)
     logfilelines = file.readlines()
 
-    if type(templates) == str:
-        sentences = open(templates, 'r').readlines()
-    elif type(templates) == list:
-        sentences = templates
-    else:
-        print("templates must be either a list of templates or a path str")
-        raise
-
     sentences_as_vectors = []
     for sentence in logfilelines:
-        idx = sentences.index(sentence)
-        if idx is None:
+        vec = sentence_embeddings.get(sentence)
+        if vec is None:
             raise ValueError("{} not found in template file".format(sentence))
-        sentences_as_vectors.append(sentence_embeddings[idx])
+        sentences_as_vectors.append(vec)
     sentences_as_vectors = torch.stack(sentences_as_vectors)
 
     # normalise between 0 and 1

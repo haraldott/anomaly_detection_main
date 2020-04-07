@@ -24,7 +24,7 @@ cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=10)
-parser.add_argument('-epochs', type=int, default=100)
+parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
 parser.add_argument('-instance_information_file_anomalies', type=str)
@@ -120,9 +120,9 @@ if args.finetune:
     if not os.path.exists(finetuning_model_dir):
         finetune(templates=templates_normal, output_dir=finetuning_model_dir)
 
-word_embeddings = get_embeddings(args.embeddings_model, merged_templates, finetuning_model_dir)
+word_embeddings = get_embeddings(args.embeddings_model, merged_templates)
 
-write_to_tsv_files_bert_sentences(vectors=word_embeddings, sentences=merged_templates,
+write_to_tsv_files_bert_sentences(word_embeddings=word_embeddings,
                                   tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
                                   tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
@@ -131,32 +131,31 @@ if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
                         word_embeddings)
 
 # transform output of bert into numpy word embedding vectors
-transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal,
-                         templates=merged_templates,  outputfile=embeddings_normal)
+transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal, outputfile=embeddings_normal)
 
-transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus,
-                         templates=merged_templates, outputfile=embeddings_anomalies_injected)
+transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus, outputfile=embeddings_anomalies_injected)
 
-target_normal_labels, target_anomaly_labels, n_classes = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
-                                                                                anomaly_corpus=open(anomaly_injected_corpus, 'r').readlines(),
-                                                                                merged_templates=merged_templates,
-                                                                                encoder_path=args.label_encoder, anomaly_type=args.anomaly_type)
+target_normal_labels, n_classes, normal_label_embeddings_map = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
+                                                                                      encoder_path=args.label_encoder,
+                                                                                      templates=templates_normal,
+                                                                                      embeddings=word_embeddings)
 
 ad_normal = AnomalyDetection(n_classes=n_classes, target_labels=target_normal_labels, loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                              embeddings_model='bert', train_mode=True, instance_information_file=instance_information_file_normal,
-                             results_dir=cwd + results_dir_experiment, debug_embeddings=word_embeddings)
+                             results_dir=cwd + results_dir_experiment)
 
 if not args.anomaly_only:
     ad_normal.start_training()
 
-ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_anomaly_labels,
+ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_normal_labels,
                               savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                               embeddings_model='bert',instance_information_file=instance_information_file_anomalies_injected,
-                              anomalies_run=True, results_dir=cwd + results_dir_experiment, debug_embeddings=word_embeddings)
+                              anomalies_run=True, results_dir=cwd + results_dir_experiment)
 
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
-                    labels_of_file_containing_anomalies=target_anomaly_labels, lines_that_have_anomalies=anomaly_lines)
+                    lines_that_have_anomalies=anomaly_lines, normal_label_embedding_mapping=normal_label_embeddings_map,
+                    embeddings_of_log_containing_anomalies=embeddings_anomalies_injected)
 print("done.")
 calculate_precision_and_plot(results_dir_experiment, args, cwd)
