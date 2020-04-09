@@ -24,7 +24,11 @@ cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
 parser.add_argument('-seq_len', type=int, default=10)
-parser.add_argument('-epochs', type=int, default=1)
+parser.add_argument('-n_layers', type=int, default=1)
+parser.add_argument('-n_hidden_units', type=int, default=128)
+parser.add_argument('-batch_size', type=int, default=128)
+parser.add_argument('-clip', type=int, default=1.0)
+parser.add_argument('-epochs', type=int, default=100)
 parser.add_argument('-transferlearning', action='store_true')
 parser.add_argument('-anomaly_only', action='store_true')
 parser.add_argument('-instance_information_file_anomalies', type=str)
@@ -33,6 +37,7 @@ parser.add_argument('-anomaly_type', type=str, default='reverse_order')
 parser.add_argument('-anomaly_amount', type=int, default=0)
 parser.add_argument('-embeddings_model', type=str, default="bert")
 parser.add_argument('-label_encoder', type=str, default=None)
+parser.add_argument('-experiment', type=str, default='default')
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
@@ -43,8 +48,8 @@ if args.finetune:
 else:
     results_dir = settings[option]["results_dir"] + "/"
 
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-    results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}_experiment: {}/".format(
+    results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount, args.experiment)
 
 normal = settings[option]["raw_normal"]  # path of normal file for training
 anomaly = settings[option]["raw_anomaly"]  # path of file in which anomalies will be injected
@@ -143,7 +148,8 @@ target_normal_labels, n_classes, normal_label_embeddings_map = get_labels_from_c
 ad_normal = AnomalyDetection(n_classes=n_classes, target_labels=target_normal_labels, loadvectors=embeddings_normal,
                              savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                              embeddings_model='bert', train_mode=True, instance_information_file=instance_information_file_normal,
-                             results_dir=cwd + results_dir_experiment)
+                             results_dir=cwd + results_dir_experiment, n_layers=args.n_layers, n_hidden_units=args.n_hidden_units,
+                             batch_size=args.batch_size, clip=args.clip)
 
 if not args.anomaly_only:
     ad_normal.start_training()
@@ -151,7 +157,8 @@ if not args.anomaly_only:
 ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_normal_labels,
                               savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                               embeddings_model='bert',instance_information_file=instance_information_file_anomalies_injected,
-                              anomalies_run=True, results_dir=cwd + results_dir_experiment)
+                              anomalies_run=True, results_dir=cwd + results_dir_experiment, n_layers=args.n_layers, n_hidden_units=args.n_hidden_units,
+                              batch_size=args.batch_size, clip=args.clip)
 
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
