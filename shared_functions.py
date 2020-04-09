@@ -14,6 +14,7 @@ import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
 from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
+import heapq
 
 class TemplatesDataset(Dataset):
     def __init__(self, corpus):
@@ -124,13 +125,14 @@ def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
 
 
 def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, lines_that_have_anomalies,
-                        normal_label_embedding_mapping, embeddings_of_log_containing_anomalies):
+                        normal_label_embedding_mapping, corpus_of_log_containing_anomalies, set_embeddings_of_log_containing_anomalies):
     # hyperparameters
-    thresh = 0.1
+    top_k = 3
+    thresh = 0.25
+    corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
     predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels()
     order_of_values_of_file_containing_anomalies = open(order_of_values_of_file_containing_anomalies, 'rb').readlines()
     order_of_values_of_file_containing_anomalies = [int(x) for x in order_of_values_of_file_containing_anomalies]
-    embeddings_of_log_containing_anomalies = pickle.load(open(embeddings_of_log_containing_anomalies, "rb"))
     assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
     predicted_labels_of_file_containing_anomalies_correct_order = [0] * len(order_of_values_of_file_containing_anomalies)
     for index, label in zip(order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
@@ -138,18 +140,20 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
 
     write_lines_to_file(results_dir + 'anomaly_labels', predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
 
-    label_to_normal_embeddings_to_anomaly_embeddings_dict = {}
-    for label, emb in normal_label_embedding_mapping.items():
-        cosine_distances = [cosine(emb, a_emb) for a_emb in embeddings_of_log_containing_anomalies]
-        label_to_normal_embeddings_to_anomaly_embeddings_dict.update({label: cosine_distances})
-
+    top_k_anomaly_embedding_label_mapping = {}
+    for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
+        cos_distances = {}
+        for label, norm_emb in normal_label_embedding_mapping.items():
+            cos_distances.update({label: cosine(anom_emb, norm_emb)})
+        largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
+        largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
+        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
 
     # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
     pred_anomaly_labels = []
     pred_outliers_indeces = []
-    for i, label in enumerate(predicted_labels_of_file_containing_anomalies_correct_order):
-        cos_distances = label_to_normal_embeddings_to_anomaly_embeddings_dict.get(label)
-        if any(x <= thresh for x in cos_distances):
+    for i, (label, sentence) in enumerate(zip(predicted_labels_of_file_containing_anomalies_correct_order, corpus_of_log_containing_anomalies)):
+        if label in top_k_anomaly_embedding_label_mapping.get(sentence):
             pred_anomaly_labels.append(0)
         else:
             pred_outliers_indeces.append(i)

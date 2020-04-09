@@ -156,6 +156,6 @@ ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomal
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
                     lines_that_have_anomalies=anomaly_lines, normal_label_embedding_mapping=normal_label_embeddings_map,
-                    embeddings_of_log_containing_anomalies=embeddings_anomalies_injected)
+                    corpus_of_log_containing_anomalies=anomaly_injected_corpus, set_embeddings_of_log_containing_anomalies=word_embeddings)
 print("done.")
 calculate_precision_and_plot(results_dir_experiment, args, cwd)
