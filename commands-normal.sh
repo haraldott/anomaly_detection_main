@@ -22,4 +22,6 @@ CUDA_VISIBLE_DEVICES=1 python normal_learning.py -anomaly_type="shuffle" -anomal
 CUDA_VISIBLE_DEVICES=1 python normal_learning.py -anomaly_type="no_anomaly" -anomaly_only -label_encoder="encoder_normal.pickle"
 CUDA_VISIBLE_DEVICES=1 python normal_learning.py -anomaly_type="reverse_order" -anomaly_only -label_encoder="encoder_normal.pickle"
 
+CUDA_VISIBLE_DEVICES=1 python normal_learning.py -anomaly_type="random_lines" -
+
 tar cvf normal.tar *

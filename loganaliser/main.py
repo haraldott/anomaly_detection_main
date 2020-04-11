@@ -10,6 +10,7 @@ from torch import optim
 
 import loganaliser.model as lstm_model
 from loganaliser.vanilla_autoencoder import AutoEncoder
+from torch.utils.tensorboard import SummaryWriter
 
 
 class AnomalyDetection:
@@ -239,6 +240,7 @@ class AnomalyDetection:
         self.model.train()
         dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size, drop_last=True)
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
+        total_loss = 0
         hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         for data, target in zip(dataloader_x, dataloader_y):
             self.optimizer.zero_grad()
@@ -246,43 +248,50 @@ class AnomalyDetection:
             prediction, hidden = self.model(data, hidden)
             #pred_label = prediction.cpu().data.max(1)[1].numpy()
             loss = self.distance(prediction, target)
+            total_loss += loss.item()
             loss.backward()
 
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
+            #torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
             for p in self.model.parameters():
                 p.data.add_(-self.learning_rate, p.grad.data)
+        return total_loss / len(idx)
 
     def start_training(self):
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
+        writer = SummaryWriter(log_dir="my_experiment")
         try:
             loss_values = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
             for epoch in range(1, self.num_epochs + 1):
                 loss_this_epoch = []
-                val_loss = 0
+                eval_loss = 0
+                train_loss = 0
                 epoch_start_time = time.time()
                 for i in range(0, self.folds):
                     train_incides = train_and_eval_indices[i][0]
                     eval_indices = train_and_eval_indices[i][1]
 
-                    self.train(train_incides)
-                    this_loss, _ = self.evaluate(eval_indices)
-                    loss_this_epoch.append(this_loss)
+                    this_train_loss = self.train(train_incides)
+                    this_eval_loss, _ = self.evaluate(eval_indices)
+                    loss_this_epoch.append(this_eval_loss)
                     self.optimizer.step()
-                    self.scheduler.step(this_loss)
-                    val_loss += this_loss
-                output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | ' 'valid ppl {} \n'\
-                       .format(epoch, (time.time() - epoch_start_time), val_loss, math.exp(val_loss))\
+                    self.scheduler.step(this_eval_loss)
+                    eval_loss += this_eval_loss
+                    train_loss += this_train_loss
+                output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n'\
+                       .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds)\
                        + '-' * 89
+                writer.add_scalar("Loss/train", train_loss / self.folds)
+                writer.add_scalar("Loss/test", eval_loss / self.folds)
                 print(output)
                 log_output.write(output + "\n")
-                loss_over_time.write(str(val_loss) + "\n")
-                if not best_val_loss or val_loss < best_val_loss:
+                loss_over_time.write(str(eval_loss) + "\n")
+                if not best_val_loss or eval_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
-                    best_val_loss = val_loss
-                loss_values.append(val_loss / self.folds)
+                    best_val_loss = eval_loss
+                loss_values.append(eval_loss / self.folds)
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')

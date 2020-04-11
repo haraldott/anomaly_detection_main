@@ -16,6 +16,30 @@ import matplotlib.pyplot as plt
 from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
 import heapq
 
+def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, word_embeddings, template_class_mapping):
+    dataset2_corpus = open(dataset2_corpus, 'r').readlines()
+    dataset_2_class_mapping = {}
+    dataset_2_sentence_sentence_mapping = {}
+    dataset_2_sentence_class_mapping = {}
+    for template_2 in dataset2_templates:
+        template_2_embedding = word_embeddings.get(template_2)
+        smallest_cos_distance = 1
+        for template_1 in dataset1_templates:
+            template_1_embedding = word_embeddings.get(template_1)
+            distance = cosine(template_2_embedding, template_1_embedding)
+            if distance < smallest_cos_distance:
+                smallest_cos_distance = distance
+                smallest_cos_template = template_1
+        corresponding_class = template_class_mapping.get(smallest_cos_template)
+        dataset_2_class_mapping.update({corresponding_class: template_2_embedding})
+        dataset_2_sentence_sentence_mapping.update({template_2: smallest_cos_template})
+        dataset_2_sentence_class_mapping.update({template_2: corresponding_class})
+
+    # do sentence to class mapping
+    dataset_2_corpus_target_labels = [dataset_2_sentence_class_mapping.get(sentence) for sentence in dataset2_corpus]
+    return dataset_2_corpus_target_labels
+
+
 class TemplatesDataset(Dataset):
     def __init__(self, corpus):
         self.le = LabelEncoder
@@ -27,21 +51,23 @@ class TemplatesDataset(Dataset):
     def __getitem__(self, sentence):
         return self.le.transform([sentence])[0]
 
-def get_cosine_distance(lines_before_altering, lines_after_altering, templates, results_dir_exp, vectors):
+def get_cosine_distance(lines_before_altering, lines_after_altering, results_dir_exp, vectors):
     lines_before_as_bert_vectors = []
     lines_after_as_bert_vectors = []
 
-    for sentence in lines_before_altering:
-        idx = templates.index(sentence)
-        if idx is None:
-            raise ValueError("{} not found in template file".format(sentence))
-        lines_before_as_bert_vectors.append(vectors[idx])
+    for sentence_b in lines_before_altering:
+        emb = vectors.get(sentence_b)
+        if emb is not None:
+            lines_before_as_bert_vectors.append(emb)
+        else:
+            raise ValueError("{} not found in template file".format(sentence_b))
 
-    for sentence in lines_after_altering:
-        idx = templates.index(sentence)
-        if idx is None:
-            raise ValueError("{} not found in template file".format(sentence))
-        lines_after_as_bert_vectors.append(vectors[idx])
+    for sentence_a in lines_after_altering:
+        emb = vectors.get(sentence_a)
+        if emb is not None:
+            lines_after_as_bert_vectors.append(emb)
+        else:
+            raise ValueError("{} not found in template file".format(sentence_a))
 
     cosine_distances = []
     for before, after in zip(lines_before_as_bert_vectors, lines_after_as_bert_vectors):
@@ -180,6 +206,7 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
     scores_file.write("confusion matrix:\n")
     scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in conf))
     scores_file.close()
+    return f1
 
 
 def get_embeddings(type, templates_location):
@@ -204,10 +231,12 @@ def get_labels_from_corpus(normal_corpus, encoder_path, templates, embeddings):
         encoder = pickle.load(open(encoder_path, 'rb'))
     target_normal_labels = encoder.transform(normal_corpus)
     normal_label_embeddings_map = {}
+    normal_template_class_map = {}
     for sent in templates:
         normal_label_embeddings_map.update({encoder.transform([sent])[0]: embeddings.get(sent)})
+        normal_template_class_map.update({sent: encoder.transform([sent])[0]})
     n_classes = len(encoder.classes_)
-    return target_normal_labels, n_classes, normal_label_embeddings_map
+    return target_normal_labels, n_classes, normal_label_embeddings_map, normal_template_class_map
 
 
 def distribution_plots(dir, vals1, vals2):

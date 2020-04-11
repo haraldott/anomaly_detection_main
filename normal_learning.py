@@ -17,9 +17,9 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
-# -----------------------------------------------------------------------------------------------------------------------
-# -----------------------------------------------INITIALISE PARAMETERS---------------------------------------------------
-# -----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
@@ -28,13 +28,11 @@ parser.add_argument('-n_layers', type=int, default=1)
 parser.add_argument('-n_hidden_units', type=int, default=128)
 parser.add_argument('-batch_size', type=int, default=128)
 parser.add_argument('-clip', type=int, default=1.0)
-parser.add_argument('-epochs', type=int, default=100)
-parser.add_argument('-transferlearning', action='store_true')
+parser.add_argument('-epochs', type=int, default=1)
 parser.add_argument('-anomaly_only', action='store_true')
-parser.add_argument('-instance_information_file_anomalies', type=str)
 parser.add_argument('-finetune', action='store_true')
-parser.add_argument('-anomaly_type', type=str, default='reverse_order')
-parser.add_argument('-anomaly_amount', type=int, default=0)
+parser.add_argument('-anomaly_type', type=str, default='insert_words')
+parser.add_argument('-anomaly_amount', type=int, default=1)
 parser.add_argument('-embeddings_model', type=str, default="bert")
 parser.add_argument('-label_encoder', type=str, default=None)
 parser.add_argument('-experiment', type=str, default='default')
@@ -91,7 +89,6 @@ anomaly_indeces = cwd + results_dir_experiment + "true_anomaly_labels.txt"
 # create all directories, if they don't exist yet
 os.makedirs(results_dir, exist_ok=True)
 os.makedirs(results_dir_experiment, exist_ok=True)
-os.makedirs(raw_dir, exist_ok=True)
 os.makedirs(parsed_dir, exist_ok=True)
 os.makedirs(embeddings_dir, exist_ok=True)
 os.makedirs(anomalies_injected_dir, exist_ok=True)
@@ -132,15 +129,14 @@ write_to_tsv_files_bert_sentences(word_embeddings=word_embeddings,
                                   tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
 if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-    get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment,
-                        word_embeddings)
+    get_cosine_distance(lines_before_alter, lines_after_alter, results_dir_experiment, word_embeddings)
 
 # transform output of bert into numpy word embedding vectors
 transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal, outputfile=embeddings_normal)
 
 transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus, outputfile=embeddings_anomalies_injected)
 
-target_normal_labels, n_classes, normal_label_embeddings_map = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
+target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
                                                                                       encoder_path=args.label_encoder,
                                                                                       templates=templates_normal,
                                                                                       embeddings=word_embeddings)
@@ -154,7 +150,8 @@ ad_normal = AnomalyDetection(n_classes=n_classes, target_labels=target_normal_la
 if not args.anomaly_only:
     ad_normal.start_training()
 
-ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected, target_labels=target_normal_labels,
+ad_anomaly = AnomalyDetection(n_classes=n_classes, loadvectors=embeddings_anomalies_injected,
+                              target_labels=target_normal_labels, #TODO: eigentlich sollte für anomaly hier nichts geladen werden, da es eh nicht benutzt wird
                               savemodelpath=lstm_model_save_path, seq_length=args.seq_len, num_epochs=args.epochs,
                               embeddings_model='bert',instance_information_file=instance_information_file_anomalies_injected,
                               anomalies_run=True, results_dir=cwd + results_dir_experiment, n_layers=args.n_layers, n_hidden_units=args.n_hidden_units,
