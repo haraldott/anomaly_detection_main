@@ -21,7 +21,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=10, n_layers=1, n_hidden_units=768, batch_size=128, clip=1.0, epochs=2,
+def experiment(option='Normal', seq_len=10, n_layers=1, n_hidden_units=128, batch_size=128, clip=1.0, epochs=2,
                anomaly_only=False, finetuning=False, anomaly_type='insert_words', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 

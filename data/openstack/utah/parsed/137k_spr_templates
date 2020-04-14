@@ -1,15 +1,16 @@
-<*> Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU
-<*> <*> <*> <*> MB, <*> <*>.<*> MB
-<*> Total <*> <*> <*> used: <*>.<*> <*>
-<*> <*> limit not specified, defaulting to unlimited
-<*> Claim successful
-<*> Creating image
-<*> VM <*> (Lifecycle Event)
-<*> During sync_power_state the instance has a pending task <*> Skip.
-<*> Instance <*> successfully.
-<*> Took <*>.<*> seconds to <*> the instance on the hypervisor.
-<*> Took <*>.<*> seconds to build instance.
-<*> Terminating instance
-<*> Deleting instance files <*>
-<*> Deletion of <*>complete
-<*> Took <*>.<*> seconds to deallocate network for instance.
+ Attempting claim memory  MB disk  GB vcpus  CPU
+    MB   MB
+ Total    used  
+  limit not specified defaulting to unlimited
+ Claim successful
+ Creating image
+ VM  Lifecycle Event
+ During sync_power_state the instance has a pending task  Skip
+ Instance  successfully
+ Took  seconds to  the instance on the hypervisor
+ Took  seconds to build instance
+ Terminating instance
+ Deleting instance files 
+ Deletion of complete
+ Took  seconds to deallocate network for instance
+My personal randomly injected_line

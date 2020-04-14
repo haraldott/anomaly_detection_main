@@ -16,6 +16,8 @@ for len in seq_len:
             for batch in batch_size:
                 for cl in clip:
                     for epoch in epochs:
+                        print("seq_len: {}, n_layers: {}, n_hidden_units: {}, batch_size: {}, clip: {}, epochs: {}\n"
+                              .format(len, layer, hidden, batch, cl, epoch))
                         f1_score, precision = experiment(seq_len=len, n_layers=layer, n_hidden_units=hidden, batch_size=batch,
                                               clip=cl, epochs=epoch)
                         score_file.write("F1-Score: {}, Precision: {}, ----- "

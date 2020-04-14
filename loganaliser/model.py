@@ -10,7 +10,7 @@ class LSTM(nn.Module):
 
         # Layers
 
-        self.lstm = nn.LSTM(input_size=n_hidden_units, hidden_size=n_hidden_units, num_layers=n_layers,
+        self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units, num_layers=n_layers,
                             dropout=0.2, batch_first=True)
         self.decoder = nn.Linear(n_hidden_units, n_classes)
 
