@@ -1,7 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class LSTM(nn.Module):
     def __init__(self, n_input, n_hidden_units, n_layers, n_classes, tie_weights=False, train_mode=False):
         super(LSTM, self).__init__()
@@ -11,9 +10,7 @@ class LSTM(nn.Module):
 
         # Layers
 
-        # self.attn = nn.Linear(self.n_hidden_units * 2, n_input)
-        # self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
-        self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units, num_layers=n_layers,
+        self.lstm = nn.LSTM(input_size=n_hidden_units, hidden_size=n_hidden_units, num_layers=n_layers,
                             dropout=0.2, batch_first=True)
         self.decoder = nn.Linear(n_hidden_units, n_classes)
 
@@ -32,10 +29,10 @@ class LSTM(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
+        if self.train_mode: input = nn.Dropout(p=0.1)(input)
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
         output, hidden = self.lstm(input, hidden)
-        if self.train_mode:
-            output = nn.Dropout(p=0.1)(output)
+        if self.train_mode: output = nn.Dropout(p=0.1)(output)
         decoded = self.decoder(output[:, -1, :])
         log_props = F.log_softmax(decoded, dim=1)
         return log_props, hidden

@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
 import heapq
 
-def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, word_embeddings, template_class_mapping):
+def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, word_embeddings, template_class_mapping,
+                    results_dir):
     dataset2_corpus = open(dataset2_corpus, 'r').readlines()
     dataset_2_class_mapping = {}
     dataset_2_sentence_sentence_mapping = {}
@@ -35,6 +36,10 @@ def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, wor
         dataset_2_sentence_sentence_mapping.update({template_2: smallest_cos_template})
         dataset_2_sentence_class_mapping.update({template_2: corresponding_class})
 
+    # write sentence to sentence mapping to file
+    with open(results_dir + "sentence_to_sentence_mapping.txt", 'w') as f:
+        for k, v in dataset_2_sentence_sentence_mapping.items():
+            f.write(k + ": " + v + "\n")
     # do sentence to class mapping
     dataset_2_corpus_target_labels = [dataset_2_sentence_class_mapping.get(sentence) for sentence in dataset2_corpus]
     return dataset_2_corpus_target_labels
@@ -138,21 +143,19 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
     return anomalies_true_label, None, None
 
 
-def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
-    # distribution_plots(this_results_dir_experiment, arg.epochs, arg.seq_len, 768, 0)
-
-    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format(arg.embeddings_model, arg.epochs,
-                                                                                                     arg.seq_len,
-                                                                                                     arg.anomaly_type,
-                                                                                                     arg.anomaly_amount) + '.tar'
+def calculate_precision_and_plot(this_results_dir_experiment, embeddings_model, epochs, seq_len,
+                                 anomaly_type, anomaly_amount, cwd):
+    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format(embeddings_model, epochs,
+                                                                                                     seq_len,
+                                                                                                     anomaly_type,
+                                                                                                     anomaly_amount) + '.tar'
 
     with tarfile.open(name=archive_name, mode="w:gz") as tar:
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
 
 
 def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, lines_that_have_anomalies,
-                        normal_label_embedding_mapping, corpus_of_log_containing_anomalies, set_embeddings_of_log_containing_anomalies):
-    # hyperparameters
+                        corpus_of_log_containing_anomalies, set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
     top_k = 3
     thresh = 0.25
     corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
@@ -165,7 +168,6 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
         predicted_labels_of_file_containing_anomalies_correct_order[index] = label
 
     write_lines_to_file(results_dir + 'anomaly_labels', predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
-
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
         cos_distances = {}
@@ -174,7 +176,6 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
         largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
         largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
         top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
-
     # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
     pred_anomaly_labels = []
     pred_outliers_indeces = []
@@ -206,7 +207,7 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
     scores_file.write("confusion matrix:\n")
     scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in conf))
     scores_file.close()
-    return f1
+    return f1, precision
 
 
 def get_embeddings(type, templates_location):

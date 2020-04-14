@@ -10,16 +10,16 @@ import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
 from shared_functions import calculate_precision_and_plot, determine_anomalies, \
-    get_cosine_distance, inject_anomalies, pre_process_log_events, get_labels_from_corpus, transfer_labels
+    get_cosine_distance, inject_anomalies, get_labels_from_corpus, transfer_labels
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
-# -----------------------------------------------------------------------------------------------------------------------
-# -----------------------------------------------INITIALISE PARAMETERS---------------------------------------------------
-# -----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------INITIALISE PARAMETERS--------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='UtahSashoTransfer')
@@ -113,23 +113,20 @@ os.makedirs(anomalies_injected_dir_2, exist_ok=True)
 os.makedirs(anomaly_indeces_dir_2, exist_ok=True)
 
 ### DRAIN PARSING
-if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or not os.path.exists(
-        corpus_pre_anomaly_2):
+if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or not os.path.exists(corpus_pre_anomaly_2):
     drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
     drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
     drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
 
-pre_process_log_events(corpus_pre_anomaly_2, corpus_normal_1, corpus_normal_2)
+#pre_process_log_events(corpus_pre_anomaly_2, corpus_normal_1, corpus_normal_2)
 
 ### INJECT ANOMALIES in dataset 2
-anomaly_lines, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
-                                                                        corpus_input=corpus_pre_anomaly_2,
-                                                                        corpus_output=anomaly_injected_corpus_2,
-                                                                        anomaly_indices_output_path=anomaly_indeces_2,
-                                                                        instance_information_in=instance_information_file_anomalies_pre_inject_2,
-                                                                        instance_information_out=instance_information_file_anomalies_injected_2,
-                                                                        anomaly_amount=args.anomaly_amount,
-                                                                        results_dir=results_dir_experiment)
+anomaly_lines, lines_before_alter, lines_after_alter = \
+    inject_anomalies(anomaly_type=args.anomaly_type, corpus_input=corpus_pre_anomaly_2,
+                     corpus_output=anomaly_injected_corpus_2, anomaly_indices_output_path=anomaly_indeces_2,
+                     instance_information_in=instance_information_file_anomalies_pre_inject_2,
+                     instance_information_out=instance_information_file_anomalies_injected_2,
+                     anomaly_amount=args.anomaly_amount, results_dir=results_dir_experiment)
 
 # produce templates out of the corpuses that we have from the anomaly file
 templates_normal_1 = list(set(open(corpus_normal_1, 'r').readlines()))
@@ -158,17 +155,18 @@ transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_nor
 
 transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal_2, outputfile=embeddings_normal_2)
 
-transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus_2, outputfile=embeddings_anomalies_injected_2)
+transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus_2,
+                         outputfile=embeddings_anomalies_injected_2)
 
-target_normal_labels, n_classes, normal_label_embeddings_map, normal_template_class_map = get_labels_from_corpus(normal_corpus=open(corpus_normal_1, 'r').readlines(),
-                                                                                      encoder_path=args.label_encoder,
-                                                                                      templates=templates_normal_1,
-                                                                                      embeddings=word_embeddings)
+target_normal_labels, n_classes, normal_label_embeddings_map, normal_template_class_map =\
+    get_labels_from_corpus(normal_corpus=open(corpus_normal_1, 'r').readlines(), encoder_path=args.label_encoder,
+                           templates=templates_normal_1, embeddings=word_embeddings)
 
-dataset_2_corpus_target_labels = transfer_labels(dataset1_templates=templates_normal_1, dataset2_templates=templates_normal_2, dataset2_corpus=corpus_normal_2,
-                                          word_embeddings=word_embeddings, template_class_mapping=normal_template_class_map)
-
-
+dataset_2_corpus_target_labels = transfer_labels(dataset1_templates=templates_normal_1,
+                                                 dataset2_templates=templates_normal_2,
+                                                 dataset2_corpus=corpus_normal_2, word_embeddings=word_embeddings,
+                                                 template_class_mapping=normal_template_class_map,
+                                                 results_dir=results_dir_experiment)
 
 if not args.anomaly_only:
     # NORMAL TRAINING with dataset 1
@@ -225,7 +223,8 @@ ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected_2,
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                     order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
                     lines_that_have_anomalies=anomaly_lines, normal_label_embedding_mapping=normal_label_embeddings_map,
-                    corpus_of_log_containing_anomalies=anomaly_injected_corpus_2, set_embeddings_of_log_containing_anomalies=word_embeddings)
+                    corpus_of_log_containing_anomalies=anomaly_injected_corpus_2,
+                    set_embeddings_of_log_containing_anomalies=word_embeddings)
 
 print("done.")
 calculate_precision_and_plot(results_dir_experiment, args, cwd)
