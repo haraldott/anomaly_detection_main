@@ -68,7 +68,8 @@ class AnomalyDetection:
                                      n_hidden_units=self.n_hidden_units,
                                      n_layers=self.n_layers,
                                      train_mode=self.train_mode,
-                                     n_classes=self.n_classes).to(self.device)
+                                     n_classes=self.n_classes,
+                                     batch_size=self.batch_size).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -210,12 +211,12 @@ class AnomalyDetection:
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
         loss_distribution = []
         total_loss = 0
-        hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
+        #hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         with torch.no_grad():
             for data, target in zip(dataloader_x, dataloader_y):
-                prediction, hidden = self.model(data, hidden)
+                prediction = self.model(data)
                 #pred_label = prediction.cpu().data.max(1)[1].numpy()
-                hidden = self.repackage_hidden(hidden)
+                #hidden = self.repackage_hidden(hidden)
                 loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
@@ -225,15 +226,15 @@ class AnomalyDetection:
         self.model.eval()
         # TODO: since we want to predict *every* loss of every line, we don't use batches, so here we use batch_size
         #   1 is this ok?
-        hidden = self.model.init_hidden(1, self.device)
+        #hidden = self.model.init_hidden(1, self.device)
         predicted_labels = []
         with torch.no_grad():
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
-                prediction, hidden = self.model(data, hidden)
+                prediction = self.model(data)
                 pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
                 predicted_labels.append(pred_label)
-                hidden = self.repackage_hidden(hidden)
+                #hidden = self.repackage_hidden(hidden)
         return predicted_labels
 
     def train(self, idx):
@@ -241,15 +242,15 @@ class AnomalyDetection:
         dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size, drop_last=True)
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
         total_loss = 0
-        hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
+        #hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         for data, target in zip(dataloader_x, dataloader_y):
             self.optimizer.zero_grad()
-            hidden = self.repackage_hidden(hidden)
-            prediction, hidden = self.model(data, hidden)
+            #hidden = self.repackage_hidden(hidden)
+            prediction = self.model(data)
             #pred_label = prediction.cpu().data.max(1)[1].numpy()
             loss = self.distance(prediction, target)
             total_loss += loss.item()
-            loss.backward()
+            loss.backward(retain_graph=True)
 
             #torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
             for p in self.model.parameters():
@@ -296,9 +297,11 @@ class AnomalyDetection:
             print('-' * 89)
             print('Exiting from training early')
 
+
     def calc_labels(self):
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,
-                                     n_classes=self.n_classes).to(self.device)
+        self.model = lstm_model.LSTM(n_input=self.feature_length, n_hidden_units=self.n_hidden_units,
+                                     n_layers=self.n_layers, train_mode=False, n_classes=self.n_classes,
+                                     batch_size=self.batch_size).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
         n_samples = len(self.data_x)
