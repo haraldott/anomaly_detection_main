@@ -21,7 +21,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=10, n_layers=1, n_hidden_units=128, batch_size=128, clip=1.0, epochs=2,
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=120,
                anomaly_only=False, finetuning=False, anomaly_type='insert_words', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 
@@ -65,7 +65,7 @@ def experiment(option='Normal', seq_len=10, n_layers=1, n_hidden_units=128, batc
         lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + '_with_finetune' + '_lstm.pth'
     else:
         finetuning_model_dir = "bert-base-uncased"
-        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + '_lstm.pth'
+        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + "_" + experiment + '_lstm.pth'
 
     # take corpus parsed by drain, inject anomalies in this file
     anomaly_injected_corpus = cwd + anomalies_injected_dir + anomaly + "_" + anomaly_type
