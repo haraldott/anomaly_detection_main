@@ -21,14 +21,14 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=120,
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=10,
                anomaly_only=False, finetuning=False, anomaly_type='insert_words', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 
     cwd = os.getcwd() + "/"
     print("starting {} {}".format(anomaly_type, anomaly_amount))
 
-    if finetune:
+    if finetuning:
         results_dir = settings[option]["results_dir"] + "_finetune/"
     else:
         results_dir = settings[option]["results_dir"] + "/"
@@ -60,7 +60,7 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
     embeddings_normal = cwd + embeddings_dir + normal + '.pickle'
     embeddings_anomalies_injected = cwd + embeddings_dir + anomaly + '.pickle'
 
-    if finetune:
+    if finetuning:
         finetuning_model_dir = "wordembeddings/finetuning-models/" + normal
         lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + '_with_finetune' + '_lstm.pth'
     else:
