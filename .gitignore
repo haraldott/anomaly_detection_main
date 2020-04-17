@@ -1,1 +1,21 @@
 /glove-c/build/
+.idea/
+helper_scripts/.ipynb_checkpoints
+data/openstack/utah/results
+data/openstack/sasho/results
+__pycache__/
+*.py[cod]
+*$py.class
+venv
+env
+wordembeddings/finetuning-models
+wordembeddings/.ipynb_checkpoints
+wordembeddings/vectors_for_cosine_distance
+.ipynb_checkpoints
+wordembeddings/files_for_embedding_projector
+my_experiment
+score_file.txt
+grid_search_score_file.txt
+data/openstack/sasho/raw/concurrent data/traces
+data/openstack/sasho/raw/concurrent data/reports
+data/openstack/sasho/raw/concurrent data/metrics
