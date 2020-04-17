@@ -55,6 +55,8 @@ class AnomalyDetection:
         self.target_labels = target_labels
         self.n_classes = n_classes
 
+        if self.anomalies_run:
+            self.batch_size = 1
         # select word embeddings
         if instance_information_file is None:
             if embeddings_model == 'glove':
