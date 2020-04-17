@@ -21,7 +21,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=10,
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=100,
                anomaly_only=False, finetuning=False, anomaly_type='insert_words', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 
@@ -158,7 +158,7 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
                                   results_dir=cwd + results_dir_experiment,
                                   n_layers=n_layers,
                                   n_hidden_units=n_hidden_units,
-                                  batch_size=batch_size,
+                                  batch_size=1,
                                   clip=clip)
 
     f1_score, precision = determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
