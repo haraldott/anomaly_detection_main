@@ -23,6 +23,7 @@ class AnomalyDetection:
                  seq_length,
                  batch_size,
                  clip,
+                 anomaly_lines,
                  learning_rate=1e-4,
                  results_dir=None,
                  embeddings_model='glove',
@@ -33,7 +34,7 @@ class AnomalyDetection:
                  train_mode=False,
                  instance_information_file=None,
                  anomalies_run=False,
-                 transfer_learning=False
+                 transfer_learning=False,
                  ):
         self.loadvectors = loadvectors
         self.loadautoencodermodel = loadautoencodermodel
@@ -50,6 +51,7 @@ class AnomalyDetection:
         self.instance_information_file = instance_information_file
         self.anomalies_run = anomalies_run
         self.results_dir = results_dir
+        self.anomaly_lines = anomaly_lines
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.target_labels = target_labels
@@ -67,8 +69,7 @@ class AnomalyDetection:
         self.model = lstm_model.LSTM(n_input=self.feature_length,
                                      n_hidden_units=self.n_hidden_units,
                                      n_layers=self.n_layers,
-                                     train_mode=self.train_mode,
-                                     n_classes=self.n_classes).to(self.device)
+                                     train_mode=self.train_mode).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -79,7 +80,7 @@ class AnomalyDetection:
         #  überprüfe was mse genau macht, abspeichern
         #  zb jede 10. epoche die distanz plotten
         #  quadrat mean squared error mal probieren
-        self.distance = nn.NLLLoss()
+        self.distance = nn.BCELoss()
 
         test_set_len = math.floor(self.data_x.size(0) / 10)
         train_set_len = self.data_x.size(0) - test_set_len
@@ -106,19 +107,21 @@ class AnomalyDetection:
                         data_x_temp = []
                         [data_x_temp.append(embeddings[i]) for i in indices[:-1]]
                         data_x.append(torch.stack(data_x_temp))
-                        data_y.append(self.target_labels[indices[-1]])
-                        target_indices.append(indices[-1])
+                        data_y_temp = []
+                        [data_y_temp.append(float(1)) if x in self.anomaly_lines else data_y_temp.append(float(0)) for x in indices[:-1]]
+                        data_y.append(data_y_temp)
+                        target_indices.append(indices[-2])
             else:
-                for i in range(0, end - begin - self.seq_length - + 1):
-                    data_x.append(embeddings[begin + i:begin + i + self.seq_length])
-                    data_y.append(self.target_labels[begin + i + self.seq_length + 1])
-                    target_indices.append(begin + i + self.seq_length + 1)
+                for i in range(0, end - begin - self.seq_length - 1):
+                    data_x_temp = embeddings[begin + i:begin + i + self.seq_length]
+                    data_x.append(data_x_temp)
+                    data_y_temp = []
+                    [data_y_temp.append(float(1)) if x in self.anomaly_lines else data_y_temp.append(float(0)) for x in (begin + i,begin + i + self.seq_length)]
         if self.anomalies_run:
             anomaly_indices_file = open(self.results_dir + 'anomaly_label_indices', 'w+')
             for val in target_indices:
                 anomaly_indices_file.write(str(val) + "\n")
             anomaly_indices_file.close()
-
         data_x = torch.stack(data_x).to(self.device)
         data_y = torch.tensor(data_y).to(self.device)
 
@@ -231,7 +234,7 @@ class AnomalyDetection:
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
+                pred_label = prediction.cpu().data.max(0)[1][-1].numpy()[0]
                 predicted_labels.append(pred_label)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
@@ -297,8 +300,7 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def calc_labels(self):
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False,
-                                     n_classes=self.n_classes).to(self.device)
+        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
         n_samples = len(self.data_x)

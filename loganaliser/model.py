@@ -1,8 +1,9 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 class LSTM(nn.Module):
-    def __init__(self, n_input, n_hidden_units, n_layers, n_classes, tie_weights=False, train_mode=False):
+    def __init__(self, n_input, n_hidden_units, n_layers, tie_weights=False, train_mode=False):
         super(LSTM, self).__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
@@ -12,7 +13,7 @@ class LSTM(nn.Module):
 
         self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units, num_layers=n_layers,
                             dropout=0.2, batch_first=True)
-        self.decoder = nn.Linear(n_hidden_units, n_classes)
+        self.decoder = nn.Linear(n_hidden_units, 1)
 
         if tie_weights:
             if n_input != n_hidden_units:
@@ -33,8 +34,8 @@ class LSTM(nn.Module):
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
         output, hidden = self.lstm(input, hidden)
         if self.train_mode: output = nn.Dropout(p=0.1)(output)
-        decoded = self.decoder(output[:, -1, :])
-        log_props = F.log_softmax(decoded, dim=1)
+        decoded = self.decoder(output)
+        log_props = torch.sigmoid(decoded)
         return log_props, hidden
 
     def init_hidden(self, bsz, device):

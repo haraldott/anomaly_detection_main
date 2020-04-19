@@ -90,7 +90,7 @@ def write_lines_to_file(file_path, content, new_line=False):
 
 
 def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                     instance_information_out, anomaly_amount, results_dir):
+                     instance_information_out, anomaly_amount, results_dir, dataset="anomaly"):
     if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
         if anomaly_type == "insert_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = insert_words(corpus_input, corpus_output,
@@ -123,7 +123,8 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
                                                           instance_information_in, instance_information_out, mode="del")
     elif anomaly_type == "random_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
-                                                          instance_information_in, instance_information_out, mode="ins")
+                                                          instance_information_in, instance_information_out, mode="ins",
+                                                          dataset=dataset)
     elif anomaly_type == "shuffle":
         anomalies_true_label = shuffle(corpus_input, corpus_output, instance_information_in,
                                        instance_information_out,
@@ -154,12 +155,9 @@ def calculate_precision_and_plot(this_results_dir_experiment, embeddings_model, 
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
 
 
-def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, lines_that_have_anomalies,
-                        corpus_of_log_containing_anomalies, set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
-    top_k = 3
-    thresh = 0.25
-    corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
+def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, lines_that_have_anomalies):
     predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels()
+
     order_of_values_of_file_containing_anomalies = open(order_of_values_of_file_containing_anomalies, 'rb').readlines()
     order_of_values_of_file_containing_anomalies = [int(x) for x in order_of_values_of_file_containing_anomalies]
     assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
@@ -168,25 +166,6 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
         predicted_labels_of_file_containing_anomalies_correct_order[index] = label
 
     write_lines_to_file(results_dir + 'anomaly_labels', predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
-    top_k_anomaly_embedding_label_mapping = {}
-    for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
-        cos_distances = {}
-        for label, norm_emb in normal_label_embedding_mapping.items():
-            cos_distances.update({label: cosine(anom_emb, norm_emb)})
-        largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
-        largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
-        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
-    # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
-    pred_anomaly_labels = []
-    pred_outliers_indeces = []
-    for i, (label, sentence) in enumerate(zip(predicted_labels_of_file_containing_anomalies_correct_order, corpus_of_log_containing_anomalies)):
-        if label in top_k_anomaly_embedding_label_mapping.get(sentence):
-            pred_anomaly_labels.append(0)
-        else:
-            pred_outliers_indeces.append(i)
-            pred_anomaly_labels.append(1)
-
-    write_lines_to_file(results_dir + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
 
     # produce labels for f1 score, precision, etc.
     true_labels = np.zeros(len(predicted_labels_of_file_containing_anomalies_correct_order), dtype=int)
@@ -194,16 +173,16 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
         true_labels[anomaly_index] = 1
 
     scores_file = open(results_dir + "scores.txt", "w+")
-    f1 = f1_score(true_labels, pred_anomaly_labels)
-    precision = precision_score(true_labels, pred_anomaly_labels)
-    recall = recall_score(true_labels, pred_anomaly_labels)
-    accuracy = accuracy_score(true_labels, pred_anomaly_labels)
+    f1 = f1_score(true_labels, predicted_labels_of_file_containing_anomalies_correct_order)
+    precision = precision_score(true_labels, predicted_labels_of_file_containing_anomalies_correct_order)
+    recall = recall_score(true_labels, predicted_labels_of_file_containing_anomalies_correct_order)
+    accuracy = accuracy_score(true_labels, predicted_labels_of_file_containing_anomalies_correct_order)
 
     scores_file.write("F1-Score: {}\n".format(str(f1)))
     scores_file.write("Precision-Score: {}\n".format(str(precision)))
     scores_file.write("Recall-Score: {}\n".format(str(recall)))
     scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
-    conf = confusion_matrix(true_labels, pred_anomaly_labels)
+    conf = confusion_matrix(true_labels, predicted_labels_of_file_containing_anomalies_correct_order)
     scores_file.write("confusion matrix:\n")
     scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in conf))
     scores_file.close()

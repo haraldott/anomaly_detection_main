@@ -5,7 +5,9 @@ import random
 from shutil import copyfile
 import numpy as np
 
-utah_new_random_line = "My personal randomly injected line.\n"
+anomaly_dataset_random_lines = ["My personal randomly injected line.\n", "Logs were randomly deleted.\n",
+                                "An error occured.\n"]
+normal_dataset_random_lines = ["The fox jumped over the fence.\n", "The system has crashed.\n"]
 number_of_instances_to_inject_anomalies_in = 20
 max_number_of_anomalies_per_instance = 4
 number_of_swaps_per_instance = 4
@@ -19,7 +21,7 @@ ratio_of_words_to_be_altered_per_line = 0.15
 
 # this will alter indices file
 def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                               instance_information_out, mode):
+                               instance_information_out, mode, dataset="anomaly"):
     if mode not in ["del", "dup", "ins"]:
         print("Allowed modes are del and dup. Exiting")
         return -1
@@ -48,7 +50,12 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
 
         if mode == "ins":
             indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
-            instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = [utah_new_random_line]
+            if dataset == "anomaly":
+                line_to_insert = [random.choice(anomaly_dataset_random_lines)]
+            elif dataset == "normal":
+                line_to_insert = [random.choice(normal_dataset_random_lines)]
+            assert line_to_insert, "Dataset must bei either anomaly or normal."
+            instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = line_to_insert
         if mode == "del":
             indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
             del instance_id_list[instance_id_block_to_alter][index_to_alter]
