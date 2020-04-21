@@ -250,6 +250,7 @@ class AnomalyDetection:
 
     def start_training(self):
         best_val_loss = None
+        log_output = open(self.results_dir + 'training_output.txt', 'w')
         try:
             loss_values = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
@@ -265,14 +266,16 @@ class AnomalyDetection:
                     self.optimizer.step()
                     self.scheduler.step(this_loss)
                     val_loss += this_loss
-                print('-' * 89)
-                print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {}'
-                      .format(epoch, (time.time() - epoch_start_time), val_loss / self.folds))
-                print('-' * 89)
+                output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
+                       .format(epoch, (time.time() - epoch_start_time), val_loss / self.folds) \
+                       + '-' * 89
+                print(output)
+                log_output.write(output + "\n")
                 if not best_val_loss or val_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
                     best_val_loss = val_loss
                 loss_values.append(val_loss / self.folds)
+            log_output.close()
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
