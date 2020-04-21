@@ -236,7 +236,7 @@ class AnomalyDetection:
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
                 data = data.view(1, self.seq_length, self.feature_length)
                 prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(0)[1][-1].numpy()[0]
+                pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
                 predicted_labels.append(pred_label)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
