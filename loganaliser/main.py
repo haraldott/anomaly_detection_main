@@ -19,14 +19,14 @@ class AnomalyDetection:
                  loadvectors='../data/openstack/utah/padded_embeddings_pickle/openstack_52k_normal.pickle',
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
                  savemodelpath='saved_models/lstm.pth',
-                 n_layers=3,
-                 n_hidden_units=250,
+                 n_layers=1,
+                 n_hidden_units=128,
                  seq_length=7,
                  num_epochs=100,
-                 learning_rate=1e-5,
-                 batch_size=20,
+                 learning_rate=1e-4,
+                 batch_size=64,
                  folds=5,
-                 clip=0.25,
+                 clip=1.22,
                  train_mode=False,
                  instance_information_file=None,
                  anomalies_run=False,
@@ -266,9 +266,8 @@ class AnomalyDetection:
                     self.scheduler.step(this_loss)
                     val_loss += this_loss
                 print('-' * 89)
-                print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | valid loss {} | '
-                      'valid ppl {}'.format(epoch, (time.time() - epoch_start_time),
-                                            val_loss, math.exp(val_loss)))
+                print('LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {}'
+                      .format(epoch, (time.time() - epoch_start_time), val_loss / self.folds))
                 print('-' * 89)
                 if not best_val_loss or val_loss < best_val_loss:
                     torch.save(self.model.state_dict(), self.savemodelpath)
