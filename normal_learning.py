@@ -157,7 +157,8 @@ ad_normal = AnomalyDetection(loadvectors=embeddings_normal,
                              embeddings_model='bert',
                              train_mode=True,
                              instance_information_file=instance_information_file_normal,
-                             clip=args.clip)
+                             clip=args.clip,
+                             results_dir=cwd + results_dir_experiment)
 
 if not args.anomaly_only:
     ad_normal.start_training()
@@ -175,7 +176,7 @@ ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected,
                               embeddings_model='bert',
                               instance_information_file=instance_information_file_anomalies_injected,
                               anomalies_run=True,
-                              results_dir=cwd + results_dir_experiment + 'anomaly_loss_indices',
+                              results_dir=cwd + results_dir_experiment,
                               clip=args.clip)
 calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
                        normal_loss_values=normal_loss_values,

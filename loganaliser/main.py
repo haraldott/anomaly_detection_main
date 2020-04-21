@@ -108,7 +108,7 @@ class AnomalyDetection:
                     data_y.append(embeddings[begin + i + self.seq_length + 1])
                     target_indices.append(begin + i + self.seq_length + 1)
         if self.anomalies_run:
-            anomaly_indices_file = open(self.results_dir, 'w+')
+            anomaly_indices_file = open(self.results_dir + "anomaly_loss_indices", 'w+')
             for val in target_indices:
                 anomaly_indices_file.write(str(val) + "\n")
             anomaly_indices_file.close()
