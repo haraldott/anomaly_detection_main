@@ -37,6 +37,7 @@ parser.add_argument('-finetune', action='store_true')
 parser.add_argument('-anomaly_type', type=str, default='random_lines')
 parser.add_argument('-anomaly_amount', type=int, default=0)
 parser.add_argument('-embeddings_model', type=str, default="bert")
+parser.add_argument('-experiment', type=str, default="default")
 args = parser.parse_args()
 
 print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
@@ -47,8 +48,8 @@ if args.finetune:
 else:
     results_dir = settings[option]["results_dir"] + "/"
 
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-    results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}_experiment: {}/".format(
+    results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount, args.experiment)
 
 normal = settings[option]["raw_normal"]
 anomaly = settings[option]["raw_anomaly"]
@@ -84,7 +85,7 @@ if args.finetune:
     lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + '_with_finetune' + '_lstm.pth'
 else:
     finetuning_model_dir = "bert-base-uncased"
-    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + '_lstm.pth'
+    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal + "_" + args.experiment + '_lstm.pth'
 
 # take corpus parsed by drain, inject anomalies in this file
 anomaly_injected_corpus = cwd + anomalies_injected_dir + anomaly + "_" + args.anomaly_type
