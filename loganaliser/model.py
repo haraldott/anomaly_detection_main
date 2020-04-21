@@ -34,7 +34,7 @@ class LSTM(nn.Module):
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
         output, hidden = self.lstm(input, hidden)
         if self.train_mode: output = nn.Dropout(p=0.1)(output)
-        decoded = self.decoder(output)
+        decoded = self.decoder(output[:, -1, :])
         log_props = torch.sigmoid(decoded)
         return log_props, hidden
 

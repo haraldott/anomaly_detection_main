@@ -107,9 +107,11 @@ class AnomalyDetection:
                         data_x_temp = []
                         [data_x_temp.append(embeddings[i]) for i in indices[:-1]]
                         data_x.append(torch.stack(data_x_temp))
-                        data_y_temp = []
-                        [data_y_temp.append(float(1)) if x in self.anomaly_lines else data_y_temp.append(float(0)) for x in indices[:-1]]
-                        data_y.append(data_y_temp)
+                        indices = [x for x in indices[:-1]]
+                        if set(indices) & set(self.anomaly_lines):
+                            data_y.append(float(1))
+                        else:
+                            data_y.append(float(0))
                         target_indices.append(indices[-2])
             else:
                 for i in range(0, end - begin - self.seq_length - 1):
