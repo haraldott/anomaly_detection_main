@@ -1,12 +1,12 @@
 from normal_learning import experiment
 
 # hyperparameters
-seq_len= [7, 8, 9, 10]
-n_layers = [1, 2, 3]
-n_hidden_units= [128, 256, 512]
-batch_size = [64, 128]
-clip = [0.9, 0.95, 1.0, 1.05, 1.1]
-epochs = [80, 90, 100, 110, 120, 130]
+seq_len= [7]
+n_layers = [1]
+n_hidden_units= [128]
+batch_size = [64]
+clip = [0.9]
+epochs = [80]
 
 score_file = open("score_file.txt", 'w')
 
