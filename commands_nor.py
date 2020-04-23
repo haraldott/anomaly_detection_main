@@ -1,17 +1,16 @@
 from normal_learning import experiment
 
-experiment(anomaly_type="random_lines")
-experiment(anomaly_type="random_lines", clip=1.18, experiment="clip=1.18")
-experiment(anomaly_type="random_lines", clip=1.19, experiment="clip=1.19")
-experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2")
-experiment(anomaly_type="random_lines", clip=1.21, experiment="clip=1.21")
-experiment(anomaly_type="random_lines", clip=1.22, experiment="clip=1.22")
-experiment(anomaly_type="random_lines", clip=1.23, experiment="clip=1.23")
-experiment(anomaly_type="random_lines", clip=1.24, experiment="clip=1.24")
-experiment(anomaly_type="random_lines", clip=1.25, experiment="clip=1.25")
-experiment(anomaly_type="random_lines", clip=1.26, experiment="clip=1.26")
-experiment(anomaly_type="random_lines", clip=1.27, experiment="clip=1.27")
-experiment(anomaly_type="random_lines", clip=1.28, experiment="clip=1.28")
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=128, n_layers=1", n_hidden_units=128)
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=256, n_layers=1", n_hidden_units=256)
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=512, n_layers=1", n_hidden_units=512)
+
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=128, n_layers=2", n_hidden_units=128, n_layers=2)
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=256, n_layers=2", n_hidden_units=256, n_layers=2)
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=512, n_layers=2", n_hidden_units=512, n_layers=2)
+
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=128, n_layers=3", n_hidden_units=128, n_layers=3)
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=256, n_layers=3", n_hidden_units=256, n_layers=3)
+experiment(anomaly_type="random_lines", clip=1.2, experiment="clip=1.2, n_hidden_units=512, n_layers=3", n_hidden_units=512, n_layers=3)
 
 # experiment(anomaly_type="insert_words", anomaly_amount=1, anomaly_only=True, label_encoder="encoder_normal.pickle")
 # experiment(anomaly_type="insert_words", anomaly_amount=2, anomaly_only=True, label_encoder="encoder_normal.pickle")
