@@ -9,7 +9,6 @@ from torch.utils.data import DataLoader
 from torch import optim
 
 import loganaliser.model as lstm_model
-from loganaliser.vanilla_autoencoder import AutoEncoder
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -59,17 +58,16 @@ class AnomalyDetection:
 
         # select word embeddings
         if instance_information_file is None:
-            if embeddings_model == 'glove':
-                self.data_x, self.data_y, self.feature_length = self.prepare_data_latent_space()
-            elif embeddings_model == 'bert' or embeddings_model == 'embeddings_layer':
+            if embeddings_model == 'bert' or embeddings_model == 'embeddings_layer':
                 self.data_x, self.data_y, self.feature_length = self.prepare_data_raw()
         else:
             self.data_x, self.data_y, self.feature_length = self.prepare_data_per_request()
 
-        self.model = lstm_model.LSTM(n_input=self.feature_length,
-                                     n_hidden_units=self.n_hidden_units,
-                                     n_layers=self.n_layers,
-                                     train_mode=self.train_mode).to(self.device)
+        self.model = lstm_model.Net(n_input=self.feature_length,
+                                    seq_len=self.seq_length,
+                                    n_hidden_units=self.n_hidden_units,
+                                    n_layers=self.n_layers,
+                                    train_mode=self.train_mode).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -106,7 +104,7 @@ class AnomalyDetection:
                     for indices in roll_indices:
                         data_x_temp = []
                         [data_x_temp.append(embeddings[i]) for i in indices[:-1]]
-                        data_x.append(torch.stack(data_x_temp))
+                        data_x.append(torch.cat(data_x_temp))
                         indices = [x for x in indices[:-1]]
                         if set(indices) & set(self.anomaly_lines):
                             data_y.append(float(1))
@@ -145,47 +143,6 @@ class AnomalyDetection:
 
         return data_x, data_y, feature_length
 
-    def prepare_data_latent_space(self):
-        # load vectors and glove obj
-        padded_embeddings = pickle.load(open(self.loadvectors, 'rb'))
-
-        sentence_lens = [len(sentence) for sentence in
-                         padded_embeddings]  # how many words a log line consists of, without padding
-        longest_sent = max(sentence_lens)
-        embeddings_dim = padded_embeddings[0][0].shape[0]  # dimension of each of the word embeddings vectors
-
-        # load the AutoEncoder model
-        autoencoder_model = AutoEncoder(longest_sent, embeddings_dim, train_mode=False)
-        autoencoder_model.double()
-        autoencoder_model.load_state_dict(torch.load(self.loadautoencodermodel))
-        autoencoder_model.eval()
-
-        # use the loaded AutoEncoder model, to receive the latent space representation of the padded embeddings
-        latent_space_representation_of_padded_embeddings = []
-        for sentence in padded_embeddings:
-            sentence = torch.from_numpy(sentence)
-            sentence = sentence.reshape(-1)
-            encoded_sentence = autoencoder_model.encode(sentence)
-            latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach().numpy())
-
-        number_of_sentences = len(latent_space_representation_of_padded_embeddings)
-        feature_length = latent_space_representation_of_padded_embeddings[0].size
-
-        data_x = []
-        data_y = []
-        # for i in range(0, number_of_sentences - 1):
-        #     data_x.append(latent_space_representation_of_padded_embeddings[i])
-        #     data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
-        for i in range(0, number_of_sentences - self.seq_length):
-            data_x.append(latent_space_representation_of_padded_embeddings[i: i + self.seq_length])
-            data_y.append(latent_space_representation_of_padded_embeddings[i + self.seq_length])
-
-        data_x = torch.Tensor(data_x).to(self.device)
-        data_y = torch.Tensor(data_y).to(self.device)
-
-        # samples, timesteps, features
-
-        return data_x, data_y, feature_length
 
     def split(self, x, n_splits):
         n_samples = len(x)
@@ -201,13 +158,6 @@ class AnomalyDetection:
             indices_aggregated.append(tuple((indices[start: mid], indices[mid + margin: stop])))
         return indices_aggregated
 
-    def repackage_hidden(self, h):
-        """Wraps hidden states in new Tensors, to detach them from their history."""
-
-        if isinstance(h, torch.Tensor):
-            return h.detach()
-        else:
-            return tuple(self.repackage_hidden(v) for v in h)
 
     def evaluate(self, idx):
         self.model.eval()
@@ -215,12 +165,10 @@ class AnomalyDetection:
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
         loss_distribution = []
         total_loss = 0
-        hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         with torch.no_grad():
             for data, target in zip(dataloader_x, dataloader_y):
-                prediction, hidden = self.model(data, hidden)
+                prediction = self.model(data)
                 #pred_label = prediction.cpu().data.max(1)[1].numpy()
-                hidden = self.repackage_hidden(hidden)
                 loss = self.distance(prediction, target)
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
@@ -230,15 +178,12 @@ class AnomalyDetection:
         self.model.eval()
         # TODO: since we want to predict *every* loss of every line, we don't use batches, so here we use batch_size
         #   1 is this ok?
-        hidden = self.model.init_hidden(1, self.device)
         predicted_labels = []
         with torch.no_grad():
             for data, target in zip(self.data_x[idx], self.data_y[idx]):
-                data = data.view(1, self.seq_length, self.feature_length)
-                prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
+                prediction = self.model(data)
+                pred_label = prediction.data.cpu().numpy()[0]
                 predicted_labels.append(pred_label)
-                hidden = self.repackage_hidden(hidden)
         return predicted_labels
 
     def train(self, idx):
@@ -246,13 +191,11 @@ class AnomalyDetection:
         dataloader_x = DataLoader(self.data_x[idx], batch_size=self.batch_size, drop_last=True)
         dataloader_y = DataLoader(self.data_y[idx], batch_size=self.batch_size, drop_last=True)
         total_loss = 0
-        hidden = self.model.init_hidden(self.batch_size, self.device)  # TODO: check stuff with batch size
         for data, target in zip(dataloader_x, dataloader_y):
             self.optimizer.zero_grad()
-            hidden = self.repackage_hidden(hidden)
-            prediction, hidden = self.model(data, hidden)
+            prediction = self.model(data)
             #pred_label = prediction.cpu().data.max(1)[1].numpy()
-            loss = self.distance(prediction, target)
+            loss = self.distance(prediction.squeeze(), target)
             total_loss += loss.item()
             loss.backward()
 
@@ -302,7 +245,8 @@ class AnomalyDetection:
             print('Exiting from training early')
 
     def calc_labels(self):
-        self.model = lstm_model.LSTM(self.feature_length, self.n_hidden_units, self.n_layers, train_mode=False).to(self.device)
+        self.model = lstm_model.Net(self.feature_length, self.n_hidden_units, self.n_layers, seq_len=self.seq_length,
+                                    train_mode=False).to(self.device)
         self.model.load_state_dict(torch.load(self.savemodelpath))
         self.model.eval()
         n_samples = len(self.data_x)

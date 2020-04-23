@@ -163,7 +163,7 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
     assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
     predicted_labels_of_file_containing_anomalies_correct_order = [0] * len(order_of_values_of_file_containing_anomalies)
     for index, label in zip(order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
-        predicted_labels_of_file_containing_anomalies_correct_order[index] = label
+        predicted_labels_of_file_containing_anomalies_correct_order[index] = int(label)
 
     write_lines_to_file(results_dir + 'anomaly_labels', predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
 
