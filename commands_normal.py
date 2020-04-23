@@ -8,7 +8,7 @@ batch_size = [64, 128]
 clip = [0.9, 0.95, 1.0, 1.05, 1.1]
 epochs = [80, 90, 100, 110, 120, 130]
 
-total_len_of_experiments = len(seq_len) + len(n_layers) + len(n_hidden_units) + len(batch_size) + len(clip) + len(epochs)
+total_len_of_experiments = len(seq_len) * len(n_layers) * len(n_hidden_units) * len(batch_size) * len(clip) * len(epochs)
 
 
 score_file = open("score_file.txt", 'w')
