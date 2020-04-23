@@ -10,7 +10,7 @@ epochs = [80]
 
 score_file = open("score_file.txt", 'w')
 
-score_file.write("F1-Score,Precision,seq_len,n_layers,n_hidden_units,batch_size,clip,epochs")
+score_file.write("F1-Score,Precision,seq_len,n_layers,n_hidden_units,batch_size,clip,epochs\n")
 for len in seq_len:
     for layer in n_layers:
         for hidden in n_hidden_units:
