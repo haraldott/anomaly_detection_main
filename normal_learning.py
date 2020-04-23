@@ -23,7 +23,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 cwd = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument('-option', type=str, default='Normal')
-parser.add_argument('-seq_len', type=int, default=10)
+parser.add_argument('-seq_len', type=int, default=7)
 parser.add_argument('-reduced', action='store_true')
 parser.add_argument('-epochs', type=int, default=100)
 parser.add_argument('-clip', type=float, default=1.22)
