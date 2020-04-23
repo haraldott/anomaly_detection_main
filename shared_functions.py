@@ -98,13 +98,13 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
     return anomalies_true_label, None, None
 
 
-def calculate_precision_and_plot(this_results_dir_experiment, arg, cwd):
-    distribution_plots(this_results_dir_experiment, arg.epochs, arg.seq_len, 768, 0)
+def calculate_precision_and_plot(this_results_dir_experiment, epochs, seq_len, embeddings_model, anomaly_type, anomaly_amount, cwd):
+    distribution_plots(this_results_dir_experiment, epochs, seq_len, 768, 0)
 
-    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format(arg.embeddings_model, arg.epochs,
-                                                                                                     arg.seq_len,
-                                                                                                     arg.anomaly_type,
-                                                                                                     arg.anomaly_amount) + '.tar'
+    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format(embeddings_model, epochs,
+                                                                                                     seq_len,
+                                                                                                     anomaly_type,
+                                                                                                     anomaly_amount) + '.tar'
 
     with tarfile.open(name=archive_name, mode="w:gz") as tar:
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
@@ -157,6 +157,7 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, 
     scores_file.write("Recall-Score: {}\n".format(str(recall)))
     scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
     scores_file.close()
+    return f1, precision
 
 
 def get_embeddings(type, templates_location, finetuning_model_dir):
