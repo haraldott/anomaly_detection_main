@@ -35,7 +35,7 @@ def calculate_precision_and_plot(this_results_dir_experiment):
 
 def learning(arg, embeddings_path, epochs, instance_information_file):
     ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                                 loadvectors=embeddings_path,
+                                 train_vectors=embeddings_path,
                                  savemodelpath=lstm_model_save_path,
                                  seq_length=arg.seq_len,
                                  num_epochs=epochs,
@@ -184,7 +184,7 @@ transform_bert.transform(sentence_embeddings=bert_vectors,
 if not args.transferlearning:
 
     # learning on normal data
-    ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path, loadvectors=embeddings_normal, savemodelpath=lstm_model_save_path,
+    ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path, train_vectors=embeddings_normal, savemodelpath=lstm_model_save_path,
                                  seq_length=args.seq_len, num_epochs=args.epochs, n_hidden_units=args.hiddenunits,
                                  n_layers=args.hiddenlayers, embeddings_model='bert', train_mode=True,
                                  instance_information_file=instance_information_file_normal)
@@ -196,7 +196,7 @@ if not args.transferlearning:
                           values_type='normal_loss_values')
     # predict on data containing anomaly and log
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                                  loadvectors=embeddings_anomalies,
+                                  train_vectors=embeddings_anomalies,
                                   savemodelpath=lstm_model_save_path,
                                   seq_length=args.seq_len,
                                   num_epochs=args.epochs,
@@ -239,23 +239,23 @@ else:
     ad_normal = learning(args, embeddings_normal, args.epochs, instance_information_file_normal)
     # FEW SHOT TRAINING with dataset 2
     ad_normal_transfer = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                                 loadvectors=embeddings_normal_transfer,
-                                 savemodelpath=lstm_model_save_path,
-                                 seq_length=args.seq_len,
-                                 num_epochs=5,
-                                 n_hidden_units=args.hiddenunits,
-                                 n_layers=args.hiddenlayers,
-                                 embeddings_model='bert',
-                                 train_mode=True,
-                                 instance_information_file=transfer_instance_information,
-                                 transfer_learning=True)
+                                          train_vectors=embeddings_normal_transfer,
+                                          savemodelpath=lstm_model_save_path,
+                                          seq_length=args.seq_len,
+                                          num_epochs=5,
+                                          n_hidden_units=args.hiddenunits,
+                                          n_layers=args.hiddenlayers,
+                                          embeddings_model='bert',
+                                          train_mode=True,
+                                          instance_information_file=transfer_instance_information,
+                                          transfer_learning=True)
 
     ad_normal_transfer.start_training()
     lower, upper = calculate_normal_loss( normal_lstm_model=ad_normal_transfer,
                                           results_dir=results_dir_experiment_transfer,
                                           values_type='normal_loss_values')
     ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                                  loadvectors=embeddings_anomalies,
+                                  train_vectors=embeddings_anomalies,
                                   savemodelpath=lstm_model_save_path,
                                   seq_length=args.seq_len,
                                   num_epochs=args.epochs,

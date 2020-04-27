@@ -9,8 +9,9 @@ import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
-from shared_functions import calculate_precision_and_plot, determine_anomalies, \
-    get_cosine_distance, inject_anomalies, get_embeddings, get_labels_from_corpus, pre_process_log_events
+from shared_functions import calculate_precision_and_plot, \
+    get_cosine_distance, inject_anomalies, get_embeddings, get_labels_from_corpus, pre_process_log_events, \
+    get_top_k_embedding_label_mapping
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 
@@ -21,7 +22,7 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=10,
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=20,
                anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 
@@ -124,49 +125,38 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
 
     transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus, outputfile=embeddings_anomalies_injected)
 
-    target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
-                                                                                          encoder_path=label_encoder,
-                                                                                          templates=templates_normal,
-                                                                                          embeddings=word_embeddings)
-    ad_normal = AnomalyDetection(n_classes=n_classes,
-                                 target_labels=target_normal_labels,
-                                 loadvectors=embeddings_normal,
-                                 savemodelpath=lstm_model_save_path,
-                                 seq_length=seq_len,
-                                 num_epochs=epochs,
-                                 embeddings_model='bert',
-                                 train_mode=True,
-                                 instance_information_file=instance_information_file_normal,
-                                 results_dir=cwd + results_dir_experiment,
-                                 n_layers=n_layers,
-                                 n_hidden_units=n_hidden_units,
-                                 batch_size=batch_size,
-                                 clip=clip)
+    target_normal_labels, n_classes, normal_label_embeddings_map, _ = \
+        get_labels_from_corpus(normal_corpus=open(corpus_normal, 'r').readlines(),
+                               encoder_path=label_encoder,
+                               templates=templates_normal,
+                               embeddings=word_embeddings)
+
+    top_k_label_mapping = get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies=word_embeddings,
+                                                            normal_label_embedding_mapping=normal_label_embeddings_map)
+
+    lstm = AnomalyDetection(n_classes=n_classes,
+                                target_labels=target_normal_labels,
+                                train_vectors=embeddings_normal,
+                                train_instance_information_file=instance_information_file_normal,
+                                test_vectors=embeddings_anomalies_injected,
+                                test_instance_information_file=instance_information_file_anomalies_injected,
+                                savemodelpath=lstm_model_save_path,
+                                seq_length=seq_len,
+                                num_epochs=epochs,
+                                train_mode=True,
+                                results_dir=cwd + results_dir_experiment,
+                                n_layers=n_layers,
+                                n_hidden_units=n_hidden_units,
+                                batch_size=batch_size,
+                                clip=clip,
+                                top_k_label_mapping=top_k_label_mapping,
+                                lines_that_have_anomalies=anomaly_lines,
+                                corpus_of_log_containing_anomalies=anomaly_injected_corpus)
 
     if not anomaly_only:
-        ad_normal.start_training()
+        lstm.start_training()
 
-    ad_anomaly = AnomalyDetection(n_classes=n_classes,
-                                  loadvectors=embeddings_anomalies_injected,
-                                  target_labels=target_normal_labels, #TODO: eigentlich sollte für anomaly hier nichts geladen werden, da es eh nicht benutzt wird
-                                  savemodelpath=lstm_model_save_path,
-                                  seq_length=seq_len,
-                                  num_epochs=epochs,
-                                  embeddings_model='bert',
-                                  instance_information_file=instance_information_file_anomalies_injected,
-                                  anomalies_run=True,
-                                  results_dir=cwd + results_dir_experiment,
-                                  n_layers=n_layers,
-                                  n_hidden_units=n_hidden_units,
-                                  batch_size=batch_size,
-                                  clip=clip)
-
-    f1_score, precision = determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
-                                   order_of_values_of_file_containing_anomalies=cwd + results_dir_experiment + 'anomaly_label_indices',
-                                   lines_that_have_anomalies=anomaly_lines,
-                                   corpus_of_log_containing_anomalies=anomaly_injected_corpus,
-                                   set_embeddings_of_log_containing_anomalies=word_embeddings,
-                                   normal_label_embedding_mapping=normal_label_embeddings_map)
+    f1_score, precision = lstm.calc_labels()
     print("done.")
     calculate_precision_and_plot(results_dir_experiment, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, cwd)
     return f1_score, precision

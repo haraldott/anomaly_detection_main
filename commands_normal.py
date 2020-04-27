@@ -29,6 +29,7 @@ for len in seq_len:
                                               clip=cl, epochs=epoch)
                         score_file.write("{},{},{},{},{},{},{},{}\n"
                                          .format(f1_score, precision, len, layer, hidden, batch, cl, epoch))
+                        score_file.flush()
 score_file.close()
 
 # continue here: seq_len: 7, n_layers: 2, n_hidden_units: 256, batch_size: 64, clip: 0.9, epochs: 80

@@ -154,20 +154,9 @@ def calculate_precision_and_plot(this_results_dir_experiment, embeddings_model, 
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))
 
 
-def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file_containing_anomalies, lines_that_have_anomalies,
-                        corpus_of_log_containing_anomalies, set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
+def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
     top_k = 3
     thresh = 0.25
-    corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
-    predicted_labels_of_file_containing_anomalies = anomaly_lstm_model.calc_labels()
-    order_of_values_of_file_containing_anomalies = open(order_of_values_of_file_containing_anomalies, 'rb').readlines()
-    order_of_values_of_file_containing_anomalies = [int(x) for x in order_of_values_of_file_containing_anomalies]
-    assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
-    predicted_labels_of_file_containing_anomalies_correct_order = [0] * len(order_of_values_of_file_containing_anomalies)
-    for index, label in zip(order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
-        predicted_labels_of_file_containing_anomalies_correct_order[index] = label
-
-    write_lines_to_file(results_dir + 'anomaly_labels', predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
         cos_distances = {}
@@ -176,38 +165,61 @@ def determine_anomalies(anomaly_lstm_model, results_dir, order_of_values_of_file
         largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
         largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
         top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
-    # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
-    pred_anomaly_labels = []
-    pred_outliers_indeces = []
-    for i, (label, sentence) in enumerate(zip(predicted_labels_of_file_containing_anomalies_correct_order, corpus_of_log_containing_anomalies)):
-        if label in top_k_anomaly_embedding_label_mapping.get(sentence):
-            pred_anomaly_labels.append(0)
-        else:
-            pred_outliers_indeces.append(i)
-            pred_anomaly_labels.append(1)
+    return top_k_anomaly_embedding_label_mapping
 
-    write_lines_to_file(results_dir + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
+class PredictionResult():
+    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers,
+                 predicted_labels_of_file_containing_anomalies_correct_order):
+        self.f1 = f1
+        self.precision = precision
+        self.recall = recall
+        self.accuracy = accuracy
+        self.confusion_matrix = confusion_matrix
+        self.predicted_outliers = predicted_outliers
+        self.predicted_labels_of_file_containing_anomalies_correct_order = predicted_labels_of_file_containing_anomalies_correct_order
 
-    # produce labels for f1 score, precision, etc.
-    true_labels = np.zeros(len(predicted_labels_of_file_containing_anomalies_correct_order), dtype=int)
-    for anomaly_index in lines_that_have_anomalies:
-        true_labels[anomaly_index] = 1
 
-    scores_file = open(results_dir + "scores.txt", "w+")
-    f1 = f1_score(true_labels, pred_anomaly_labels)
-    precision = precision_score(true_labels, pred_anomaly_labels)
-    recall = recall_score(true_labels, pred_anomaly_labels)
-    accuracy = accuracy_score(true_labels, pred_anomaly_labels)
+class DetermineAnomalies():
+    def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies,
+                 top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies):
+        self.lines_that_have_anomalies = lines_that_have_anomalies
+        self.corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
+        self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
+        self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
 
-    scores_file.write("F1-Score: {}\n".format(str(f1)))
-    scores_file.write("Precision-Score: {}\n".format(str(precision)))
-    scores_file.write("Recall-Score: {}\n".format(str(recall)))
-    scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
-    conf = confusion_matrix(true_labels, pred_anomaly_labels)
-    scores_file.write("confusion matrix:\n")
-    scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in conf))
-    scores_file.close()
-    return f1, precision
+    def determine(self, predicted_labels_of_file_containing_anomalies):
+        # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
+        assert len(self.order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
+        predicted_labels_of_file_containing_anomalies_correct_order = [0] * len(
+            self.order_of_values_of_file_containing_anomalies)
+        for index, label in zip(self.order_of_values_of_file_containing_anomalies,
+                                predicted_labels_of_file_containing_anomalies):
+            predicted_labels_of_file_containing_anomalies_correct_order[index] = label
+
+        pred_anomaly_labels = []
+        pred_outliers_indeces = []
+        for i, (label, sentence) in enumerate(
+                zip(predicted_labels_of_file_containing_anomalies_correct_order, self.corpus_of_log_containing_anomalies)):
+            if label in self.top_k_anomaly_embedding_label_mapping.get(sentence):
+                pred_anomaly_labels.append(0)
+            else:
+                pred_outliers_indeces.append(i)
+                pred_anomaly_labels.append(1)
+
+        # produce labels for f1 score, precision, etc.
+        true_labels = np.zeros(len(predicted_labels_of_file_containing_anomalies_correct_order), dtype=int)
+        for anomaly_index in self.lines_that_have_anomalies:
+            true_labels[anomaly_index] = 1
+
+        f1 = f1_score(true_labels, pred_anomaly_labels)
+        precision = precision_score(true_labels, pred_anomaly_labels)
+        recall = recall_score(true_labels, pred_anomaly_labels)
+        accuracy = accuracy_score(true_labels, pred_anomaly_labels)
+        conf = confusion_matrix(true_labels, pred_anomaly_labels)
+        result = PredictionResult(f1, precision, recall, accuracy, conf, pred_outliers_indeces,
+                                  predicted_labels_of_file_containing_anomalies_correct_order)
+
+        return result
 
 
 def get_embeddings(type, templates_location):

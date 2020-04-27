@@ -98,7 +98,7 @@ if args.full == "True":
     vae.start()
 
 ad_normal = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                             loadvectors=padded_embeddings_normal,
+                             train_vectors=padded_embeddings_normal,
                              savemodelpath=lstm_model_save_path,
                              seq_length=args.seq_len,
                              num_epochs=args.epochs,
@@ -121,7 +121,7 @@ for val in normal_loss_values:
 normal_values_file.close()
 
 ad_anomaly = AnomalyDetection(loadautoencodermodel=vae_model_save_path,
-                              loadvectors=padded_embeddings_anomalies,
+                              train_vectors=padded_embeddings_anomalies,
                               savemodelpath=lstm_model_save_path,
                               seq_length=args.seq_len,
                               num_epochs=args.epochs,

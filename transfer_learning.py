@@ -170,7 +170,7 @@ dataset_2_corpus_target_labels = transfer_labels(dataset1_templates=templates_no
 
 if not args.anomaly_only:
     # NORMAL TRAINING with dataset 1
-    ad_normal = AnomalyDetection(loadvectors=embeddings_normal_1,
+    ad_normal = AnomalyDetection(train_vectors=embeddings_normal_1,
                                  savemodelpath=lstm_model_save_path,
                                  seq_length=args.seq_len,
                                  num_epochs=args.epochs,
@@ -187,7 +187,7 @@ if not args.anomaly_only:
 
     ad_normal.start_training()
 # FEW SHOT TRAINING with dataset 2
-ad_normal_transfer = AnomalyDetection(loadvectors=embeddings_normal_2,
+ad_normal_transfer = AnomalyDetection(train_vectors=embeddings_normal_2,
                                       savemodelpath=lstm_model_save_path,
                                       seq_length=args.seq_len,
                                       num_epochs=5,
@@ -205,7 +205,7 @@ ad_normal_transfer = AnomalyDetection(loadvectors=embeddings_normal_2,
 if not args.anomaly_only:
     ad_normal_transfer.start_training()
 
-ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected_2,
+ad_anomaly = AnomalyDetection(train_vectors=embeddings_anomalies_injected_2,
                               savemodelpath=lstm_model_save_path,
                               seq_length=args.seq_len,
                               num_epochs=args.epochs,
@@ -217,7 +217,7 @@ ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected_2,
                               results_dir=cwd + results_dir_experiment,
                               batch_size=args.batch_size,
                               clip=args.clip,
-                              target_labels=dataset_2_corpus_target_labels, #TODO: eigentlich sollte für anomaly hier nichts geladen werden, da es eh nicht benutzt wird
+                              target_labels=dataset_2_corpus_target_labels,  #TODO: eigentlich sollte für anomaly hier nichts geladen werden, da es eh nicht benutzt wird
                               n_classes=n_classes)
 
 determine_anomalies(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
