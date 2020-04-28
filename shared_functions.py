@@ -5,7 +5,7 @@ import numpy as np
 from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words, reverse_order
 from scipy.spatial.distance import cosine
 from numpy import percentile
-from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 from tools import distribution_plots as distribution_plots
 import os
 import tarfile
@@ -116,26 +116,19 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
     return normal_loss_values
 
 
-def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, anomaly_loss_order,
-                           anomaly_true_labels):
-    anomaly_loss_values = anomaly_lstm_model.loss_values(normal=False)
-    anomaly_loss_order = open(anomaly_loss_order, 'rb').readlines()
-    anomaly_loss_order = [int(x) for x in anomaly_loss_order]
+def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss_order, anomaly_true_labels):
+    # anomaly_loss_order = open(anomaly_loss_order, 'rb').readlines()
+    # anomaly_loss_order = [int(x) for x in anomaly_loss_order]
 
     assert len(anomaly_loss_order) == len(anomaly_loss_values)
     anomaly_loss_values_correct_order = [0] * len(anomaly_loss_order)
     for index, loss_val in zip(anomaly_loss_order, anomaly_loss_values):
         anomaly_loss_values_correct_order[index] = loss_val
 
-    write_lines_to_file(results_dir + 'anomaly_loss_values', anomaly_loss_values_correct_order, new_line=True)
-
     per = percentile(normal_loss_values, 96.1)
 
     pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
     pred_outliers_values = [val for val in anomaly_loss_values_correct_order if val > per]
-
-    write_lines_to_file(results_dir + "pred_outliers_indeces.txt", pred_outliers_indeces, new_line=True)
-    write_lines_to_file(results_dir + "pred_outliers_values.txt", pred_outliers_values, new_line=True)
 
     # produce labels for f1 score, precision, etc.
     pred_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
@@ -146,18 +139,29 @@ def calculate_anomaly_loss(anomaly_lstm_model, results_dir, normal_loss_values, 
     for anomaly_index in anomaly_true_labels:
         true_labels[anomaly_index] = 1
 
-    scores_file = open(results_dir + "scores.txt", "w+")
+
     f1 = f1_score(true_labels, pred_labels)
     precision = precision_score(true_labels, pred_labels)
     recall = recall_score(true_labels, pred_labels)
     accuracy = accuracy_score(true_labels, pred_labels)
+    conf = confusion_matrix(true_labels, pred_labels)
 
-    scores_file.write("F1-Score: {}\n".format(str(f1)))
-    scores_file.write("Precision-Score: {}\n".format(str(precision)))
-    scores_file.write("Recall-Score: {}\n".format(str(recall)))
-    scores_file.write("Accuracy-Score: {}\n".format(str(accuracy)))
-    scores_file.close()
-    return f1, precision
+    result = PredictionResult(f1, precision, recall, accuracy, conf, pred_outliers_indeces, pred_outliers_values,
+                              anomaly_loss_values_correct_order, None)
+    return result
+
+class PredictionResult():
+    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers, pred_outliers_values,
+                 anomaly_loss_values_correct_order, train_loss_values):
+        self.f1 = f1
+        self.precision = precision
+        self.recall = recall
+        self.accuracy = accuracy
+        self.confusion_matrix = confusion_matrix
+        self.predicted_outliers = predicted_outliers
+        self.pred_outliers_values = pred_outliers_values
+        self.anomaly_loss_values_correct_order = anomaly_loss_values_correct_order
+        self.train_loss_values = train_loss_values
 
 
 def get_embeddings(type, templates_location, finetuning_model_dir):

@@ -9,13 +9,12 @@ import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
 from loganaliser.main import AnomalyDetection
 from wordembeddings.bert_finetuning import finetune
-from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, \
-    get_cosine_distance, inject_anomalies
+from shared_functions import calculate_precision_and_plot, get_cosine_distance, inject_anomalies
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=1,
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=10,
                anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1, embeddings_model='bert',
                experiment='default'):
     cwd = os.getcwd() + "/"
@@ -26,7 +25,7 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
     else:
         results_dir = settings[option]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}_experiment: {}/".format(
+    results_dir_experiment = "{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_experiment_{}/".format(
         results_dir + embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, experiment)
 
     normal = settings[option]["raw_normal"]
@@ -125,42 +124,26 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
                              templates=merged_templates, outputfile=embeddings_anomalies_injected)
 
     # NORMAL TRAINING with dataset 1
-    ad_normal = AnomalyDetection(loadvectors=embeddings_normal,
-                                 savemodelpath=lstm_model_save_path,
-                                 seq_length=seq_len,
-                                 num_epochs=epochs,
-                                 n_hidden_units=n_hidden_units,
-                                 n_layers=n_layers,
-                                 embeddings_model='bert',
-                                 train_mode=True,
-                                 instance_information_file=instance_information_file_normal,
-                                 clip=clip,
-                                 results_dir=cwd + results_dir_experiment,
-                                 batch_size=batch_size)
+    lstm = AnomalyDetection(train_vectors=embeddings_normal,
+                             train_instance_information_file=instance_information_file_normal,
+                             test_vectors=embeddings_anomalies_injected,
+                             test_instance_information_file=instance_information_file_anomalies_injected,
+                             savemodelpath=lstm_model_save_path,
+                             seq_length=seq_len,
+                             num_epochs=epochs,
+                             n_hidden_units=n_hidden_units,
+                             n_layers=n_layers,
+                             embeddings_model='bert',
+                             train_mode=True,
+                             clip=clip,
+                             results_dir=cwd + results_dir_experiment,
+                             batch_size=batch_size,
+                             lines_that_have_anomalies=anomalies_true)
 
     if not anomaly_only:
-        ad_normal.start_training()
+        lstm.start_training()
 
-    normal_loss_values = calculate_normal_loss(normal_lstm_model=ad_normal,
-                                               results_dir=results_dir_experiment,
-                                               values_type='normal_loss_values',
-                                               cwd=cwd)
-    ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected,
-                                  savemodelpath=lstm_model_save_path,
-                                  seq_length=seq_len,
-                                  num_epochs=epochs,
-                                  n_hidden_units=n_hidden_units,
-                                  n_layers=n_layers,
-                                  embeddings_model='bert',
-                                  instance_information_file=instance_information_file_anomalies_injected,
-                                  anomalies_run=True,
-                                  results_dir=cwd + results_dir_experiment,
-                                  clip=clip,
-                                  batch_size=batch_size)
-    f1, precision = calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
-                           normal_loss_values=normal_loss_values,
-                           anomaly_loss_order=cwd + results_dir_experiment + 'anomaly_loss_indices',
-                           anomaly_true_labels=anomalies_true)
+    f1, precision = lstm.loss_evaluation()
     print("done.")
     calculate_precision_and_plot(results_dir_experiment, epochs, seq_len, embeddings_model, anomaly_type, anomaly_amount, cwd)
     return f1, precision
