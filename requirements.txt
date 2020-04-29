@@ -13,3 +13,4 @@ transformers
 tensorflow
 requests
 sklearn
+plotly

@@ -15,7 +15,7 @@ from loganaliser.vanilla_autoencoder import AutoEncoder
 from sklearn.metrics import ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
-log_frequency_interval = 5
+log_frequency_interval = 10
 
 class AnomalyDetection:
     def __init__(self,
@@ -290,7 +290,7 @@ class AnomalyDetection:
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                if epoch % 5 == 0:
+                if epoch % log_frequency_interval == 0:
                     normal_loss_values = self.predict(self.train_data_x, self.train_data_y)
                     anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y)
                     result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
@@ -334,8 +334,8 @@ class AnomalyDetection:
         # write metrics to file
         with open(self.results_dir + "metrics.csv", 'w') as metrics_file:
             metrics_file.write("Epoch, F1, Precision, Recall, Accuracy\n")
-            for x in results:
-                metrics_file.write("{}, {}, {}, {}, {}\n".format(x.f1, x.precision, x.recall, x.accuracy))
+            for i, x in enumerate(results):
+                metrics_file.write("{}, {}, {}, {}, {}\n".format((i+1)*log_frequency_interval, x.f1, x.precision, x.recall, x.accuracy))
 
         # plot training loss
         loss_fig = go.Figure()

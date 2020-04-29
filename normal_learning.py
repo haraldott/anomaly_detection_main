@@ -14,13 +14,13 @@ import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=10,
+def experiment(option='Normal', seq_len=7, n_layers=3, n_hidden_units=512, batch_size=64, clip=1.1, epochs=130,
                anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1, embeddings_model='bert',
                experiment='default'):
     cwd = os.getcwd() + "/"
     print("starting {} {}".format(anomaly_type, anomaly_amount))
 
-    if finetune:
+    if finetuning:
         results_dir = settings[option]["results_dir"] + "_finetune/"
     else:
         results_dir = settings[option]["results_dir"] + "/"
