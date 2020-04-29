@@ -15,6 +15,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay
 
+log_frequency_interval = 10
 
 class AnomalyDetection:
     def __init__(self,
@@ -254,7 +255,7 @@ class AnomalyDetection:
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                if epoch % 5 == 0:
+                if epoch % log_frequency_interval == 0:
                     predicted_labels = self.predict()
                     result = self.determine_anomalies.determine(predicted_labels)
                     intermediate_results.append(result)
@@ -285,18 +286,27 @@ class AnomalyDetection:
 
 
     def write_all_results(self, results, eval_loss=None):
-        if isinstance(results, list):
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=np.arange(5,self.num_epochs+1,5), y=[x.f1 for x in results], mode='lines+markers', name='F1'))
-            fig.add_trace(go.Scatter(x=np.arange(5,self.num_epochs+1,5), y=[x.precision for x in results], mode='lines+markers', name='Precision'))
-            fig.add_trace(go.Scatter(x=np.arange(5,self.num_epochs+1,5), y=[x.recall for x in results], mode='lines+markers', name='Recall'))
-            fig.add_trace(go.Scatter(x=np.arange(5,self.num_epochs+1,5), y=[x.accuracy for x in results], mode='lines+markers', name='Accuracy'))
-            fig.write_html(self.results_dir + 'metrics.html')
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,self.num_epochs+1,log_frequency_interval),
+                                 y=[x.f1 for x in results], mode='lines+markers', name='F1'))
+        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,self.num_epochs+1,log_frequency_interval),
+                                 y=[x.precision for x in results], mode='lines+markers', name='Precision'))
+        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,self.num_epochs+1,log_frequency_interval),
+                                 y=[x.recall for x in results], mode='lines+markers', name='Recall'))
+        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,self.num_epochs+1,log_frequency_interval),
+                                 y=[x.accuracy for x in results], mode='lines+markers', name='Accuracy'))
+        fig.write_html(self.results_dir + 'metrics.html')
 
-        if eval_loss:
-            loss_fig = go.Figure()
-            loss_fig.add_trace(go.Scatter(x=np.arange(0, self.num_epochs, 1), y=eval_loss, mode='lines+markers', name='Loss'))
-            loss_fig.write_html(self.results_dir + 'loss.html')
+        # write metrics to file
+        with open(self.results_dir + "metrics.csv", 'w') as metrics_file:
+            metrics_file.write("Epoch, F1, Precision, Recall, Accuracy\n")
+            for i, x in enumerate(results):
+                metrics_file.write("{}, {}, {}, {}, {}\n".format((i+1)*log_frequency_interval, x.f1, x.precision, x.recall, x.accuracy))
+
+        # plot training loss
+        loss_fig = go.Figure()
+        loss_fig.add_trace(go.Scatter(x=np.arange(0, self.num_epochs, 1), y=eval_loss, mode='lines+markers', name='Loss'))
+        loss_fig.write_html(self.results_dir + 'loss.html')
 
         write_lines_to_file(self.results_dir + 'anomaly_labels', results[-1].predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
         write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", results[-1].predicted_outliers, new_line=True)
@@ -312,11 +322,9 @@ class AnomalyDetection:
         scores_file.write("Accuracy-Score: {}\n".format(str(res.accuracy)))
         scores_file.write("confusion matrix:\n")
         scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in res.confusion_matrix))
-        disp = ConfusionMatrixDisplay(confusion_matrix=res.confusion_matrix,
-                                      display_labels=[0, 1])
+        disp = ConfusionMatrixDisplay(confusion_matrix=res.confusion_matrix, display_labels=[0, 1])
 
-        # NOTE: Fill all variables here with default values of the plot_confusion_matrix
-        disp = disp.plot(include_values=True)
+        disp = disp.plot(include_values=True, cmap='inferno')
         plt.savefig(self.results_dir + 'confusion_matrix.png')
         plt.clf()
         scores_file.close()
