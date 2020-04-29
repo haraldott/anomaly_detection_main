@@ -224,7 +224,7 @@ class AnomalyDetection:
             total_loss += loss.item()
             loss.backward()
 
-            #torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
             for p in self.model.parameters():
                 p.data.add_(-self.learning_rate, p.grad.data)
         return total_loss / len(idx)
