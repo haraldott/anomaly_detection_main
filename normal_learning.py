@@ -36,8 +36,8 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
     else:
         results_dir = settings[option]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}_experiment: {}/".format(
-        results_dir + embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, experiment)
+    results_dir_experiment = "{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment: {}/".format(
+        results_dir + embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
 
     normal = settings[option]["raw_normal"]  # path of normal file for training
     anomaly = settings[option]["raw_anomaly"]  # path of file in which anomalies will be injected
