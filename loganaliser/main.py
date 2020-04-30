@@ -230,7 +230,7 @@ class AnomalyDetection:
                 p.data.add_(-self.learning_rate, p.grad.data)
         return total_loss / len(idx)
 
-    def start_training(self):
+    def start_training(self, no_anomaly):
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
@@ -257,7 +257,7 @@ class AnomalyDetection:
                     train_loss += this_train_loss
                 if epoch % log_frequency_interval == 0:
                     predicted_labels = self.predict()
-                    result = self.determine_anomalies.determine(predicted_labels)
+                    result = self.determine_anomalies.determine(predicted_labels, no_anomaly)
                     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n'\
                        .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds)\
@@ -272,20 +272,20 @@ class AnomalyDetection:
                     best_val_loss = eval_loss
                 loss_values.append(eval_loss / self.folds)
             # training done, write results
-            self.write_all_results(intermediate_results, loss_values)
+            self.write_training_results(intermediate_results, loss_values)
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
 
 
-    def calc_labels(self):
+    def calc_labels(self, no_anomaly):
         predicted_labels = self.predict()
-        result = self.determine_anomalies.determine(predicted_labels)
+        result = self.determine_anomalies.determine(predicted_labels, no_anomaly)
         self.write_final_results(result)
         return result.f1, result.precision
 
 
-    def write_all_results(self, results, eval_loss=None):
+    def write_training_results(self, results, eval_loss=None):
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,self.num_epochs+1,log_frequency_interval),
                                  y=[x.f1 for x in results], mode='lines+markers', name='F1'))
@@ -308,13 +308,13 @@ class AnomalyDetection:
         loss_fig.add_trace(go.Scatter(x=np.arange(0, self.num_epochs, 1), y=eval_loss, mode='lines+markers', name='Loss'))
         loss_fig.write_html(self.results_dir + 'loss.html')
 
-        write_lines_to_file(self.results_dir + 'anomaly_labels', results[-1].predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
-        write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", results[-1].predicted_outliers, new_line=True)
 
         self.write_final_results(results[-1])
 
 
     def write_final_results(self, res):
+        write_lines_to_file(self.results_dir + 'anomaly_labels', res.predicted_labels_of_file_containing_anomalies_correct_order, new_line=True)
+        write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", res.predicted_outliers, new_line=True)
         scores_file = open(self.results_dir + "scores.txt", "w+")
         scores_file.write("F1-Score: {}\n".format(str(res.f1)))
         scores_file.write("Precision-Score: {}\n".format(str(res.precision)))

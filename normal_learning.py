@@ -22,12 +22,14 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=100,
-               anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1, embeddings_model='bert',
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=20,
+               anomaly_only=False, finetuning=False, anomaly_type='no_anomaly', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 
     cwd = os.getcwd() + "/"
     print("starting {} {}".format(anomaly_type, anomaly_amount))
+
+    no_anomaly = True if anomaly_type == "no_anomaly" else no_anomaly = False
 
     if finetuning:
         results_dir = settings[option]["results_dir"] + "_finetune/"
@@ -83,9 +85,9 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
     os.makedirs(anomaly_indeces_dir, exist_ok=True)
 
     ### DRAIN PARSING
-    if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
-        drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
-        drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
+    #if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
+    drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
+    drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
 
     pre_process_log_events(corpus_pre_anomaly, corpus_normal, templates_normal, templates_pre_anomaly)
 
@@ -154,9 +156,9 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
                                 corpus_of_log_containing_anomalies=anomaly_injected_corpus)
 
     if not anomaly_only:
-        lstm.start_training()
+        lstm.start_training(no_anomaly)
 
-    f1_score, precision = lstm.calc_labels()
+    f1_score, precision = lstm.calc_labels(no_anomaly)
     print("done.")
     calculate_precision_and_plot(results_dir_experiment, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, cwd)
     return f1_score, precision

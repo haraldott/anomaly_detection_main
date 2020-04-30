@@ -156,7 +156,7 @@ def calculate_precision_and_plot(this_results_dir_experiment, embeddings_model, 
 
 def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
     top_k = 3
-    thresh = 0.25
+    thresh = 0.35
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
         cos_distances = {}
@@ -187,7 +187,7 @@ class DetermineAnomalies():
         self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
 
-    def determine(self, predicted_labels_of_file_containing_anomalies):
+    def determine(self, predicted_labels_of_file_containing_anomalies, no_anomaly):
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
         assert len(self.order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
         predicted_labels_of_file_containing_anomalies_correct_order = [0] * len(
@@ -210,6 +210,11 @@ class DetermineAnomalies():
         true_labels = np.zeros(len(predicted_labels_of_file_containing_anomalies_correct_order), dtype=int)
         for anomaly_index in self.lines_that_have_anomalies:
             true_labels[anomaly_index] = 1
+
+        # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
+        if no_anomaly:
+            true_labels = 1 - true_labels
+            pred_anomaly_labels = 1 - np.asarray(pred_anomaly_labels)
 
         f1 = f1_score(true_labels, pred_anomaly_labels)
         precision = precision_score(true_labels, pred_anomaly_labels)

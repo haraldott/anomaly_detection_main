@@ -1,7 +1,9 @@
  Attempting claim memory  MB disk  GB vcpus  CPU
-    MB   MB
- Total    used  
+ Total memory  MB used  MB
+ memory limit  MB free  MB
+ Total disk  GB used  GB
   limit not specified defaulting to unlimited
+ Total vcpu  VCPU used  VCPU
  Claim successful
  Creating image
  VM  Lifecycle Event
@@ -13,4 +15,3 @@
  Deleting instance files 
  Deletion of complete
  Took  seconds to deallocate network for instance
-My personal randomly injected_line
