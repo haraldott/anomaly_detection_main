@@ -14,11 +14,13 @@ import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
-def experiment(option='Normal', seq_len=7, n_layers=3, n_hidden_units=512, batch_size=64, clip=1.1, epochs=130,
-               anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1, embeddings_model='bert',
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.1, epochs=10,
+               anomaly_only=False, finetuning=False, anomaly_type='no_anomaly', anomaly_amount=1, embeddings_model='bert',
                experiment='default'):
     cwd = os.getcwd() + "/"
     print("starting {} {}".format(anomaly_type, anomaly_amount))
+
+    no_anomaly = True if anomaly_type == "no_anomaly" else False
 
     if finetuning:
         results_dir = settings[option]["results_dir"] + "_finetune/"
@@ -80,9 +82,9 @@ def experiment(option='Normal', seq_len=7, n_layers=3, n_hidden_units=512, batch
     os.makedirs(anomaly_indeces_dir, exist_ok=True)
 
     ### DRAIN PARSING
-    if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
-        drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
-        drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
+    # if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
+    drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
+    drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
 
     ### INJECT ANOMALIES in dataset 2
     anomalies_true, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=anomaly_type,
@@ -141,9 +143,9 @@ def experiment(option='Normal', seq_len=7, n_layers=3, n_hidden_units=512, batch
                              lines_that_have_anomalies=anomalies_true)
 
     if not anomaly_only:
-        lstm.start_training()
+        lstm.start_training(no_anomaly)
 
-    f1, precision = lstm.loss_evaluation()
+    f1, precision = lstm.loss_evaluation(no_anomaly)
     print("done.")
     calculate_precision_and_plot(results_dir_experiment, epochs, seq_len, embeddings_model, anomaly_type, anomaly_amount, cwd)
     return f1, precision

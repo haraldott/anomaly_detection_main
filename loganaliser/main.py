@@ -267,7 +267,7 @@ class AnomalyDetection:
                 p.data.add_(-self.learning_rate, p.grad.data)
         return total_loss / len(idx)
 
-    def start_training(self):
+    def start_training(self, no_anomaly):
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         try:
@@ -294,7 +294,7 @@ class AnomalyDetection:
                     normal_loss_values = self.predict(self.train_data_x, self.train_data_y)
                     anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y)
                     result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
-                                                    self.lines_that_have_anomalies)
+                                                    self.lines_that_have_anomalies, no_anomaly)
                     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
                        .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds) \
@@ -310,7 +310,7 @@ class AnomalyDetection:
             normal_loss_values = self.predict(self.train_data_x, self.train_data_y)
             anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y)
             calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
-                                   self.lines_that_have_anomalies)
+                                   self.lines_that_have_anomalies, no_anomaly)
             self.write_train_results(intermediate_results, loss_values)
 
         except KeyboardInterrupt:
@@ -363,10 +363,11 @@ class AnomalyDetection:
         plt.clf()
         scores_file.close()
 
-    def loss_evaluation(self):
+    def loss_evaluation(self, no_anomaly):
         loss_values_train = self.predict(self.train_data_x, self.train_data_y)
         loss_values_test = self.predict(self.test_data_x, self.test_data_y)
-        res = calculate_anomaly_loss(loss_values_test, loss_values_train, self.target_indices, self.lines_that_have_anomalies)
+        res = calculate_anomaly_loss(loss_values_test, loss_values_train, self.target_indices, self.lines_that_have_anomalies,
+                                     no_anomaly)
         res.train_loss_values = loss_values_train
         self.write_final_results(res)
         return res.f1, res.precision

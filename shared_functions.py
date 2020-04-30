@@ -116,7 +116,7 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
     return normal_loss_values
 
 
-def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss_order, anomaly_true_labels):
+def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss_order, anomaly_true_labels, no_anomaly):
     # anomaly_loss_order = open(anomaly_loss_order, 'rb').readlines()
     # anomaly_loss_order = [int(x) for x in anomaly_loss_order]
 
@@ -139,6 +139,10 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
     for anomaly_index in anomaly_true_labels:
         true_labels[anomaly_index] = 1
 
+    # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
+    if no_anomaly:
+        true_labels = 1 - true_labels
+        pred_labels = 1 - np.asarray(pred_labels)
 
     f1 = f1_score(true_labels, pred_labels)
     precision = precision_score(true_labels, pred_labels)
