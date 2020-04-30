@@ -25,8 +25,8 @@ def experiment(option='Normal', seq_len=7, n_layers=3, n_hidden_units=512, batch
     else:
         results_dir = settings[option]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_experiment_{}/".format(
-        results_dir + embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, experiment)
+    results_dir_experiment = "{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment: {}/".format(
+        results_dir + embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
 
     normal = settings[option]["raw_normal"]
     anomaly = settings[option]["raw_anomaly"]
