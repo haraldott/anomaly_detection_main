@@ -22,14 +22,14 @@ predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_contai
 # -----------------------------------------------INITIALISE PARAMETERS-------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=20,
-               anomaly_only=False, finetuning=False, anomaly_type='no_anomaly', anomaly_amount=1, embeddings_model='bert',
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.22, epochs=100,
+               anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1, embeddings_model='bert',
                label_encoder=None, experiment='default'):
 
     cwd = os.getcwd() + "/"
     print("starting {} {}".format(anomaly_type, anomaly_amount))
 
-    no_anomaly = True if anomaly_type == "no_anomaly" else no_anomaly = False
+    no_anomaly = True if anomaly_type == "no_anomaly" else False
 
     if finetuning:
         results_dir = settings[option]["results_dir"] + "_finetune/"
