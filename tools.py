@@ -2,14 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def distribution_plots(dir, epochs, units, emb_size, precision=0):
-    normal_vals = open(dir + 'normal_loss_values', 'r').readlines()
-    anomaly_vals = open(dir + 'anomaly_loss_values',
-                        'r').readlines()
-
-    normal_vals = [float(x) for x in normal_vals]
-    anomaly_vals = [float(x) for x in anomaly_vals]
-
+def distribution_plots(normal_vals, anomaly_vals, epochs, units, emb_size, precision=0):
     sns.distplot(normal_vals, hist=False, kde=True,
                  kde_kws={'linewidth': 3},
                  label='normal')

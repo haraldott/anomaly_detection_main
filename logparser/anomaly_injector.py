@@ -149,6 +149,8 @@ def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, inst
         line = total_lines[index]
         lines_before_alter.append(line)
         line = line.split()
+        if len(line) < number_of_words_to_be_replaced:
+            raise Exception ("Line is shorter than number of words to be replaced. Quitting.")
         indeces_to_be_replaced = random.sample(range(len(line)), number_of_words_to_be_replaced)
         for replace in indeces_to_be_replaced:
             line[replace] = random.choice(words_for_random_replace)
@@ -192,6 +194,8 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
         line = line.split()
         removed_words = []
         for _ in range(0, number_of_words_to_be_removed):
+            if len(line) > number_of_words_to_be_removed:
+                raise Exception ("Line is shorter than number of words to be removed. Quitting.")
             random_index = random.randrange(0, len(line))
             removed_words.append(line[random_index])
             del line[random_index]

@@ -68,19 +68,15 @@ def write_to_tsv_files_bert():
                 out_file.write(word + "\n")
 
 
-def write_to_tsv_files_bert_sentences(vectors,
-                                      sentences,
+def write_to_tsv_files_bert_sentences(word_embeddings,
                                       tsv_file_vectors='vectors_bert_sentences_before_altering.tsv',
                                       tsv_file_sentences='bert_sentences_before_altering.tsv'):
     # sentences, _, _, _ = transform_bert.get_bert_vectors(
     #     templates_location="/Users/haraldott/Downloads/results/no finetune/bert_epochs_100_seq_len:_7_anomaly_type:insert_words_9/lines_before_altering.txt")
     os.makedirs(os.path.dirname(tsv_file_vectors), exist_ok=True)
 
-    with open(tsv_file_vectors, 'wt') as out_file:
-        tsv_writer = csv.writer(out_file, delimiter='\t')
-        for vector in vectors:
+    with open(tsv_file_vectors, 'wt') as out_file_vectors, open(tsv_file_sentences, 'wt') as out_file_sentences:
+        tsv_writer = csv.writer(out_file_vectors, delimiter='\t')
+        for sentence, vector in word_embeddings.items():
             tsv_writer.writerow(vector)
-
-    with open(tsv_file_sentences, 'wt') as out_file:
-        for sentence in sentences:
-            out_file.write(sentence)
+            out_file_sentences.write(sentence)

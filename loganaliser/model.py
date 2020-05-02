@@ -4,11 +4,12 @@ import torch.nn.functional as F
 
 
 class LSTM(nn.Module):
-    def __init__(self, n_input, n_hidden_units, n_layers, dropout=0.1, tie_weights=False, train_mode=False):
+    def __init__(self, n_input, n_hidden_units, n_layers, n_output, dropout=0.1, tie_weights=False, train_mode=False):
         super(LSTM, self).__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
         self.train_mode = train_mode
+        self.dropout = dropout
 
         # Layers
 
@@ -16,7 +17,7 @@ class LSTM(nn.Module):
         # self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
         self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units, num_layers=n_layers,
                             dropout=0.5, batch_first=True)
-        self.decoder = nn.Linear(n_hidden_units, n_input)
+        self.decoder = nn.Linear(n_hidden_units, n_output)
 
         if tie_weights:
             if n_input != n_hidden_units:
@@ -33,10 +34,10 @@ class LSTM(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
+        if self.train_mode: input = nn.Dropout(p=self.dropout)(input)
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
         output, hidden = self.lstm(input, hidden)
-        if self.train_mode:
-            output = nn.Dropout(p=0.2)(output)
+        if self.train_mode: output = nn.Dropout(p=self.dropout)(output)
         decoded = self.decoder(output[:, -1, :])
         return decoded, hidden
 
