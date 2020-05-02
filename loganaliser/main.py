@@ -31,6 +31,7 @@ class AnomalyDetection:
                  n_input,
                  results_dir,
                  embeddings_model,
+                 attention,
                  learning_rate=1e-4,
                  savemodelpath='saved_models/lstm.pth',
                  folds=5,
@@ -75,11 +76,19 @@ class AnomalyDetection:
             self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors,
                                                                                self.test_instance_information_file)
 
-        self.model = lstm_model.LSTM(n_input=self.n_input,
-                                     n_hidden_units=self.n_hidden_units,
-                                     n_layers=self.n_layers,
-                                     train_mode=self.train_mode,
-                                     n_output=self.feature_length).to(self.device)
+        if attention:
+            self.model = lstm_model.LSTMAttention(n_input=self.n_input,
+                                                  n_hidden_units=self.n_hidden_units,
+                                                  n_layers=self.n_layers,
+                                                  train_mode=self.train_mode,
+                                                  n_output=self.feature_length,
+                                                  batch_size=self.batch_size).to(self.device)
+        else:
+            self.model = lstm_model.LSTM(n_input=self.n_input,
+                                         n_hidden_units=self.n_hidden_units,
+                                         n_layers=self.n_layers,
+                                         train_mode=self.train_mode,
+                                         n_output=self.feature_length).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -240,7 +249,7 @@ class AnomalyDetection:
             prediction, hidden = self.model(data, hidden)
             loss = dist(prediction, target)
             total_loss += loss.item()
-            loss.backward()
+            loss.backward(retain_graph=True)
 
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
             for p in self.model.parameters():
