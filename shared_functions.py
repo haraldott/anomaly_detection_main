@@ -145,11 +145,8 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
     return anomalies_true_label, None, None
 
 
-def calculate_precision_and_plot(this_results_dir_experiment, epochs, seq_len, embeddings_model, anomaly_type, anomaly_amount, cwd):
-    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_description:_{}_{}".format(embeddings_model, epochs,
-                                                                                                     seq_len,
-                                                                                                     anomaly_type,
-                                                                                                     anomaly_amount) + '.tar'
+def calculate_precision_and_plot(this_results_dir_experiment, cwd):
+    archive_name = this_results_dir_experiment + this_results_dir_experiment.replace("/", "") + '.tar'
 
     with tarfile.open(name=archive_name, mode="w:gz") as tar:
         tar.add(name=cwd + this_results_dir_experiment, arcname=os.path.basename(cwd + this_results_dir_experiment))

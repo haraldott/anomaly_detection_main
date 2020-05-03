@@ -178,8 +178,7 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
 
     f1, precision = lstm.final_prediction(no_anomaly)
     print("done.")
-    calculate_precision_and_plot(results_dir_experiment, epochs, seq_len, embeddings_model, anomaly_type,
-                                 anomaly_amount, cwd)
+    calculate_precision_and_plot(results_dir_experiment, cwd)
     return f1, precision
 
 if __name__ == '__main__':
