@@ -78,7 +78,7 @@ class Regression(AnomalyDetection):
             anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
             calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
                                    self.lines_that_have_anomalies, no_anomaly)
-            distribution_plots(normal_loss_values, anomaly_loss_values, self.num_epochs, self.seq_length, 768, 0)
+            distribution_plots(self.results_dir, normal_loss_values, anomaly_loss_values, self.num_epochs, self.seq_length, 768, 0)
             self.write_intermediate_metrics(intermediate_results, loss_values)
 
         except KeyboardInterrupt:
