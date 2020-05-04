@@ -85,9 +85,9 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
     os.makedirs(anomaly_indeces_dir, exist_ok=True)
 
     ### DRAIN PARSING
-    #if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
-    drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
-    drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
+    if not os.path.exists(corpus_normal) or not os.path.exists(corpus_pre_anomaly):
+        drain.execute(directory=raw_dir, file=normal, output=parsed_dir, logtype=logtype)
+        drain.execute(directory=raw_dir, file=anomaly, output=parsed_dir, logtype=logtype)
 
     pre_process_log_events(corpus_pre_anomaly, corpus_normal, templates_normal, templates_pre_anomaly)
 
