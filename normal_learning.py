@@ -15,9 +15,9 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.1, epochs=10,
+def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.1, epochs=30,
                anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1,
-               embeddings_model='bert', experiment='default', mode="multiclass", label_encoder=None, attention=True):
+               embeddings_model='bert', experiment='default', mode="multiclass", label_encoder=None, attention=False):
     cwd = os.getcwd() + "/"
     print("starting {} {}".format(anomaly_type, anomaly_amount))
 
