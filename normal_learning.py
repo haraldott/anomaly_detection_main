@@ -15,11 +15,18 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, clip=1.1, epochs=30,
-               anomaly_only=False, finetuning=False, anomaly_type='random_lines', anomaly_amount=1,
-               embeddings_model='bert', experiment='default', mode="multiclass", label_encoder=None, attention=False):
+def experiment(epochs=30,
+               mode="regression",
+               anomaly_type='random_lines',
+               anomaly_amount=1,
+               clip=1.1,
+               attention=False,
+               anomaly_only=False,
+               option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
+               embeddings_model='bert', experiment='default', label_encoder=None):
     cwd = os.getcwd() + "/"
-    print("starting {} {}".format(anomaly_type, anomaly_amount))
+    print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
+          .format(epochs, mode, attention, anomaly_type))
 
     no_anomaly = True if anomaly_type == "no_anomaly" else False
 
@@ -175,7 +182,8 @@ def experiment(option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch
 
     f1, precision = lstm.final_prediction(no_anomaly)
     print("done.")
-    calculate_precision_and_plot(results_dir_experiment, cwd)
+    calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
+                                 anomaly_amount, n_hidden_units, n_layers, clip, experiment)
     return f1, precision
 
 if __name__ == '__main__':
