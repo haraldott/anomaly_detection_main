@@ -15,7 +15,7 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=140,
+def experiment(epochs=1,
                mode="multiclass",
                anomaly_type='random_lines',
                anomaly_amount=1,
@@ -181,9 +181,9 @@ def experiment(epochs=140,
         lstm.start_training(no_anomaly)
 
     f1, precision = lstm.final_prediction(no_anomaly)
-    print("done.")
     calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
                                  anomaly_amount, n_hidden_units, n_layers, clip, experiment)
+    print("done.")
     return f1, precision
 
 if __name__ == '__main__':

@@ -88,7 +88,7 @@ class Regression(AnomalyDetection):
     def write_regression_metrics(self, res):
         write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", res.predicted_outliers, new_line=True)
         write_lines_to_file(self.results_dir + "pred_outliers_loss_values.txt", res.pred_outliers_loss_values, new_line=True)
-        write_lines_to_file(self.results_dir + 'anomaly_loss_values', res.anomaly_loss_values_correct_order, new_line=True)
+        write_lines_to_file(self.results_dir + 'anomaly_loss_values', res.anomaly_loss_values, new_line=True)
         write_lines_to_file(self.results_dir + 'normal_loss_values', res.train_loss_values, new_line=True)
 
     def final_prediction(self, no_anomaly):
