@@ -6,17 +6,14 @@ from logparser.anomaly_injector import insert_words, remove_words, delete_or_dup
 from scipy.spatial.distance import cosine
 from numpy import percentile
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
-from tools import distribution_plots as distribution_plots
 import os
 import tarfile
 from wordembeddings.transform_gpt_2 import get_word_embeddings
-from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
 import pickle
-import seaborn as sns
-import matplotlib.pyplot as plt
 from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
 import heapq
+
 
 def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, word_embeddings, template_class_mapping,
                     results_dir):
@@ -46,17 +43,6 @@ def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, wor
     dataset_2_corpus_target_labels = [dataset_2_sentence_class_mapping.get(sentence) for sentence in dataset2_corpus]
     return dataset_2_corpus_target_labels
 
-
-class TemplatesDataset(Dataset):
-    def __init__(self, corpus):
-        self.le = LabelEncoder
-        self.le.fit(corpus)
-
-    def __len__(self):
-        return len(self.samples)
-
-    def __getitem__(self, sentence):
-        return self.le.transform([sentence])[0]
 
 def get_cosine_distance(lines_before_altering, lines_after_altering, results_dir_exp, vectors):
     lines_before_as_bert_vectors = []
@@ -161,6 +147,11 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
     return normal_loss_values
 
 
+
+###############################################################
+# REGRESSION OUTLIERS
+###############################################################
+
 def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss_order, anomaly_true_labels, no_anomaly):
     # anomaly_loss_order = open(anomaly_loss_order, 'rb').readlines()
     # anomaly_loss_order = [int(x) for x in anomaly_loss_order]
@@ -173,7 +164,7 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
     per = percentile(normal_loss_values, 100)
 
     pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
-    pred_outliers_values = [val for val in anomaly_loss_values_correct_order if val > per]
+    pred_outliers_loss_values = [val for val in anomaly_loss_values_correct_order if val > per]
 
     # produce labels for f1 score, precision, etc.
     pred_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
@@ -195,25 +186,32 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
     accuracy = accuracy_score(true_labels, pred_labels)
     conf = confusion_matrix(true_labels, pred_labels)
 
-    result = PredictionResult(f1, precision, recall, accuracy, conf, pred_outliers_indeces, pred_outliers_values,
+    result = RegressionResult(f1, precision, recall, accuracy, conf, pred_outliers_indeces, pred_outliers_loss_values,
                               anomaly_loss_values_correct_order, None)
     return result
 
-class PredictionResult():
-    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers,
-                 pred_outliers_values=None, anomaly_loss_values_correct_order=None, train_loss_values=None,
-                 predicted_labels=None):
+class ClassificationResult():
+    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers, predicted_labels=None):
         self.f1 = f1
         self.precision = precision
         self.recall = recall
         self.accuracy = accuracy
         self.confusion_matrix = confusion_matrix
         self.predicted_outliers = predicted_outliers
-        self.pred_outliers_values = pred_outliers_values
-        self.anomaly_loss_values_correct_order = anomaly_loss_values_correct_order
-        self.train_loss_values = train_loss_values
-        self.predicted_labels = predicted_labels
+        self.predicted_labels = predicted_labels # classification
 
+class RegressionResult():
+    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers,
+                 pred_outliers_loss_values=None, anomaly_loss_values=None, train_loss_values=None):
+        self.f1 = f1
+        self.precision = precision
+        self.recall = recall
+        self.accuracy = accuracy
+        self.confusion_matrix = confusion_matrix
+        self.predicted_outliers = predicted_outliers
+        self.pred_outliers_loss_values = pred_outliers_loss_values # regression
+        self.anomaly_loss_values = anomaly_loss_values # regression
+        self.train_loss_values = train_loss_values # regression
 
 def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
     top_k = 3
@@ -227,6 +225,13 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
         largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
         top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
     return top_k_anomaly_embedding_label_mapping
+
+
+
+
+###################################################################
+# CLASSIFICATION
+###################################################################
 
 
 class DetermineAnomalies():
@@ -270,23 +275,10 @@ class DetermineAnomalies():
         recall = recall_score(true_labels, pred_anomaly_labels)
         accuracy = accuracy_score(true_labels, pred_anomaly_labels)
         conf = confusion_matrix(true_labels, pred_anomaly_labels)
-        result = PredictionResult(f1=f1, precision=precision, recall=recall, accuracy=accuracy, confusion_matrix=conf,
+        result = ClassificationResult(f1=f1, precision=precision, recall=recall, accuracy=accuracy, confusion_matrix=conf,
                                   predicted_outliers=pred_outliers_indeces, predicted_labels=predicted_labels)
 
         return result
-
-
-def get_embeddings(type, templates_location):
-    if type == "bert":
-        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='bert-base-uncased',
-                                              tokenizer_class=BertTokenizer, model_class=BertModel)
-    elif type == "gpt2":
-        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='gpt2',
-                                              tokenizer_class=GPT2Tokenizer, model_class=GPT2Model)
-    else:
-        raise Exception("unknown embeddings model selected")
-    return word_embeddings
-
 
 # encode corpus into labels
 def get_labels_from_corpus(normal_corpus, encoder_path, templates, embeddings):
@@ -304,6 +296,20 @@ def get_labels_from_corpus(normal_corpus, encoder_path, templates, embeddings):
         normal_template_class_map.update({sent: encoder.transform([sent])[0]})
     n_classes = len(encoder.classes_)
     return target_normal_labels, n_classes, normal_label_embeddings_map, normal_template_class_map
+
+
+
+
+def get_embeddings(type, templates_location):
+    if type == "bert":
+        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='bert-base-uncased',
+                                              tokenizer_class=BertTokenizer, model_class=BertModel)
+    elif type == "gpt2":
+        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='gpt2',
+                                              tokenizer_class=GPT2Tokenizer, model_class=GPT2Model)
+    else:
+        raise Exception("unknown embeddings model selected")
+    return word_embeddings
 
 
 def pre_process_log_events(*file):

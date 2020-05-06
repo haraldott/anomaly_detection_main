@@ -92,7 +92,7 @@ class AnomalyDetection:
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=0.1)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
 
         test_set_len = math.floor(self.train_data_x.size(0) / 10)
