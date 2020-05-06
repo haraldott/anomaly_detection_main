@@ -15,14 +15,14 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=30,
+def experiment(epochs=140,
                mode="multiclass",
                anomaly_type='random_lines',
                anomaly_amount=1,
-               clip=1.1,
+               clip=0.95,
                attention=False,
                anomaly_only=False,
-               option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
+               option='Normal', seq_len=8, n_layers=1, n_hidden_units=256, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='default', label_encoder=None):
     cwd = os.getcwd() + "/"
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
