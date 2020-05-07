@@ -30,12 +30,12 @@ def calc_percentile_outliers(normal_loss_values_path="/Users/haraldott/Downloads
 
 
 
-def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downloads/regression - strange behaviour, spikes during training/normal_loss_values",
-                                anomaly_loss_values_path="/Users/haraldott/Downloads/regression - strange behaviour, spikes during training/anomaly_loss_values",
-                                ground_truth_path="/Users/haraldott/Downloads/regression - strange behaviour, spikes during training/true_anomaly_labels.txt"):
+def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downloads/bert_epochs_100_seq_len_7_anomaly_type_random_lines_1_hidden_128_layers_1_clip_1.0_experiment_default/normal_loss_values",
+                                anomaly_loss_values_path="/Users/haraldott/Downloads/bert_epochs_100_seq_len_7_anomaly_type_random_lines_1_hidden_128_layers_1_clip_1.0_experiment_default/anomaly_loss_values",
+                                ground_truth_path="/Users/haraldott/Downloads/bert_epochs_100_seq_len_7_anomaly_type_random_lines_1_hidden_128_layers_1_clip_1.0_experiment_default/test_anomaly_labels.txt"):
     with open(ground_truth_path) as f:
         ground_truth = [int(y) for y in f.readlines()]
-    pred_indeces = calc_percentile_outliers(normal_loss_values_path, anomaly_loss_values_path, 99.2)
+    pred_indeces = calc_percentile_outliers(normal_loss_values_path, anomaly_loss_values_path, 99.1)
 
     with open(anomaly_loss_values_path) as f:
         anomaly_loss_values = f.readlines()
