@@ -32,7 +32,7 @@ class Regression(AnomalyDetection):
     def return_target(self, embeddings):
         return embeddings
 
-    def start_training(self, no_anomaly):
+    def start_training(self):
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
@@ -60,7 +60,7 @@ class Regression(AnomalyDetection):
                     normal_loss_values = self.predict(self.train_data_x, self.train_data_y, self.distance)
                     anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
                     result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
-                                                    self.lines_that_have_anomalies, no_anomaly)
+                                                    self.lines_that_have_anomalies, self.no_anomaly)
                     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
                     .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds) \
@@ -74,12 +74,8 @@ class Regression(AnomalyDetection):
                 loss_values.append(eval_loss / self.folds)
             # training done, do final prediction
             log_output.close()
-            normal_loss_values = self.predict(self.train_data_x, self.train_data_y, self.distance)
-            anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
-            calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
-                                   self.lines_that_have_anomalies, no_anomaly)
-            distribution_plots(self.results_dir, normal_loss_values, anomaly_loss_values, self.num_epochs, self.seq_length, 768, 0)
-            self.write_intermediate_metrics(intermediate_results, loss_values)
+            self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
+                                            intermediate_results, loss_values)
 
         except KeyboardInterrupt:
             print('-' * 89)
@@ -91,13 +87,15 @@ class Regression(AnomalyDetection):
         write_lines_to_file(self.results_dir + 'anomaly_loss_values', res.anomaly_loss_values, new_line=True)
         write_lines_to_file(self.results_dir + 'normal_loss_values', res.train_loss_values, new_line=True)
 
-    def final_prediction(self, no_anomaly):
+    def final_prediction(self):
         loss_values_train = self.predict(self.train_data_x, self.train_data_y, self.distance)
         loss_values_test = self.predict(self.test_data_x, self.test_data_y, self.distance)
         res = calculate_anomaly_loss(loss_values_test, loss_values_train, self.target_indices,
                                      self.lines_that_have_anomalies,
-                                     no_anomaly)
+                                     self.no_anomaly)
+        distribution_plots(self.results_dir, loss_values_train, loss_values_test, self.num_epochs, self.seq_length,
+                           768, 0)
         res.train_loss_values = loss_values_train
         self.write_regression_metrics(res)
-        self.write_final_metrics(res)
+        self.write_final_metrics(self.results_dir, res)
         return res.f1, res.precision

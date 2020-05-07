@@ -230,7 +230,7 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
 
 
 ###################################################################
-# CLASSIFICATION
+# MULTI CLASSIFICATION
 ###################################################################
 
 
@@ -297,6 +297,47 @@ def get_labels_from_corpus(normal_corpus, encoder_path, templates, embeddings):
     n_classes = len(encoder.classes_)
     return target_normal_labels, n_classes, normal_label_embeddings_map, normal_template_class_map
 
+
+
+###################################################################
+# BINARY
+###################################################################
+
+
+def determine_binary_anomalies(predicted_labels_of_file_containing_anomalies,
+                               order_of_values_of_file_containing_anomalies, lines_that_have_anomalies, no_anomaly):
+
+    assert len(order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
+    predicted_labels = [0] * len(order_of_values_of_file_containing_anomalies)
+    for index, label in zip(order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
+        predicted_labels[index] = int(label)
+
+    # logging of indices of the outliers, every "1" in predicted_labels is an outlier, so log its index
+    pred_outliers_indeces = []
+    for i, val in enumerate(predicted_labels):
+        if val == 1:
+            pred_outliers_indeces.append(i)
+
+    # produce labels for f1 score, precision, etc.
+    true_labels = np.zeros(len(predicted_labels), dtype=int)
+    for anomaly_index in lines_that_have_anomalies:
+        true_labels[anomaly_index] = 1
+
+    # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
+    if no_anomaly:
+        true_labels = 1 - true_labels
+        predicted_labels = 1 - np.asarray(predicted_labels)
+
+    f1 = f1_score(true_labels, predicted_labels)
+    precision = precision_score(true_labels, predicted_labels)
+    recall = recall_score(true_labels, predicted_labels)
+    accuracy = accuracy_score(true_labels, predicted_labels)
+    conf = confusion_matrix(true_labels, predicted_labels)
+
+    result = ClassificationResult(f1=f1, precision=precision, recall=recall, accuracy=accuracy, confusion_matrix=conf,
+                                  predicted_outliers=pred_outliers_indeces, predicted_labels=predicted_labels)
+
+    return result
 
 
 

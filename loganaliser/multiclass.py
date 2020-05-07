@@ -39,7 +39,7 @@ class Multiclass(AnomalyDetection):
     def return_target(self, embeddings):
         return torch.tensor(self.target_labels)
 
-    def start_training(self, no_anomaly):
+    def start_training(self):
         best_val_loss = None
         log_output = open(self.results_dir + 'training_output.txt', 'w')
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
@@ -65,7 +65,7 @@ class Multiclass(AnomalyDetection):
                     train_loss += this_train_loss
                 if epoch % self.log_frequency_interval == 0:
                     predicted_labels = self.predict()
-                    result = self.determine_anomalies.determine(predicted_labels, no_anomaly)
+                    result = self.determine_anomalies.determine(predicted_labels, self.no_anomaly)
                     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
                     .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds) \
@@ -78,7 +78,9 @@ class Multiclass(AnomalyDetection):
                     best_val_loss = eval_loss
                 loss_values.append(eval_loss / self.folds)
             # training done, write results
-            self.write_intermediate_metrics(intermediate_results, loss_values)
+            log_output.close()
+            self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
+                                            intermediate_results, loss_values)
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
@@ -88,9 +90,9 @@ class Multiclass(AnomalyDetection):
         write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", res.predicted_outliers, new_line=True)
 
 
-    def final_prediction(self, no_anomaly):
+    def final_prediction(self):
         predicted_labels = self.predict()
-        result = self.determine_anomalies.determine(predicted_labels, no_anomaly)
+        result = self.determine_anomalies.determine(predicted_labels, self.no_anomaly)
         self.write_classification_metrics(result)
         self.write_final_metrics(result)
         return result.f1, result.precision
