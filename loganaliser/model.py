@@ -3,11 +3,10 @@ import torch
 import torch.nn.functional as F
 
 class LSTM(nn.Module):
-    def __init__(self, n_input, n_hidden_units, n_layers, n_output, dropout=0.1, tie_weights=False, train_mode=False):
+    def __init__(self, n_input, n_hidden_units, n_layers, n_output, dropout=0.1, tie_weights=False):
         super(LSTM, self).__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
-        self.train_mode = train_mode
         self.dropout = dropout
 
         # Layers
@@ -33,10 +32,10 @@ class LSTM(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
-        if self.train_mode: input = nn.Dropout(p=self.dropout)(input)
+        input = nn.Dropout(p=self.dropout)(input)
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
         output, hidden = self.lstm(input, hidden)
-        if self.train_mode: output = nn.Dropout(p=self.dropout)(output)
+        output = nn.Dropout(p=self.dropout)(output)
         decoded = self.decoder(output[:, -1, :])
         return decoded, hidden
 
@@ -72,11 +71,10 @@ class Attention(nn.Module):
 
 class LSTMAttention(nn.Module):
     def __init__(self, n_input, n_hidden_units, n_layers, batch_size, n_output,
-                 bidirectional = False, tie_weights=False, train_mode=False):
+                 bidirectional = False, tie_weights=False):
         super().__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
-        self.train_mode = train_mode
         self.num_directions = 2 if bidirectional == True else 1
         self.batch_size = batch_size
         self.hidden = None
@@ -103,7 +101,7 @@ class LSTMAttention(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
-        if self.train_mode: input = nn.Dropout(p=0.1)(input)
+        input = nn.Dropout(p=0.1)(input)
 
         # go through lstm layer
         output, self.hidden = self.lstm(input, self.hidden)
@@ -122,7 +120,6 @@ class LSTMAttention(nn.Module):
 
         decoded = self.decoder(X)
 
-        #if self.train_mode: output = nn.Dropout(p=0.1)(output)
         log_props = F.log_softmax(decoded, dim=1)
         return log_props, hidden
 
@@ -139,11 +136,10 @@ class LSTMAttention(nn.Module):
 
 
 class Net(nn.Module):
-    def __init__(self, n_input, n_hidden_units, n_layers, seq_len, tie_weights=False, train_mode=False):
+    def __init__(self, n_input, n_hidden_units, n_layers, seq_len, tie_weights=False):
         super(Net, self).__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
-        self.train_mode = train_mode
 
         # Layers
         self.lin1 = nn.Linear(n_input * seq_len, n_hidden_units * 4)
@@ -167,7 +163,7 @@ class Net(nn.Module):
         self.lin3.bias.data.zero_()
 
     def forward(self, input):
-        if self.train_mode: input = nn.Dropout(p=0.2)(input)
+        input = nn.Dropout(p=0.2)(input)
         lin1 = self.lin1(input)
         lin2 = self.lin2(lin1)
         output = self.lin3(lin2)

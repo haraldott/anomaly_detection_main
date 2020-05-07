@@ -36,7 +36,6 @@ class AnomalyDetection:
                  learning_rate=1e-4,
                  savemodelpath='saved_models/lstm.pth',
                  folds=5,
-                 train_mode=False,
                  transfer_learning=False,
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth'
                  ):
@@ -54,7 +53,6 @@ class AnomalyDetection:
         self.batch_size = batch_size
         self.folds = folds
         self.clip = clip
-        self.train_mode = train_mode
         self.results_dir = results_dir
         self.lines_that_have_anomalies = lines_that_have_anomalies
         self.feature_length = n_features
@@ -82,14 +80,12 @@ class AnomalyDetection:
             self.model = lstm_model.LSTMAttention(n_input=self.n_input,
                                                   n_hidden_units=self.n_hidden_units,
                                                   n_layers=self.n_layers,
-                                                  train_mode=self.train_mode,
                                                   n_output=self.feature_length,
                                                   batch_size=self.batch_size).to(self.device)
         else:
             self.model = lstm_model.LSTM(n_input=self.n_input,
                                          n_hidden_units=self.n_hidden_units,
                                          n_layers=self.n_layers,
-                                         train_mode=self.train_mode,
                                          n_output=self.feature_length).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))

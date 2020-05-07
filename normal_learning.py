@@ -18,7 +18,7 @@ from shared_functions import get_embeddings
 
 
 def experiment(epochs=100,
-               mode="binary",
+               mode="regression",
                anomaly_type='random_lines',
                anomaly_amount=1,
                clip=1.0,
@@ -73,8 +73,8 @@ def experiment(epochs=100,
         lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + "_" + experiment + '_lstm.pth'
 
     # take corpus parsed by drain, inject anomalies in this file
-    corpus_test_injected = cwd + anomalies_injected_dir + test_ds + "_" + anomaly_type  # for binary
-    corpus_train_injected = cwd + anomalies_injected_dir + train_ds + "_" + anomaly_type
+    corpus_test_injected = cwd + anomalies_injected_dir + test_ds + "_" + anomaly_type
+    corpus_train_injected = cwd + anomalies_injected_dir + train_ds + "_" + anomaly_type # for binary
     train_anomaly_indeces = cwd + results_dir_experiment + "train_anomaly_labels.txt" # for binary
     test_anomaly_indeces = cwd + results_dir_experiment + "test_anomaly_labels.txt"
 
@@ -109,7 +109,7 @@ def experiment(epochs=100,
             inject_anomalies(
                 anomaly_type=anomaly_type,
                 corpus_input=corpus_train,
-                corpus_output=corpus_test_injected,
+                corpus_output=corpus_train_injected,
                 anomaly_indices_output_path=train_anomaly_indeces,
                 instance_information_in=train_instance_information,
                 instance_information_out=train_instance_information_injected,
@@ -164,7 +164,6 @@ def experiment(epochs=100,
                           savemodelpath=lstm_model_save_path,
                           seq_length=seq_len,
                           num_epochs=epochs,
-                          train_mode=True,
                           no_anomaly=no_anomaly,
                           results_dir=cwd + results_dir_experiment,
                           embeddings_model='bert',
@@ -189,7 +188,6 @@ def experiment(epochs=100,
                           n_hidden_units=n_hidden_units,
                           n_layers=n_layers,
                           embeddings_model='bert',
-                          train_mode=True,
                           no_anomaly=no_anomaly,
                           clip=clip,
                           results_dir=cwd + results_dir_experiment,
@@ -211,14 +209,13 @@ def experiment(epochs=100,
                                     train_instance_information_file=train_instance_information,
                                     train_anomaly_lines=train_ds_anomaly_lines,
                                     test_vectors=embeddings_test,
-                                    no_anomaly=no_anomaly,
                                     test_instance_information_file=test_instance_information_injected,
                                     test_anomaly_lines=test_ds_anomaly_lines,
+                                    no_anomaly=no_anomaly,
                                     n_input=embeddings_dim,
                                     results_dir=cwd + results_dir_experiment,
                                     embeddings_model='bert',
                                     savemodelpath=lstm_model_save_path,
-                                    train_mode=True,
                                     transfer_learning=False)
 
     if not anomaly_only:

@@ -38,7 +38,6 @@ class BinaryClassification:
                  loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
                  savemodelpath='saved_models/lstm.pth',
                  folds=5,
-                 train_mode=False,
                  anomalies_run=False,
                  transfer_learning=False,
                  ):
@@ -56,7 +55,6 @@ class BinaryClassification:
         self.batch_size = batch_size
         self.folds = folds
         self.clip = clip
-        self.train_mode = train_mode
         self.anomalies_run = anomalies_run
         self.results_dir = results_dir
         self.train_anomaly_lines = train_anomaly_lines
@@ -86,8 +84,7 @@ class BinaryClassification:
         self.model = lstm_model.Net(n_input=self.n_input,
                                     seq_len=self.seq_length,
                                     n_hidden_units=self.n_hidden_units,
-                                    n_layers=self.n_layers,
-                                    train_mode=self.train_mode).to(self.device)
+                                    n_layers=self.n_layers).to(self.device)
         if transfer_learning:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
