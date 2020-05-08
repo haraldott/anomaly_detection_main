@@ -31,7 +31,7 @@ class Multiclass(AnomalyDetection):
             for data, target in zip(self.test_data_x, self.test_data_y):
                 data = data.view(1, self.seq_length, self.n_input)
                 prediction, hidden = self.model(data, hidden)
-                pred_labels = (-prediction.data).numpy().argsort()[0][:3]
+                pred_labels = (-prediction.data.cpu()).numpy().argsort()[0][:3]
                 predicted_labels.append(pred_labels)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
