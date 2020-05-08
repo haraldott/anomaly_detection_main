@@ -16,7 +16,8 @@ class Multiclass(AnomalyDetection):
         self.determine_anomalies = DetermineAnomalies(lines_that_have_anomalies=self.lines_that_have_anomalies,
                                                       target_labels=target_labels,
                                                       top_k_anomaly_embedding_label_mapping=top_k_label_mapping,
-                                                      order_of_values_of_file_containing_anomalies=self.target_indices)
+                                                      order_of_values_of_file_containing_anomalies=self.target_indices,
+                                                      results_dir=self.results_dir)
 
 
 
@@ -86,7 +87,7 @@ class Multiclass(AnomalyDetection):
             print('Exiting from training early')
 
     def write_classification_metrics(self, res):
-        write_lines_to_file(self.results_dir + 'anomaly_labels', res.predicted_labels, new_line=True)
+        write_lines_to_file(self.results_dir + 'anomaly_labels.txt', res.predicted_labels, new_line=True)
         write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", res.predicted_outliers, new_line=True)
 
 

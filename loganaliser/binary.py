@@ -291,7 +291,7 @@ class BinaryClassification:
 
 
     def write_classification_metrics(self, res):
-        write_lines_to_file(self.results_dir + 'anomaly_labels', res.predicted_labels, new_line=True)
+        write_lines_to_file(self.results_dir + 'anomaly_labels.txt', res.predicted_labels, new_line=True)
         write_lines_to_file(self.results_dir + "pred_outliers_indeces.txt", res.predicted_outliers, new_line=True)
 
 

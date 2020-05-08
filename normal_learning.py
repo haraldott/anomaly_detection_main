@@ -25,7 +25,7 @@ def experiment(epochs=100,
                attention=False,
                anomaly_only=False,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
-               embeddings_model='bert', experiment='default', label_encoder=None):
+               embeddings_model='bert', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
           .format(epochs, mode, attention, anomaly_type))
@@ -37,8 +37,8 @@ def experiment(epochs=100,
     else:
         results_dir = settings[option]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}/".format(
-        results_dir + embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
+    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}/".format(
+        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
 
     train_ds = settings[option]["raw_normal"]  # path of normal file for training
     test_ds = settings[option]["raw_anomaly"]  # path of file in which anomalies will be injected
@@ -223,7 +223,7 @@ def experiment(epochs=100,
 
     f1, precision = lstm.final_prediction()
     calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
-                                 anomaly_amount, n_hidden_units, n_layers, clip, experiment)
+                                 anomaly_amount, n_hidden_units, n_layers, clip, experiment, mode)
     print("done.")
     return f1, precision
 

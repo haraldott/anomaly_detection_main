@@ -132,9 +132,9 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
 
 
 def calculate_precision_and_plot(this_results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
-                                 anomaly_amount, n_hidden_units, n_layers, clip, experiment):
-    archive_name = this_results_dir_experiment + "{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}".format(
-        embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip,
+                                 anomaly_amount, n_hidden_units, n_layers, clip, experiment, mode):
+    archive_name = this_results_dir_experiment + "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}".format(
+        mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip,
         experiment) + '.tar'
 
     with tarfile.open(name=archive_name, mode="w:gz") as tar:
@@ -235,12 +235,14 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
 
 
 class DetermineAnomalies():
-    def __init__(self, lines_that_have_anomalies, target_labels,
+    def __init__(self, lines_that_have_anomalies, target_labels, results_dir,
                  top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies):
         self.lines_that_have_anomalies = lines_that_have_anomalies
         self.target_labels = target_labels
         self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
+        with open (results_dir + "target_labels.txt",'w') as f:
+            [f.write(str(v) + "\n") for v in self.target_labels]
 
     def determine(self, predicted_labels_of_file_containing_anomalies, no_anomaly):
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
