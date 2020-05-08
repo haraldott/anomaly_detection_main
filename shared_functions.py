@@ -214,7 +214,7 @@ class RegressionResult():
         self.train_loss_values = train_loss_values # regression
 
 def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
-    top_k = 3
+    top_k = 1
     thresh = 0.35
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
@@ -235,14 +235,12 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
 
 
 class DetermineAnomalies():
-    def __init__(self, lines_that_have_anomalies, target_labels, results_dir,
+    def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies,
                  top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies):
         self.lines_that_have_anomalies = lines_that_have_anomalies
-        self.target_labels = target_labels
+        self.corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
         self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
-        with open (results_dir + "target_labels.txt",'w') as f:
-            [f.write(str(v) + "\n") for v in self.target_labels]
 
     def determine(self, predicted_labels_of_file_containing_anomalies, no_anomaly):
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
@@ -254,8 +252,8 @@ class DetermineAnomalies():
 
         pred_anomaly_labels = []
         pred_outliers_indeces = []
-        for i, (top_k_labels_pred, label_true) in enumerate(zip(predicted_labels, self.target_labels)):
-            if label_true in top_k_labels_pred:
+        for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
+            if self.top_k_anomaly_embedding_label_mapping.get(sentence) in top_k_labels_pred:
                 pred_anomaly_labels.append(0)
             else:
                 pred_outliers_indeces.append(i)

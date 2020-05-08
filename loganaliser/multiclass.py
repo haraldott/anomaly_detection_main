@@ -14,10 +14,9 @@ class Multiclass(AnomalyDetection):
         super(Multiclass, self).__init__(*args, **kwargs)
 
         self.determine_anomalies = DetermineAnomalies(lines_that_have_anomalies=self.lines_that_have_anomalies,
-                                                      target_labels=target_labels,
                                                       top_k_anomaly_embedding_label_mapping=top_k_label_mapping,
                                                       order_of_values_of_file_containing_anomalies=self.target_indices,
-                                                      results_dir=self.results_dir)
+                                                      corpus_of_log_containing_anomalies=corpus_of_log_containing_anomalies)
 
 
 
