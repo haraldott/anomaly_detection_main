@@ -235,10 +235,10 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
 
 
 class DetermineAnomalies():
-    def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies,
+    def __init__(self, lines_that_have_anomalies, target_labels,
                  top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies):
         self.lines_that_have_anomalies = lines_that_have_anomalies
-        self.corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
+        self.target_labels = target_labels
         self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
 
@@ -246,15 +246,14 @@ class DetermineAnomalies():
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
         assert len(self.order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
         predicted_labels = [0] * len(self.order_of_values_of_file_containing_anomalies)
-        for index, label in zip(self.order_of_values_of_file_containing_anomalies,
+        for index, l in zip(self.order_of_values_of_file_containing_anomalies,
                                 predicted_labels_of_file_containing_anomalies):
-            predicted_labels[index] = label
+            predicted_labels[index] = l
 
         pred_anomaly_labels = []
         pred_outliers_indeces = []
-        for i, (label, sentence) in enumerate(
-                zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
-            if label in self.top_k_anomaly_embedding_label_mapping.get(sentence):
+        for i, (top_k_labels_pred, label_true) in enumerate(zip(predicted_labels, self.target_labels)):
+            if label_true in top_k_labels_pred:
                 pred_anomaly_labels.append(0)
             else:
                 pred_outliers_indeces.append(i)

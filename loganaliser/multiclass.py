@@ -14,7 +14,7 @@ class Multiclass(AnomalyDetection):
         super(Multiclass, self).__init__(*args, **kwargs)
 
         self.determine_anomalies = DetermineAnomalies(lines_that_have_anomalies=self.lines_that_have_anomalies,
-                                                      corpus_of_log_containing_anomalies=corpus_of_log_containing_anomalies,
+                                                      target_labels=target_labels,
                                                       top_k_anomaly_embedding_label_mapping=top_k_label_mapping,
                                                       order_of_values_of_file_containing_anomalies=self.target_indices)
 
@@ -31,8 +31,8 @@ class Multiclass(AnomalyDetection):
             for data, target in zip(self.test_data_x, self.test_data_y):
                 data = data.view(1, self.seq_length, self.n_input)
                 prediction, hidden = self.model(data, hidden)
-                pred_label = prediction.cpu().data.max(1)[1].numpy()[0]
-                predicted_labels.append(pred_label)
+                pred_labels = (-prediction.data).numpy().argsort()[0][:3]
+                predicted_labels.append(pred_labels)
                 hidden = self.repackage_hidden(hidden)
         return predicted_labels
 

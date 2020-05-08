@@ -23,4 +23,3 @@ experiment(anomaly_type='delete_lines', anomaly_amount=2, experiment="multiclass
 experiment(anomaly_type='shuffle', anomaly_amount=1, experiment="multiclass", anomaly_only=True)
 experiment(anomaly_type='no_anomaly', anomaly_amount=1, experiment="multiclass", anomaly_only=True)
 experiment(anomaly_type='reverse_order', anomaly_amount=1, experiment="multiclass", anomaly_only=True)
-
