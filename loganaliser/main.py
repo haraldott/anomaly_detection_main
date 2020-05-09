@@ -32,6 +32,7 @@ class AnomalyDetection:
                  results_dir,
                  embeddings_model,
                  attention,
+                 prediction_only,
                  no_anomaly=False,
                  learning_rate=1e-4,
                  savemodelpath='saved_models/lstm.pth',
@@ -87,7 +88,7 @@ class AnomalyDetection:
                                          n_hidden_units=self.n_hidden_units,
                                          n_layers=self.n_layers,
                                          n_output=self.feature_length).to(self.device)
-        if transfer_learning:
+        if transfer_learning or prediction_only:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)

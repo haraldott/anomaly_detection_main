@@ -23,7 +23,7 @@ def experiment(epochs=100,
                anomaly_amount=1,
                clip=1.0,
                attention=False,
-               anomaly_only=False,
+               prediction_only=False,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
@@ -175,7 +175,8 @@ def experiment(epochs=100,
                           lines_that_have_anomalies=test_ds_anomaly_lines,
                           corpus_of_log_containing_anomalies=corpus_test_injected,
                           transfer_learning=False,
-                          attention=attention)
+                          attention=attention,
+                          prediction_only=prediction_only)
 
     elif mode == "regression":
         lstm = Regression(train_vectors=embeddings_train,
@@ -196,7 +197,8 @@ def experiment(epochs=100,
                           n_input=embeddings_dim,
                           n_features=embeddings_dim,
                           transfer_learning=False,
-                          attention=attention)
+                          attention=attention,
+                          prediction_only=prediction_only)
 
     elif mode == "binary":
         lstm = BinaryClassification(num_epochs=epochs,
@@ -216,9 +218,10 @@ def experiment(epochs=100,
                                     results_dir=cwd + results_dir_experiment,
                                     embeddings_model='bert',
                                     savemodelpath=lstm_model_save_path,
-                                    transfer_learning=False)
+                                    transfer_learning=False,
+                                    prediction_only=prediction_only)
 
-    if not anomaly_only:
+    if not prediction_only:
         lstm.start_training()
 
     f1, precision = lstm.final_prediction()
