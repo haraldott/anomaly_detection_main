@@ -194,7 +194,7 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
         line = line.split()
         removed_words = []
         for _ in range(0, number_of_words_to_be_removed):
-            if len(line) > number_of_words_to_be_removed:
+            if len(line) < number_of_words_to_be_removed:
                 raise Exception ("Line is shorter than number of words to be removed. Quitting.")
             random_index = random.randrange(0, len(line))
             removed_words.append(line[random_index])
