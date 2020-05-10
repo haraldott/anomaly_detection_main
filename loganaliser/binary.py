@@ -206,7 +206,7 @@ class BinaryClassification:
             for data, target in zip(dataloader_x, dataloader_y):
                 prediction = self.model(data)
                 #pred_label = prediction.cpu().data.max(1)[1].numpy()
-                loss = self.distance(prediction, target)
+                loss = self.distance(torch.squeeze(prediction), target)
                 loss_distribution.append(loss.item())
                 total_loss += loss.item()
         return total_loss / len(idx), loss_distribution
@@ -266,11 +266,11 @@ class BinaryClassification:
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                    if epoch % self.log_frequency_interval == 0:
-                        predicted_labels = self.predict()
-                        result = determine_binary_anomalies(predicted_labels, self.target_indices,
-                                                            self.test_anomaly_lines, no_anomaly=self.no_anomaly)
-                        intermediate_results.append(result)
+                if epoch % self.log_frequency_interval == 0:
+                    predicted_labels = self.predict()
+                    result = determine_binary_anomalies(predicted_labels, self.target_indices,
+                                                        self.test_anomaly_lines, no_anomaly=self.no_anomaly)
+                    intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n'\
                        .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds)\
                        + '-' * 89
