@@ -214,7 +214,7 @@ class RegressionResult():
         self.train_loss_values = train_loss_values # regression
 
 def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
-    top_k = 1
+    top_k = 2
     thresh = 0.35
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
@@ -253,7 +253,7 @@ class DetermineAnomalies():
         pred_anomaly_labels = []
         pred_outliers_indeces = []
         for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
-            if self.top_k_anomaly_embedding_label_mapping.get(sentence) in top_k_labels_pred:
+            if bool(set(self.top_k_anomaly_embedding_label_mapping.get(sentence)) & set(top_k_labels_pred)):
                 pred_anomaly_labels.append(0)
             else:
                 pred_outliers_indeces.append(i)
