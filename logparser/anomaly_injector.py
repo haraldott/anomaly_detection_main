@@ -10,7 +10,7 @@ utah_new_random_line = "My personal randomly injected line.\n"
 number_of_instances_to_inject_anomalies_in = 20
 max_number_of_anomalies_per_instance = 4
 number_of_swaps_per_instance = 4
-overall_anomaly_ratio = 0.02
+overall_anomaly_ratio = 0.035
 ins_del_dup_anomalies_per_block = 3
 words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after",
                            "brain", "cell", "whatever"]
@@ -51,7 +51,6 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
             index_to_alter = random.randint(0, len(instance_id_list[instance_id_block_to_alter]) - 1)
 
             if mode == "ins":
-                indices_inside_blocks_to_alter[instance_id_block_to_alter].append(index_to_alter)
                 instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = [utah_new_random_line]
             if mode == "del":
                 indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
@@ -67,7 +66,10 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
                     next_index += 1
                 instance_id_list[instance_id_block_to_alter][next_index + 1:next_index + 1] = [line]
                 indices_inside_blocks_to_alter.update({instance_id_block_to_alter: next_index + 1})
-
+        if mode == "ins":
+            for i, sentence in enumerate(instance_id_list[instance_id_block_to_alter]):
+                if sentence == utah_new_random_line:
+                    indices_inside_blocks_to_alter[instance_id_block_to_alter].append(i)
     # - re-write instance_id blocks to file
     # - overwrite instance information with updated (begin, end) intervals
     # - save anomaly indices
