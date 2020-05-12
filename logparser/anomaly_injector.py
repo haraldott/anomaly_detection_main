@@ -4,12 +4,14 @@ import pickle
 import random
 from shutil import copyfile
 import numpy as np
+from collections import defaultdict
 
 utah_new_random_line = "My personal randomly injected line.\n"
 number_of_instances_to_inject_anomalies_in = 20
 max_number_of_anomalies_per_instance = 4
 number_of_swaps_per_instance = 4
-overall_anomaly_ratio = 0.02
+overall_anomaly_ratio = 0.035
+ins_del_dup_anomalies_per_block = 3
 words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after",
                            "brain", "cell", "whatever"]
 words_for_random_replace = ["bullshit", "brain", "cell", "whatever"]
@@ -41,30 +43,33 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
 
     # select instance_ic blocks in which we will delete
     instance_id_indices_selected_for_altering = random.sample(range(0, len(instance_id_list)), number_of_deletes)
-    indices_inside_blocks_to_alter = {}
+    indices_inside_blocks_to_alter = defaultdict(list)
 
     # delete lines and keep track of them
     for instance_id_block_to_alter in instance_id_indices_selected_for_altering:
-        index_to_alter = random.randint(0, len(instance_id_list[instance_id_block_to_alter]) - 1)
+        for _ in range(ins_del_dup_anomalies_per_block):
+            index_to_alter = random.randint(0, len(instance_id_list[instance_id_block_to_alter]) - 1)
 
+            if mode == "ins":
+                instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = [utah_new_random_line]
+            if mode == "del":
+                indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
+                del instance_id_list[instance_id_block_to_alter][index_to_alter]
+            elif mode == "dup":
+                # given, we want to duplicate line i, and line i+1 ... i+j are already exactly the same line,
+                # we first greedily find the last duplicate in this possible row of duplicates, and insert it after the
+                # last one of these duplicates
+                line = instance_id_list[instance_id_block_to_alter][index_to_alter]
+                next_index = index_to_alter
+                while next_index + 1 < len(instance_id_list[instance_id_block_to_alter]) and \
+                        instance_id_list[instance_id_block_to_alter][next_index + 1] == line:
+                    next_index += 1
+                instance_id_list[instance_id_block_to_alter][next_index + 1:next_index + 1] = [line]
+                indices_inside_blocks_to_alter.update({instance_id_block_to_alter: next_index + 1})
         if mode == "ins":
-            indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
-            instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = [utah_new_random_line]
-        if mode == "del":
-            indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
-            del instance_id_list[instance_id_block_to_alter][index_to_alter]
-        elif mode == "dup":
-            # given, we want to duplicate line i, and line i+1 ... i+j are already exactly the same line,
-            # we first greedily find the last duplicate in this possible row of duplicates, and insert it after the
-            # last one of these duplicates
-            line = instance_id_list[instance_id_block_to_alter][index_to_alter]
-            next_index = index_to_alter
-            while next_index + 1 < len(instance_id_list[instance_id_block_to_alter]) and \
-                    instance_id_list[instance_id_block_to_alter][next_index + 1] == line:
-                next_index += 1
-            instance_id_list[instance_id_block_to_alter][next_index + 1:next_index + 1] = [line]
-            indices_inside_blocks_to_alter.update({instance_id_block_to_alter: next_index + 1})
-
+            for i, sentence in enumerate(instance_id_list[instance_id_block_to_alter]):
+                if sentence == utah_new_random_line:
+                    indices_inside_blocks_to_alter[instance_id_block_to_alter].append(i)
     # - re-write instance_id blocks to file
     # - overwrite instance information with updated (begin, end) intervals
     # - save anomaly indices
@@ -80,9 +85,9 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
         instance_block_end_line += len(instance_id_block)
         new_instance_information.append(tuple((instance_block_begin_line, instance_block_end_line - 1)))
         if instance_id_block_index in instance_id_indices_selected_for_altering:
-            index_of_altered_line_inside_block = indices_inside_blocks_to_alter.get(instance_id_block_index)
-            overall_index_of_deleted_line = instance_block_begin_line + index_of_altered_line_inside_block
-            anomaly_indices.append(overall_index_of_deleted_line)
+            for index_of_altered_line_inside_block in indices_inside_blocks_to_alter.get(instance_id_block_index):
+                overall_index_of_deleted_line = instance_block_begin_line + index_of_altered_line_inside_block
+                anomaly_indices.append(overall_index_of_deleted_line)
     pickle.dump(new_instance_information, open(instance_information_out, 'wb'))
 
     anomaly_indices.sort()
