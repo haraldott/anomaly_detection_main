@@ -295,7 +295,7 @@ class AnomalyDetection:
         scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in res.confusion_matrix))
         disp = ConfusionMatrixDisplay(confusion_matrix=res.confusion_matrix, display_labels=[0, 1])
 
-        disp = disp.plot(include_values=True, cmap='inferno')
+        disp = disp.plot(include_values=True, cmap='inferno', values_format='d')
         plt.savefig(results_dir + 'confusion_matrix.png')
         plt.clf()
         scores_file.close()

@@ -18,7 +18,7 @@ from shared_functions import get_embeddings
 
 
 def experiment(epochs=30,
-               mode="binary",
+               mode="multiclass",
                anomaly_type='random_lines',
                anomaly_amount=1,
                clip=1.0,

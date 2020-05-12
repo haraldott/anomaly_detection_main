@@ -214,7 +214,7 @@ class RegressionResult():
         self.train_loss_values = train_loss_values # regression
 
 def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
-    top_k = 2
+    top_k = 1
     thresh = 0.35
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
@@ -246,24 +246,51 @@ class DetermineAnomalies():
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
         assert len(self.order_of_values_of_file_containing_anomalies) == len(predicted_labels_of_file_containing_anomalies)
         predicted_labels = [0] * len(self.order_of_values_of_file_containing_anomalies)
-        for index, l in zip(self.order_of_values_of_file_containing_anomalies,
-                                predicted_labels_of_file_containing_anomalies):
+        for index, l in zip(self.order_of_values_of_file_containing_anomalies, predicted_labels_of_file_containing_anomalies):
             predicted_labels[index] = l
-
-        pred_anomaly_labels = []
-        pred_outliers_indeces = []
-        for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
-            if bool(set(self.top_k_anomaly_embedding_label_mapping.get(sentence)) & set(top_k_labels_pred)):
-                pred_anomaly_labels.append(0)
-            else:
-                pred_outliers_indeces.append(i)
-                pred_anomaly_labels.append(1)
 
         # produce labels for f1 score, precision, etc.
         true_labels = np.zeros(len(predicted_labels), dtype=int)
         for anomaly_index in self.lines_that_have_anomalies:
             true_labels[anomaly_index] = 1
 
+        wrong_assigned_indeces_min_distance_mapping = {}
+        pred_anomaly_labels = []
+        pred_outliers_indeces = []
+        for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
+            most_probable_real_class = self.top_k_anomaly_embedding_label_mapping.get(sentence)
+            if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
+                # check if we missed
+                if (true_labels[i] != 0):
+                    distances = []
+                    for pred_label in predicted_labels[i]:
+                        distances.append(cosine(pred_label, most_probable_real_class))
+                    wrong_assigned_indeces_min_distance_mapping[i] = min(distances)
+                pred_anomaly_labels.append(0)
+            else:
+                if (true_labels[i] != 1):
+                    distances = []
+                    for pred_label in predicted_labels[i]:
+                        distances.append(cosine(pred_label, most_probable_real_class))
+                    wrong_assigned_indeces_min_distance_mapping[i] = min(distances)
+                pred_outliers_indeces.append(i)
+                pred_anomaly_labels.append(1)
+
+        # grid search for threshold for which best f1
+        temp_pred_anom_labels = pred_anomaly_labels.copy()
+        best_f1 = None
+        best_thresh = None
+        for thresh in np.arange(0,1,0.01):
+            for i, dist in wrong_assigned_indeces_min_distance_mapping.items():
+                if dist < thresh:
+                    temp_pred_anom_labels[i] = 0
+                else:
+                    temp_pred_anom_labels[i] = 1
+            f1 = f1_score(true_labels, temp_pred_anom_labels)
+            if best_f1 is None or f1 > best_f1:
+                best_f1 = f1
+                best_thresh = thresh
+        print("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
         # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
         if no_anomaly:
             true_labels = 1 - true_labels
