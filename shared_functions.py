@@ -237,7 +237,7 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
             cos_distances.update({label: cosine(anom_emb, norm_emb)})
         largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
         largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
-        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
+        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels[0]})
     return top_k_anomaly_embedding_label_mapping
 
 
@@ -257,18 +257,6 @@ def get_nearest_neighbour_embedding_label_mapping(sentence_embedding_mapping,
         smallest_dist_label = heapq.nsmallest(1, cos_distances, key=cos_distances.get)
         nearest_neighbour_sentence_ds2_class_ds1_mapping.update({sentence: smallest_dist_label[0]})
     return nearest_neighbour_sentence_ds2_class_ds1_mapping
-
-
-def map_ds_corpus_to_classes(sentence_class_mapping, corpus) -> List:
-    """
-    Use sentence_class_mapping to map every sentence from corpus to classes and return the transformed corpus as list of
-    classes
-    """
-    target_classes = []
-    for sentence in corpus:
-        targetsentence_class_mapping.get(sentence)
-
-    return target_classes
 
 
 class DetermineAnomalies():
@@ -297,7 +285,8 @@ class DetermineAnomalies():
         pred_outliers_indeces = []
         for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
             most_probable_real_class = self.top_k_anomaly_embedding_label_mapping.get(sentence)
-            if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
+            if most_probable_real_class in top_k_labels_pred:
+            #if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
                 # check if we missed
                 if (true_labels[i] != 0):
                     distances = []
