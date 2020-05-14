@@ -42,8 +42,9 @@ class AnomalyDetection:
                  ):
         self.train_vectors = pickle.load(open(train_vectors, 'rb'))
         self.train_instance_information_file = train_instance_information_file
-        self.test_vectors = pickle.load(open(test_vectors, 'rb'))
-        self.test_instance_information_file = test_instance_information_file
+        if test_vectors is not None:
+            self.test_vectors = pickle.load(open(test_vectors, 'rb'))
+            self.test_instance_information_file = test_instance_information_file
         self.loadautoencodermodel = loadautoencodermodel
         self.savemodelpath = savemodelpath
         self.n_layers = n_layers
@@ -74,8 +75,9 @@ class AnomalyDetection:
         else:
             self.train_data_x, self.train_data_y = self.prepare_data_per_request(self.train_vectors,
                                                                                  self.train_instance_information_file)
-            self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors,
-                                                                               self.test_instance_information_file)
+            if test_vectors is not None:
+                self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors,
+                                                                                   self.test_instance_information_file)
 
         if attention:
             self.model = lstm_model.LSTMAttention(n_input=self.n_input,

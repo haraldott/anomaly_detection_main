@@ -1,4 +1,5 @@
 import matplotlib
+from typing import List, Dict
 
 matplotlib.use('Agg')
 import numpy as np
@@ -190,15 +191,6 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
                               anomaly_loss_values_correct_order, None)
     return result
 
-class ClassificationResult():
-    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers, predicted_labels=None):
-        self.f1 = f1
-        self.precision = precision
-        self.recall = recall
-        self.accuracy = accuracy
-        self.confusion_matrix = confusion_matrix
-        self.predicted_outliers = predicted_outliers
-        self.predicted_labels = predicted_labels # classification
 
 class RegressionResult():
     def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers,
@@ -213,7 +205,29 @@ class RegressionResult():
         self.anomaly_loss_values = anomaly_loss_values # regression
         self.train_loss_values = train_loss_values # regression
 
-def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies, normal_label_embedding_mapping):
+
+
+
+###################################################################
+# MULTI CLASSIFICATION
+###################################################################
+
+class ClassificationResult():
+    def __init__(self, f1, precision, recall, accuracy, confusion_matrix, predicted_outliers, predicted_labels=None):
+        self.f1 = f1
+        self.precision = precision
+        self.recall = recall
+        self.accuracy = accuracy
+        self.confusion_matrix = confusion_matrix
+        self.predicted_outliers = predicted_outliers
+        self.predicted_labels = predicted_labels # classification
+
+
+def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies,
+                                      normal_label_embedding_mapping) -> Dict:
+    """
+    Control, how many neighbours you want, also with threshold and get a list of the best ones
+    """
     top_k = 1
     thresh = 0.35
     top_k_anomaly_embedding_label_mapping = {}
@@ -227,20 +241,44 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
     return top_k_anomaly_embedding_label_mapping
 
 
+def get_nearest_neighbour_embedding_label_mapping(sentence_embedding_mapping,
+                                                  class_embedding_mapping,
+                                                  dataset_2_templates)-> Dict:
+    """
+    Get the nearest neighbour for your sentence from ds_2 to ds_1
+    :return
+    """
+    nearest_neighbour_sentence_ds2_class_ds1_mapping = {}
+    for sentence in dataset_2_templates:
+        embedding_ds2 = sentence_embedding_mapping.get(sentence)
+        cos_distances = {}
+        for label, embedding_ds1 in class_embedding_mapping.items():
+            cos_distances.update({label: cosine(embedding_ds2, embedding_ds1)})
+        smallest_dist_label = heapq.nsmallest(1, cos_distances, key=cos_distances.get)
+        nearest_neighbour_sentence_ds2_class_ds1_mapping.update({sentence: smallest_dist_label[0]})
+    return nearest_neighbour_sentence_ds2_class_ds1_mapping
 
 
-###################################################################
-# MULTI CLASSIFICATION
-###################################################################
+def map_ds_corpus_to_classes(sentence_class_mapping, corpus) -> List:
+    """
+    Use sentence_class_mapping to map every sentence from corpus to classes and return the transformed corpus as list of
+    classes
+    """
+    target_classes = []
+    for sentence in corpus:
+        targetsentence_class_mapping.get(sentence)
+
+    return target_classes
 
 
 class DetermineAnomalies():
-    def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies,
+    def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies, normal_label_embeddings_map,
                  top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies):
         self.lines_that_have_anomalies = lines_that_have_anomalies
         self.corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
         self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
+        self.normal_label_embeddings_map = normal_label_embeddings_map
 
     def determine(self, predicted_labels_of_file_containing_anomalies, no_anomaly):
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
@@ -264,14 +302,26 @@ class DetermineAnomalies():
                 if (true_labels[i] != 0):
                     distances = []
                     for pred_label in predicted_labels[i]:
-                        distances.append(cosine(pred_label, most_probable_real_class))
+                        # if we have a list with multiple nearest neighbors, we only want the nearest one
+                        if type(most_probable_real_class) is list:
+                            distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                    self.normal_label_embeddings_map.get(most_probable_real_class[0])))
+                        else:
+                            distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                    self.normal_label_embeddings_map.get(most_probable_real_class)))
                     wrong_assigned_indeces_min_distance_mapping[i] = min(distances)
                 pred_anomaly_labels.append(0)
             else:
                 if (true_labels[i] != 1):
                     distances = []
                     for pred_label in predicted_labels[i]:
-                        distances.append(cosine(pred_label, most_probable_real_class))
+                        # if we have a list with multiple nearest neighbors, we only want the nearest one
+                        if type(most_probable_real_class) is list:
+                            distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                    self.normal_label_embeddings_map.get(most_probable_real_class[0])))
+                        else:
+                            distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                    self.normal_label_embeddings_map.get(most_probable_real_class)))
                     wrong_assigned_indeces_min_distance_mapping[i] = min(distances)
                 pred_outliers_indeces.append(i)
                 pred_anomaly_labels.append(1)

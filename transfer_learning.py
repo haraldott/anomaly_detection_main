@@ -1,214 +1,315 @@
-import argparse
-
 import matplotlib
+
+from loganaliser.binary import BinaryClassification
 
 matplotlib.use('Agg')
 from settings import settings
 from wordembeddings.transform_glove import merge_templates
 import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
-from loganaliser.main import AnomalyDetection
+from loganaliser.regression import Regression
+from loganaliser.multiclass import Multiclass
 from wordembeddings.bert_finetuning import finetune
-from shared_functions import calculate_precision_and_plot, calculate_anomaly_loss, calculate_normal_loss, \
-    get_cosine_distance, inject_anomalies
+from shared_functions import calculate_precision_and_plot, get_cosine_distance, inject_anomalies, get_labels_from_corpus, \
+    pre_process_log_events, get_top_k_embedding_label_mapping, get_nearest_neighbour_embedding_label_mapping
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
-predicted_labels_of_file_containing_anomalies = "predicted_labels_of_file_containing_anomalies"
 
-# -----------------------------------------------------------------------------------------------------------------------
-# -----------------------------------------------INITIALISE PARAMETERS---------------------------------------------------
-# -----------------------------------------------------------------------------------------------------------------------
-cwd = os.getcwd() + "/"
-parser = argparse.ArgumentParser()
-parser.add_argument('-option', type=str, default='UtahSashoTransfer')
-parser.add_argument('-seq_len', type=int, default=7)
-parser.add_argument('-reduced', action='store_true')
-parser.add_argument('-epochs', type=int, default=100)
-parser.add_argument('-hiddenunits', type=int, default=250)
-parser.add_argument('-hiddenlayers', type=int, default=4)
-parser.add_argument('-transferlearning', action='store_true')
-parser.add_argument('-anomaly_only', action='store_true')
-parser.add_argument('-corpus_anomaly_inputfile', type=str)
-parser.add_argument('-instance_information_file_anomalies', type=str)
-parser.add_argument('-bert_model_finetune', type=str, default='bert-base-uncased')
-parser.add_argument('-finetune', action='store_true')
-parser.add_argument('-anomaly_type', type=str, default='insert_words')
-parser.add_argument('-anomaly_amount', type=int, default=0)
-parser.add_argument('-embeddings_model', type=str, default="bert")
-args = parser.parse_args()
+def experiment(epochs=5,
+               mode="multiclass",
+               anomaly_type='random_lines',
+               anomaly_amount=1,
+               clip=1.0,
+               attention=False,
+               prediction_only=False,
+               option='UtahSashoTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
+               embeddings_model='bert', experiment='x', label_encoder=None):
+    cwd = os.getcwd() + "/"
+    print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
+          .format(epochs, mode, attention, anomaly_type))
 
-print("starting {} {}".format(args.anomaly_type, args.anomaly_amount))
-option = args.option
+    no_anomaly = True if anomaly_type == "no_anomaly" else False
 
-if args.finetune:
-    results_dir = settings[option]["dataset_2"]["results_dir"] + "_finetune/"
-else:
-    results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
+    if finetuning:
+        results_dir = settings[option]["dataset_2"]["results_dir"] + "_finetune/"
+    else:
+        results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
 
-results_dir_experiment = "{}_epochs_{}_seq_len:_{}_anomaly_type:{}_{}/".format(
-    results_dir + args.embeddings_model, args.epochs, args.seq_len, args.anomaly_type, args.anomaly_amount)
+    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}/".format(
+        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
 
-normal_1 = settings[option]["dataset_1"]["raw_normal"]
-normal_2 = settings[option]["dataset_2"]["raw_normal"]
-anomaly_2 = settings[option]["dataset_2"]["raw_anomaly"]
+    train_ds_1 = settings[option]["dataset_1"]["raw_normal"]
+    train_ds_2 = settings[option]["dataset_2"]["raw_normal"]
+    test_ds_2 = settings[option]["dataset_2"]["raw_anomaly"]
 
-raw_dir_1 = settings[option]["dataset_1"]["raw_dir"]
-raw_dir_2 = settings[option]["dataset_2"]["raw_dir"]
+    raw_dir_1 = settings[option]["dataset_1"]["raw_dir"]
+    raw_dir_2 = settings[option]["dataset_2"]["raw_dir"]
 
-parsed_dir_1 = settings[option]["dataset_1"]["parsed_dir"]
-parsed_dir_2 = settings[option]["dataset_2"]["parsed_dir"]
+    parsed_dir_1 = settings[option]["dataset_1"]["parsed_dir"]
+    parsed_dir_2 = settings[option]["dataset_2"]["parsed_dir"]
 
-results_dir = settings[option]["dataset_2"]["results_dir"]
+    embeddings_dir_1 = settings[option]["dataset_1"]["embeddings_dir"]
+    embeddings_dir_2 = settings[option]["dataset_2"]["embeddings_dir"]
 
-embeddings_dir_1 = settings[option]["dataset_1"]["embeddings_dir"]
-embeddings_dir_2 = settings[option]["dataset_2"]["embeddings_dir"]
+    logtype_1 = settings[option]["dataset_1"]["logtype"]
+    logtype_2 = settings[option]["dataset_2"]["logtype"]
 
-logtype_1 = settings[option]["dataset_1"]["logtype"]
-logtype_2 = settings[option]["dataset_2"]["logtype"]
+    train_instance_information_1 = settings[option]["dataset_1"]['instance_information_file_normal']
+    train_instance_information_2 = settings[option]["dataset_2"]['instance_information_file_normal']
 
-instance_information_file_normal_1 = settings[option]["dataset_1"]['instance_information_file_normal']
-instance_information_file_normal_2 = settings[option]["dataset_2"]['instance_information_file_normal']
-instance_information_file_anomalies_pre_inject_2 = settings[option]["dataset_2"][
-    'instance_information_file_anomalies_pre_inject']
-instance_information_file_anomalies_injected_2 = \
-    settings[option]["dataset_2"][
-        'instance_information_file_anomalies_injected'] + anomaly_2 + "_" + args.anomaly_type + "_" + str(
-        args.anomaly_amount)
+    # for binary
+    BINARY_train_instance_information_injected_1 = settings[option]["dataset_1"]['instance_information_file_normal'] +  train_ds_1 + "_" + anomaly_type + "_" + str(anomaly_amount)
+    BINARY_train_instance_information_injected_2 = settings[option]["dataset_2"]['instance_information_file_normal'] +  train_ds_2 + "_" + anomaly_type + "_" + str(anomaly_amount)
 
-anomalies_injected_dir_2 = parsed_dir_2 + "anomalies_injected/"
-anomaly_indeces_dir_2 = parsed_dir_2 + "anomalies_injected/anomaly_indeces/"
+    test_instance_information_2 = settings[option]["dataset_2"]['instance_information_file_anomalies_pre_inject']
+    test_instance_information_injected_2 = settings[option]["dataset_2"]['instance_information_file_anomalies_injected'] + test_ds_2 + "_" + anomaly_type + "_" + str(anomaly_amount)
 
-# corpus files produced by Drain
-corpus_normal_1 = cwd + parsed_dir_1 + normal_1 + '_corpus'
-corpus_normal_2 = cwd + parsed_dir_2 + normal_2 + '_corpus'
-corpus_pre_anomaly_2 = cwd + parsed_dir_2 + anomaly_2 + '_corpus'
+    anomalies_injected_dir_2 = parsed_dir_2 + "anomalies_injected/"
+    anomaly_indeces_dir_2 = parsed_dir_2 + "anomalies_injected/anomaly_indeces/"
 
-# bert vectors as pickle files
-embeddings_normal_1 = cwd + embeddings_dir_1 + normal_1 + '.pickle'
-embeddings_normal_2 = cwd + embeddings_dir_2 + normal_2 + '.pickle'
-embeddings_anomalies_injected_2 = cwd + embeddings_dir_2 + anomaly_2 + '.pickle'
+    # corpus files produced by Drain
+    corpus_train_1 = cwd + parsed_dir_1 + train_ds_1 + '_corpus'
+    corpus_train_2 = cwd + parsed_dir_2 + train_ds_2 + '_corpus'
+    corpus_test_2 = cwd + parsed_dir_2 + test_ds_2 + '_corpus'
 
-if args.finetune:
-    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_with_finetune' + '_lstm.pth'
-    finetuning_model_dir = "wordembeddings/finetuning-models/" + normal_1
-else:
-    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + normal_1 + '_lstm.pth'
-    finetuning_model_dir = "bert-base-uncased"
+    # bert vectors as pickle files
+    embeddings_train_1 = cwd + embeddings_dir_1 + train_ds_1 + '.pickle'
+    embeddings_train_2 = cwd + embeddings_dir_2 + train_ds_2 + '.pickle'
+    embeddings_test_2 = cwd + embeddings_dir_2 + test_ds_2 + '.pickle'
 
-# take corpus parsed by drain, inject anomalies in this file
-anomaly_injected_corpus_2 = cwd + anomalies_injected_dir_2 + anomaly_2 + "_" + args.anomaly_type
-# put here the information about which line is an anomaly from anomaly injection
-anomaly_indeces_2 = cwd + results_dir_experiment + "true_anomaly_labels.txt"
-# anomaly_indeces_2 = cwd + anomaly_indeces_dir_2 + anomaly_2 + "_" + args.anomaly_type + "_" + args.anomaly_amount  + '_anomaly_indeces.txt'
+    if finetuning:
+        finetuning_model_dir = "wordembeddings/finetuning-models/" + train_ds_1
+        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds_1 + '_with_finetune' + '_lstm.pth'
+    else:
+        finetuning_model_dir = "bert-base-uncased"
+        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds_1 + "_" + experiment + '_lstm.pth'
 
-# create all directories, if they don't exist yet
-os.makedirs(results_dir, exist_ok=True)
-os.makedirs(results_dir_experiment, exist_ok=True)
-os.makedirs(raw_dir_1, exist_ok=True)
-os.makedirs(raw_dir_2, exist_ok=True)
-os.makedirs(parsed_dir_1, exist_ok=True)
-os.makedirs(parsed_dir_2, exist_ok=True)
-os.makedirs(embeddings_dir_1, exist_ok=True)
-os.makedirs(embeddings_dir_2, exist_ok=True)
-os.makedirs(anomalies_injected_dir_2, exist_ok=True)
-os.makedirs(anomaly_indeces_dir_2, exist_ok=True)
+    # take corpus parsed by drain, inject anomalies in this file
+    corpus_test_injected = cwd + anomalies_injected_dir_2 + test_ds_2 + "_" + anomaly_type
+    BINARY_corpus_train_injected = cwd + anomalies_injected_dir_2 + train_ds_1 + "_" + anomaly_type
+    BINARY_train_anomaly_indeces = cwd + results_dir_experiment + "train_anomaly_labels.txt"
+    test_anomaly_indeces = cwd + results_dir_experiment + "test_anomaly_labels.txt"
 
-### DRAIN PARSING
-if not os.path.exists(corpus_normal_1) or not os.path.exists(corpus_normal_2) or not os.path.exists(
-        corpus_pre_anomaly_2):
-    drain.execute(directory=raw_dir_1, file=normal_1, output=parsed_dir_1, logtype=logtype_1)
-    drain.execute(directory=raw_dir_2, file=normal_2, output=parsed_dir_2, logtype=logtype_2)
-    drain.execute(directory=raw_dir_2, file=anomaly_2, output=parsed_dir_2, logtype=logtype_2)
+    os.makedirs(results_dir, exist_ok=True)
+    os.makedirs(results_dir_experiment, exist_ok=True)
+    os.makedirs(raw_dir_1, exist_ok=True)
+    os.makedirs(raw_dir_2, exist_ok=True)
+    os.makedirs(parsed_dir_1, exist_ok=True)
+    os.makedirs(parsed_dir_2, exist_ok=True)
+    os.makedirs(embeddings_dir_1, exist_ok=True)
+    os.makedirs(embeddings_dir_2, exist_ok=True)
+    os.makedirs(anomalies_injected_dir_2, exist_ok=True)
+    os.makedirs(anomaly_indeces_dir_2, exist_ok=True)
 
-### INJECT ANOMALIES in dataset 2
-anomalies_true_labels, lines_before_alter, lines_after_alter = inject_anomalies(anomaly_type=args.anomaly_type,
-                                                                                corpus_input=corpus_pre_anomaly_2,
-                                                                                corpus_output=anomaly_injected_corpus_2,
-                                                                                anomaly_indices_output_path=anomaly_indeces_2,
-                                                                                instance_information_in=instance_information_file_anomalies_pre_inject_2,
-                                                                                instance_information_out=instance_information_file_anomalies_injected_2,
-                                                                                anomaly_amount=args.anomaly_amount,
-                                                                                results_dir=results_dir_experiment)
+    ### DRAIN PARSING
+    #if not os.path.exists(corpus_train_1) or not os.path.exists(corpus_test_2):
+    drain.execute(directory=raw_dir_1, file=train_ds_1, output=parsed_dir_1, logtype=logtype_1)
+    drain.execute(directory=raw_dir_2, file=train_ds_2, output=parsed_dir_2, logtype=logtype_2)
+    drain.execute(directory=raw_dir_2, file=test_ds_2, output=parsed_dir_2, logtype=logtype_2)
 
-# produce templates out of the corpuses that we have from the anomaly file
-templates_normal_1 = list(set(open(corpus_normal_1, 'r').readlines()))
-templates_normal_2 = list(set(open(corpus_normal_2, 'r').readlines()))
-# merge_templates(templates_normal_1, templates_normal_2, merged_template_path=parsed_dir_1 + "_merged_templates_normal")
-templates_anomalies_injected = list(set(open(anomaly_injected_corpus_2, 'r').readlines()))
-merged_templates = merge_templates(templates_normal_1, templates_normal_2, templates_anomalies_injected,
-                                   merged_template_path=None)
-merged_templates = list(merged_templates)
+    pre_process_log_events(corpus_test_2, corpus_train_1)
 
-if args.finetune:
-    if not os.path.exists(finetuning_model_dir):
-        finetune(templates=templates_normal_1, output_dir=finetuning_model_dir)
+    ### INJECT ANOMALIES in test ds
+    test_ds_anomaly_lines, test_ds_liens_before_injection, train_ds_lines_after_injection = \
+            inject_anomalies(anomaly_type=anomaly_type,
+                             corpus_input=corpus_test_2,
+                             corpus_output=corpus_test_injected,
+                             anomaly_indices_output_path=test_anomaly_indeces,
+                             instance_information_in=test_instance_information_2,
+                             instance_information_out=test_instance_information_injected_2,
+                             anomaly_amount=anomaly_amount,
+                             results_dir=results_dir_experiment)
 
-word_embeddings = get_embeddings(args.embeddings_model, merged_templates, finetuning_model_dir)
+    ### if in binary mode, inject anomalies also in train ds
+    if mode == "binary":
+        train_ds_anomaly_lines, train_ds_lines_before_injection, train_ds_lines_after_injection = \
+            inject_anomalies(
+                anomaly_type=anomaly_type,
+                corpus_input=corpus_train_1,
+                corpus_output=BINARY_corpus_train_injected,
+                anomaly_indices_output_path=BINARY_train_anomaly_indeces,
+                instance_information_in=train_instance_information_1,
+                instance_information_out=BINARY_train_instance_information_injected_1,
+                anomaly_amount=anomaly_amount,
+                results_dir=results_dir_experiment)
 
-write_to_tsv_files_bert_sentences(vectors=word_embeddings, sentences=merged_templates,
-                                  tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
-                                  tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
+        train_ds_2_anomaly_lines, train_ds_2_lines_before_injection, train_ds_2_lines_after_injection = \
+            inject_anomalies(
+                anomaly_type=anomaly_type,
+                corpus_input=corpus_train_2,
+                corpus_output=BINARY_corpus_train_injected,
+                anomaly_indices_output_path=BINARY_train_anomaly_indeces,
+                instance_information_in=train_instance_information_2,
+                instance_information_out=BINARY_train_instance_information_injected_2,
+                anomaly_amount=anomaly_amount,
+                results_dir=results_dir_experiment)
 
-if args.anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-    get_cosine_distance(lines_before_alter, lines_after_alter, merged_templates, results_dir_experiment,
-                        word_embeddings)
 
-# transform output of bert into numpy word embedding vectors
-transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal_1,
-                         templates=merged_templates, outputfile=embeddings_normal_1)
+    # produce templates out of the corpuses that we have from the anomaly file
+    templates_train_1 = list(set(open(corpus_train_1, 'r').readlines()))
+    templates_train_2 = list(set(open(corpus_train_2, 'r').readlines()))
+    # merge_templates(templates_normal_1, templates_normal_2, merged_template_path=parsed_dir_1 + "_merged_templates_normal")
+    templates_test_anomalies_injected = list(set(open(corpus_test_injected, 'r').readlines()))
+    merged_templates = merge_templates(templates_train_1, templates_train_2, templates_test_anomalies_injected, merged_template_path=None)
+    merged_templates = list(merged_templates)
 
-transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_normal_2,
-                         templates=merged_templates, outputfile=embeddings_normal_2)
+    if finetuning:
+        if not os.path.exists(finetuning_model_dir):
+            finetune(templates=templates_train_1, output_dir=finetuning_model_dir)
 
-transform_bert.transform(sentence_embeddings=word_embeddings, logfile=anomaly_injected_corpus_2,
-                         templates=merged_templates, outputfile=embeddings_anomalies_injected_2)
+    word_embeddings = get_embeddings(embeddings_model, merged_templates)
 
-if not args.anomaly_only:
-    # NORMAL TRAINING with dataset 1
-    ad_normal = AnomalyDetection(loadvectors=embeddings_normal_1,
-                                 savemodelpath=lstm_model_save_path,
-                                 seq_length=args.seq_len,
-                                 num_epochs=args.epochs,
-                                 n_hidden_units=args.hiddenunits,
-                                 n_layers=args.hiddenlayers,
-                                 embeddings_model='bert',
-                                 train_mode=True,
-                                 instance_information_file=instance_information_file_normal_1)
+    write_to_tsv_files_bert_sentences(word_embeddings=word_embeddings,
+                                      tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
+                                      tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
-    ad_normal.start_training()
-# FEW SHOT TRAINING with dataset 2
-ad_normal_transfer = AnomalyDetection(loadvectors=embeddings_normal_2,
-                                      savemodelpath=lstm_model_save_path,
-                                      seq_length=args.seq_len,
-                                      num_epochs=5,
-                                      n_hidden_units=args.hiddenunits,
-                                      n_layers=args.hiddenlayers,
-                                      embeddings_model='bert',
-                                      train_mode=True,
-                                      instance_information_file=instance_information_file_normal_2,
-                                      transfer_learning=True)
-if not args.anomaly_only:
-    ad_normal_transfer.start_training()
+    embeddings_dim = list(word_embeddings.values())[0].size()[0]
 
-normal_loss_values = calculate_normal_loss(normal_lstm_model=ad_normal_transfer,
-                                           results_dir=results_dir_experiment,
-                                           values_type='normal_loss_values',
-                                           cwd=cwd)
-ad_anomaly = AnomalyDetection(loadvectors=embeddings_anomalies_injected_2,
-                              savemodelpath=lstm_model_save_path,
-                              seq_length=args.seq_len,
-                              num_epochs=args.epochs,
-                              n_hidden_units=args.hiddenunits,
-                              n_layers=args.hiddenlayers,
-                              embeddings_model='bert',
-                              instance_information_file=instance_information_file_anomalies_injected_2,
-                              anomalies_run=True,
-                              results_dir=cwd + results_dir_experiment + 'anomaly_loss_indices')
-calculate_anomaly_loss(anomaly_lstm_model=ad_anomaly, results_dir=results_dir_experiment,
-                       normal_loss_values=normal_loss_values,
-                       anomaly_loss_order=cwd + results_dir_experiment + 'anomaly_loss_indices',
-                       anomaly_true_labels=anomalies_true_labels)
-print("done.")
-calculate_precision_and_plot(results_dir_experiment, args, cwd)
+    if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
+        get_cosine_distance(test_ds_liens_before_injection, train_ds_lines_after_injection, results_dir_experiment, word_embeddings)
+
+    # transform output of bert into numpy word embedding vectors
+    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_train_1, outputfile=embeddings_train_1)
+
+    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_train_2, outputfile=embeddings_train_2)
+
+    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_test_injected, outputfile=embeddings_test_2)
+
+    ############################
+    ###### MULTICLASS
+    ############################
+    if mode == "multiclass":
+        target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(normal_corpus=open(corpus_train_1, 'r').readlines(),
+                                                                                                 encoder_path=label_encoder,
+                                                                                                 templates=templates_train_1,
+                                                                                                 embeddings=word_embeddings)
+
+        sentences_ds2_label_ds1_mapping = get_nearest_neighbour_embedding_label_mapping(word_embeddings,
+                                                                                        normal_label_embeddings_map,
+                                                                                        templates_train_2 + templates_test_anomalies_injected)
+
+        # Use sentence_label_mapping to map every sentence from corpus to labels
+        ds_2_target_labels = [sentences_ds2_label_ds1_mapping.get(sentence) for sentence in open(corpus_train_2, 'r').readlines()]
+
+        lstm_ds_1 = Multiclass(n_features=n_classes,
+                               n_input=embeddings_dim,
+                               target_labels=target_normal_labels,
+                               train_vectors=embeddings_train_1,
+                               train_instance_information_file=train_instance_information_1,
+                               test_vectors=None,
+                               test_instance_information_file=None,
+                               savemodelpath=lstm_model_save_path,
+                               seq_length=seq_len,
+                               num_epochs=epochs,
+                               no_anomaly=no_anomaly,
+                               results_dir=cwd + results_dir_experiment,
+                               embeddings_model='bert',
+                               n_layers=n_layers,
+                               n_hidden_units=n_hidden_units,
+                               batch_size=batch_size,
+                               clip=clip,
+                               top_k_label_mapping=None,
+                               normal_label_embeddings_map=normal_label_embeddings_map,
+                               lines_that_have_anomalies=test_ds_anomaly_lines,
+                               corpus_of_log_containing_anomalies=corpus_test_injected,
+                               transfer_learning=False,
+                               attention=attention,
+                               prediction_only=prediction_only)
+
+        if not prediction_only:
+            lstm_ds_1.start_training()
+
+        lstm_ds_2 = Multiclass(n_features=n_classes,
+                               n_input=embeddings_dim,
+                               target_labels=ds_2_target_labels,
+                               train_vectors=embeddings_train_2,
+                               train_instance_information_file=train_instance_information_2,
+                               test_vectors=embeddings_test_2,
+                               test_instance_information_file=test_instance_information_injected_2,
+                               savemodelpath=lstm_model_save_path,
+                               seq_length=seq_len,
+                               num_epochs=5,
+                               no_anomaly=no_anomaly,
+                               results_dir=cwd + results_dir_experiment,
+                               embeddings_model='bert',
+                               n_layers=n_layers,
+                               n_hidden_units=n_hidden_units,
+                               batch_size=batch_size,
+                               clip=clip,
+                               top_k_label_mapping=sentences_ds2_label_ds1_mapping,
+                               normal_label_embeddings_map=normal_label_embeddings_map,
+                               lines_that_have_anomalies=test_ds_anomaly_lines,
+                               corpus_of_log_containing_anomalies=corpus_test_injected,
+                               transfer_learning=True,
+                               attention=attention,
+                               prediction_only=prediction_only)
+
+        if not prediction_only:
+            lstm_ds_2.start_training()
+
+
+    ############################
+    ###### REGRESSION
+    ############################
+    elif mode == "regression":
+        lstm_ds_1 = Regression(train_vectors=embeddings_train_1,
+                          train_instance_information_file=train_instance_information_1,
+                          test_vectors=embeddings_train_1,
+                          test_instance_information_file=train_instance_information_1,
+                          savemodelpath=lstm_model_save_path,
+                          seq_length=seq_len,
+                          num_epochs=epochs,
+                          n_hidden_units=n_hidden_units,
+                          n_layers=n_layers,
+                          embeddings_model='bert',
+                          no_anomaly=no_anomaly,
+                          clip=clip,
+                          results_dir=cwd + results_dir_experiment,
+                          batch_size=batch_size,
+                          lines_that_have_anomalies=test_ds_anomaly_lines,
+                          n_input=embeddings_dim,
+                          n_features=embeddings_dim,
+                          transfer_learning=False,
+                          attention=attention,
+                          prediction_only=prediction_only)
+
+        if not prediction_only:
+            lstm_ds_1.start_training()
+
+        lstm_ds_2 = Regression(train_vectors=embeddings_train_2,
+                          train_instance_information_file=train_instance_information_2,
+                          test_vectors=embeddings_test_2,
+                          test_instance_information_file=test_instance_information_injected_2,
+                          savemodelpath=lstm_model_save_path,
+                          seq_length=seq_len,
+                          num_epochs=5,
+                          n_hidden_units=n_hidden_units,
+                          n_layers=n_layers,
+                          embeddings_model='bert',
+                          no_anomaly=no_anomaly,
+                          clip=clip,
+                          results_dir=cwd + results_dir_experiment,
+                          batch_size=batch_size,
+                          lines_that_have_anomalies=test_ds_anomaly_lines,
+                          n_input=embeddings_dim,
+                          n_features=embeddings_dim,
+                          transfer_learning=True,
+                          attention=attention,
+                          prediction_only=prediction_only)
+
+        if not prediction_only:
+            lstm_ds_2.start_training()
+
+
+
+
+    f1, precision = lstm_ds_2.final_prediction()
+    calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
+                                 anomaly_amount, n_hidden_units, n_layers, clip, experiment, mode)
+    print("done.")
+    return f1, precision
+
+if __name__ == '__main__':
+    experiment()

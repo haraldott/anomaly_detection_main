@@ -17,7 +17,7 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=80,
+def experiment(epochs=30,
                mode="multiclass",
                anomaly_type='random_lines',
                anomaly_amount=1,
@@ -145,11 +145,11 @@ def experiment(epochs=80,
     transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_test_injected, outputfile=embeddings_test)
 
     if mode == "multiclass":
-        target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(
-                                                                           normal_corpus=open(corpus_train, 'r').readlines(),
-                                                                           encoder_path=label_encoder,
-                                                                           templates=templates_train,
-                                                                           embeddings=word_embeddings)
+        target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(normal_corpus=open(corpus_train, 'r').readlines(),
+                                                                                                 encoder_path=label_encoder,
+                                                                                                 templates=templates_train,
+                                                                                                 embeddings=word_embeddings)
+        list(set())
         top_k_label_mapping = get_top_k_embedding_label_mapping(
                                 set_embeddings_of_log_containing_anomalies=word_embeddings,
                                 normal_label_embedding_mapping=normal_label_embeddings_map)
@@ -172,6 +172,7 @@ def experiment(epochs=80,
                           batch_size=batch_size,
                           clip=clip,
                           top_k_label_mapping=top_k_label_mapping,
+                          normal_label_embeddings_map=normal_label_embeddings_map,
                           lines_that_have_anomalies=test_ds_anomaly_lines,
                           corpus_of_log_containing_anomalies=corpus_test_injected,
                           transfer_learning=False,

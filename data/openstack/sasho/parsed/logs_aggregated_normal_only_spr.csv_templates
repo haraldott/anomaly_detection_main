@@ -1,6 +1,7 @@
-"<*> <*> <*> <*> <*>
+"<*> <*> limit not specified
 "<*> Attempting claim on node wally<*>: memory <*> MB
-<*> <*> <*> on node <*>
+"<*> Total <*> <*> <*>
+<*> Claim successful on node <*>
 <*> Creating image
 <*> VM <*> (Lifecycle Event)
 <*> Instance <*> successfully.
@@ -11,6 +12,7 @@
 <*> Deleting instance files <*>
 <*> Deletion of <*>
 <*> Took <*>.<*> seconds to deallocate network for instanc
+<*> Attempting claim on node wally<*>.cit.tu-berlin.de:
 <*> Instance failed to spawn: ConnectFailure: Unable to
 <*> Error from last host: wally<*> (node wally<*>.cit.t
 <*> An error occurred while refreshing the network cach
