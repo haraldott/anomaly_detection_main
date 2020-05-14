@@ -38,7 +38,8 @@ class AnomalyDetection:
                  savemodelpath='saved_models/lstm.pth',
                  folds=5,
                  transfer_learning=False,
-                 loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth'
+                 loadautoencodermodel='saved_models/openstack_52k_normal_vae.pth',
+                 transfer_learning_initial_training=False
                  ):
         self.train_vectors = pickle.load(open(train_vectors, 'rb'))
         self.train_instance_information_file = train_instance_information_file
@@ -61,6 +62,7 @@ class AnomalyDetection:
         self.log_frequency_interval = 10
         self.n_input = n_input
         self.no_anomaly = no_anomaly
+        self.transfer_learning_initial_training = transfer_learning_initial_training
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

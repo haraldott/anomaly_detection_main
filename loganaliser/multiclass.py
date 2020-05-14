@@ -65,7 +65,7 @@ class Multiclass(AnomalyDetection):
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                if epoch % self.log_frequency_interval == 0:
+                if epoch % self.log_frequency_interval == 0 and not self.transfer_learning_initial_training:
                     predicted_labels = self.predict()
                     result = self.determine_anomalies.determine(predicted_labels, self.no_anomaly)
                     intermediate_results.append(result)

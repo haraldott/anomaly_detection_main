@@ -216,7 +216,8 @@ def experiment(epochs=5,
                                corpus_of_log_containing_anomalies=corpus_test_injected,
                                transfer_learning=False,
                                attention=attention,
-                               prediction_only=prediction_only)
+                               prediction_only=prediction_only,
+                               transfer_learning_initial_training=True)
 
         if not prediction_only:
             lstm_ds_1.start_training()
