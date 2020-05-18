@@ -61,6 +61,11 @@ def experiment(epochs=30,
     # corpus files produced by Drain
     corpus_train = cwd + parsed_dir + train_ds + '_corpus'
     corpus_test = cwd + parsed_dir + test_ds + '_corpus'
+
+    # template files produced by Drain
+    templates_normal = cwd + parsed_dir + train_ds + '_templates'
+    templates_pre_anomaly = cwd + parsed_dir + test_ds + '_templates'
+
     # bert vectors as pickle files
     embeddings_train = cwd + embeddings_dir + train_ds + '.pickle'
     embeddings_test = cwd + embeddings_dir + test_ds + '.pickle'
@@ -90,7 +95,7 @@ def experiment(epochs=30,
         drain.execute(directory=raw_dir, file=train_ds, output=parsed_dir, logtype=logtype)
         drain.execute(directory=raw_dir, file=test_ds, output=parsed_dir, logtype=logtype)
 
-    pre_process_log_events(corpus_test, corpus_train)
+    pre_process_log_events(corpus_test, corpus_train, templates_normal, templates_pre_anomaly)
 
     ### INJECT ANOMALIES in test ds
     test_ds_anomaly_lines, test_ds_liens_before_injection, train_ds_lines_after_injection = \
