@@ -31,9 +31,9 @@ settings = {
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-dir', default='/Users/haraldott/Development/thesis/logparser/logs/OpenStack/', type=str)
-parser.add_argument('-file', default='openstack_val_anomalies', type=str)
-parser.add_argument('-logtype', type=str, required=True)
+parser.add_argument('-dir', default='/Users/haraldott/Development/thesis/detector/data/openstack/utah/raw/sorted_per_request/', type=str)
+parser.add_argument('-file', default='18k_spr', type=str)
+parser.add_argument('-logtype', type=str, default="OpenStack")
 args = parser.parse_args()
 
 input_dir = args.dir  # The input directory of log file
@@ -43,7 +43,7 @@ output_dir = 'IPLoM_result/'  # The output directory of parsing results
 try:
     log_format = settings[args.logtype]["log_format"]
     regex = settings[args.logtype]["regex"]
-    lower_bound = settings[args.logtype]["lower_bound"]
+    lower_bound = settings[args.logtype]["lowerBound"]
     CT = settings[args.logtype]["CT"]
 except ValueError:
     print("log format does not exist")

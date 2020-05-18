@@ -261,12 +261,14 @@ def get_nearest_neighbour_embedding_label_mapping(sentence_embedding_mapping,
 
 class DetermineAnomalies():
     def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies, normal_label_embeddings_map,
-                 top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies):
+                 top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies,
+                 results_dir):
         self.lines_that_have_anomalies = lines_that_have_anomalies
         self.corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
         self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
         self.normal_label_embeddings_map = normal_label_embeddings_map
+        self.results_dir = results_dir
 
     def determine(self, predicted_labels_of_file_containing_anomalies, no_anomaly):
         # see if there are embeddings with distance <= thresh, if none -> anomaly, else: no anomaly
@@ -330,6 +332,8 @@ class DetermineAnomalies():
                 best_f1 = f1
                 best_thresh = thresh
         print("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
+        with open(self.results_dir + "thresh.txt", "a") as f:
+            f.write("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
         # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
         if no_anomaly:
             true_labels = 1 - true_labels

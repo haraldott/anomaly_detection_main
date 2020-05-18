@@ -18,7 +18,8 @@ class Multiclass(AnomalyDetection):
                                                       top_k_anomaly_embedding_label_mapping=top_k_label_mapping,
                                                       order_of_values_of_file_containing_anomalies=self.target_indices,
                                                       corpus_of_log_containing_anomalies=corpus_of_log_containing_anomalies,
-                                                      normal_label_embeddings_map=normal_label_embeddings_map)
+                                                      normal_label_embeddings_map=normal_label_embeddings_map,
+                                                      results_dir=self.results_dir)
 
 
 
