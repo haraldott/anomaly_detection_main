@@ -15,9 +15,6 @@ from transformers import get_linear_schedule_with_warmup
 from typing import Tuple
 import math
 
-epochs = 4
-
-
 def format_time(elapsed):
     """
     Takes a time in seconds and returns a string hh:mm:ss
@@ -60,8 +57,9 @@ def mask_tokens(inputs: torch.Tensor, tokenizer: transformers_BertTokenizer) -> 
 #                                               ARGUMENT PARSE
 ########################################################################################################################
 
-def finetune(templates='../data/openstack/utah/parsed/merged_templates/137k+18k_spr_injected_2_words',
-             output_dir='finetuning-models/137k+18k_spr_injected_2_words'):
+def finetune(templates='../data/openstack/utah/parsed/18k_spr_templates',
+             output_dir='finetuning-models/137k+18k_spr_injected_2_words',
+             epochs=4):
 
     # arg parsing and assignment
     if type(templates) == str:

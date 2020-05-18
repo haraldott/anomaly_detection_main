@@ -25,7 +25,7 @@ def experiment(epochs=30,
                attention=False,
                prediction_only=False,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
-               embeddings_model='bert', experiment='x', label_encoder=None):
+               embeddings_model='bert', experiment='x', label_encoder=None, finetune_epochs=4):
     cwd = os.getcwd() + "/"
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
           .format(epochs, mode, attention, anomaly_type))
@@ -131,7 +131,7 @@ def experiment(epochs=30,
 
     if finetuning:
         if not os.path.exists(finetuning_model_dir):
-            finetune(templates=templates_train, output_dir=finetuning_model_dir)
+            finetune(templates=templates_train, output_dir=finetuning_model_dir, epochs=finetune_epochs)
 
     word_embeddings = get_embeddings(embeddings_model, merged_templates)
 

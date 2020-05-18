@@ -1,17 +1,17 @@
-<*> Creating image
-<*> VM <*> (Lifecycle Event)
-<*> During sync_power_state the instance has a pending task (spawning). Skip.
-<*> Instance <*> successfully.
-<*> Took <*>.<*> seconds to <*> the instance on the hypervisor.
-<*> Took <*>.<*> seconds to build instance.
-<*> Terminating instance
-<*> Deleting instance files <*>
-<*> Deletion of <*>complete
-<*> Took <*>.<*> seconds to deallocate network for instance.
-<*> Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU
-<*> Total memory: <*> MB, used: <*>.<*> MB
-<*> memory limit: <*>.<*> MB, free: <*>.<*> MB
-<*> Total disk: <*> GB, used: <*>.<*> GB
-<*> <*> limit not specified, defaulting to unlimited
-<*> Total vcpu: <*> VCPU, used: <*>.<*> VCPU
-<*> Claim successful
+ Creating image
+ VM  Lifecycle Event
+ During sync_power_state the instance has a pending task spawning Skip
+ Instance  successfully
+ Took  seconds to  the instance on the hypervisor
+ Took  seconds to build instance
+ Terminating instance
+ Deleting instance files 
+ Deletion of complete
+ Took  seconds to deallocate network for instance
+ Attempting claim memory  MB disk  GB vcpus  CPU
+ Total memory  MB used  MB
+ memory limit  MB free  MB
+ Total disk  GB used  GB
+  limit not specified defaulting to unlimited
+ Total vcpu  VCPU used  VCPU
+ Claim successful
