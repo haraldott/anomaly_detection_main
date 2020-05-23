@@ -103,5 +103,39 @@ settings = {
                 "instance_information_file_anomalies_injected": "data/openstack/utah/raw/sorted_per_request_pickle/anomalies/"
              }
 
-    }
+    },
+
+    'UtahUtahTransfer': {
+            'dataset_1':
+                {
+                    # files
+                    "raw_normal": "137k_spr",
+                    # dirs
+                    "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
+                    "parsed_dir": "data/openstack/utah/parsed/",
+                    "embeddings_dir": "data/openstack/utah/embeddings/",
+                    # logtype for drain
+                    "logtype": "OpenStack",
+                    # instance information file
+                    "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle",
+                 },
+            'dataset_2':
+                {
+                    # files
+                    "raw_normal": "137k_spr",
+                    "raw_anomaly": "18k_spr",
+                    # dirs
+                    "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
+                    "parsed_dir": "data/openstack/utah/parsed/",
+                    "results_dir": "data/openstack/utah/results/UtahSashoTransfer",
+                    "embeddings_dir": "data/openstack/utah/embeddings/",
+                    # logtype for drain parsing
+                    "logtype": "OpenStack",
+                    # instance information files
+                    "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle",
+                    "instance_information_file_anomalies_pre_inject": "data/openstack/utah/raw/sorted_per_request_pickle/18k_spr.pickle",
+                    "instance_information_file_anomalies_injected": "data/openstack/utah/raw/sorted_per_request_pickle/anomalies/"
+                 }
+
+        }
 }

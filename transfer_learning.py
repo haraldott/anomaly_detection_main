@@ -1,6 +1,6 @@
 import matplotlib
 
-from loganaliser.binary import BinaryClassification
+from logparser.anomaly_injector import transfer_train_log
 
 matplotlib.use('Agg')
 from settings import settings
@@ -11,20 +11,20 @@ from loganaliser.regression import Regression
 from loganaliser.multiclass import Multiclass
 from wordembeddings.bert_finetuning import finetune
 from shared_functions import calculate_precision_and_plot, get_cosine_distance, inject_anomalies, get_labels_from_corpus, \
-    pre_process_log_events, get_top_k_embedding_label_mapping, get_nearest_neighbour_embedding_label_mapping
+    pre_process_log_events, get_nearest_neighbour_embedding_label_mapping
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=5,
+def experiment(epochs=0,
                mode="multiclass",
                anomaly_type='random_lines',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
                prediction_only=False,
-               option='UtahSashoTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
+               option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
@@ -109,10 +109,14 @@ def experiment(epochs=5,
     drain.execute(directory=raw_dir_2, file=train_ds_2, output=parsed_dir_2, logtype=logtype_2)
     drain.execute(directory=raw_dir_2, file=test_ds_2, output=parsed_dir_2, logtype=logtype_2)
 
-    pre_process_log_events(corpus_test_2, corpus_train_1)
+    pre_process_log_events(corpus_test_2, corpus_train_1, corpus_train_2)
+
+    # manipulate train ds 1
+    if option != "UtahSashoTransfer":
+        transfer_train_log(corpus_train_1, corpus_train_1)
 
     ### INJECT ANOMALIES in test ds
-    test_ds_anomaly_lines, test_ds_liens_before_injection, train_ds_lines_after_injection = \
+    test_ds_anomaly_lines, test_ds_lines_before_injection, train_ds_lines_after_injection = \
             inject_anomalies(anomaly_type=anomaly_type,
                              corpus_input=corpus_test_2,
                              corpus_output=corpus_test_injected,
@@ -168,7 +172,7 @@ def experiment(epochs=5,
     embeddings_dim = list(word_embeddings.values())[0].size()[0]
 
     if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-        get_cosine_distance(test_ds_liens_before_injection, train_ds_lines_after_injection, results_dir_experiment, word_embeddings)
+        get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, word_embeddings)
 
     # transform output of bert into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_train_1, outputfile=embeddings_train_1)
@@ -231,7 +235,7 @@ def experiment(epochs=5,
                                test_instance_information_file=test_instance_information_injected_2,
                                savemodelpath=lstm_model_save_path,
                                seq_length=seq_len,
-                               num_epochs=5,
+                               num_epochs=0,
                                no_anomaly=no_anomaly,
                                results_dir=cwd + results_dir_experiment,
                                embeddings_model='bert',

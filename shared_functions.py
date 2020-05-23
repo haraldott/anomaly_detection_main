@@ -1,5 +1,6 @@
+from typing import Dict
+
 import matplotlib
-from typing import List, Dict
 
 matplotlib.use('Agg')
 import numpy as np
@@ -237,7 +238,7 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
             cos_distances.update({label: cosine(anom_emb, norm_emb)})
         largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
         largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
-        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
+        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels[0]})
     return top_k_anomaly_embedding_label_mapping
 
 
@@ -255,7 +256,7 @@ def get_nearest_neighbour_embedding_label_mapping(sentence_embedding_mapping,
         for label, embedding_ds1 in class_embedding_mapping.items():
             cos_distances.update({label: cosine(embedding_ds2, embedding_ds1)})
         smallest_dist_label = heapq.nsmallest(1, cos_distances, key=cos_distances.get)
-        nearest_neighbour_sentence_ds2_class_ds1_mapping.update({sentence: smallest_dist_label})
+        nearest_neighbour_sentence_ds2_class_ds1_mapping.update({sentence: smallest_dist_label[0]})
     return nearest_neighbour_sentence_ds2_class_ds1_mapping
 
 
@@ -287,8 +288,8 @@ class DetermineAnomalies():
         pred_outliers_indeces = []
         for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
             most_probable_real_class = self.top_k_anomaly_embedding_label_mapping.get(sentence)
-            #if most_probable_real_class in top_k_labels_pred:
-            if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
+            if most_probable_real_class in top_k_labels_pred:
+            #if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
                 # check if we missed
                 if (true_labels[i] != 0):
                     distances = []
@@ -435,5 +436,6 @@ def pre_process_log_events(*file):
             line = line.replace(":", "")
             line = line.replace("[", "")
             line = line.replace("]", "")
+            line = line.lstrip(' ')
             new_text.write(line)
         new_text.close()
