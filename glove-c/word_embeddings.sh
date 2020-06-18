@@ -3,8 +3,8 @@ scriptdir="$(dirname "$0")"
 cd "$scriptdir" || exit
 usage() { echo "Usage: $0 [] []" 1>&2; exit 1;}
 
-CORPUS=../data/openstack/utah/parsed/openstack_52k_normal_templates
-SAVE_FILE=../data/openstack/utah/embeddings/openstack_52k_normal_vectors
+CORPUS=../data/openstack/utah/parsed/18k_spr_templates
+SAVE_FILE=../data/openstack/utah/embeddings/18k_spr_templates
 VECTOR_SIZE=100
 
 while getopts c:s:v: o; do
@@ -17,8 +17,8 @@ while getopts c:s:v: o; do
 done
 shift $((OPTIND-1))
 
-CORPUS="$(pwd)/${CORPUS}"
-SAVE_FILE="$(pwd)/${SAVE_FILE}"
+#CORPUS="$(pwd)/${CORPUS}"
+#SAVE_FILE="$(pwd)/${SAVE_FILE}"
 echo "$CORPUS"
 echo "$SAVE_FILE"
 

@@ -66,20 +66,14 @@ class AnomalyDetection:
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # select word embeddings
-        if self.train_instance_information_file is None:
-            if embeddings_model == 'glove':
-                self.train_data_x, self.train_data_y,  = self.prepare_data_latent_space(self.train_vectors)
-                self.test_data_x, self.test_data_y = self.prepare_data_latent_space(self.test_vectors)
-            elif embeddings_model == 'bert' or embeddings_model == 'embeddings_layer':
-                self.train_data_x, self.train_data_y = self.prepare_data_raw(self.train_vectors)
-                self.test_data_x, self.test_data_y = self.prepare_data_raw(self.test_vectors)
-        else:
-            self.train_data_x, self.train_data_y = self.prepare_data_per_request(self.train_vectors,
-                                                                                 self.train_instance_information_file)
-            if test_vectors is not None:
-                self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors,
-                                                                                   self.test_instance_information_file)
+        if embeddings_model == 'glove':
+            self.train_data_x, self.train_data_y, = self.prepare_data_latent_space(self.train_vectors, self.train_instance_information_file)
+            self.test_data_x, self.test_data_y = self.prepare_data_latent_space(self.test_vectors, self.test_instance_information_file)
+
+        elif embeddings_model == "bert" or embeddings_model == "gpt2":
+            self.train_data_x, self.train_data_y = self.prepare_data_per_request(self.train_vectors, self.train_instance_information_file)
+            self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors, self.test_instance_information_file)
+
 
         if attention:
             self.model = lstm_model.LSTMAttention(n_input=self.n_input,
@@ -157,7 +151,7 @@ class AnomalyDetection:
 
         return data_x, data_y
 
-    def prepare_data_latent_space(self, padded_embeddings):
+    def prepare_data_latent_space(self, padded_embeddings, instance_information_file):
 
         sentence_lens = [len(sentence) for sentence in
                          padded_embeddings]  # how many words a log line consists of, without padding
@@ -176,29 +170,10 @@ class AnomalyDetection:
             sentence = torch.from_numpy(sentence)
             sentence = sentence.reshape(-1)
             encoded_sentence = autoencoder_model.encode(sentence)
-            latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach().numpy())
+            latent_space_representation_of_padded_embeddings.append(torch.from_numpy(encoded_sentence.detach()))
 
-        number_of_sentences = len(latent_space_representation_of_padded_embeddings)
-        feature_length = latent_space_representation_of_padded_embeddings[0].size
+        return self.prepare_data_per_request(latent_space_representation_of_padded_embeddings, instance_information_file)
 
-        data_x = []
-        data_y = []
-        # for i in range(0, number_of_sentences - 1):
-        #     data_x.append(latent_space_representation_of_padded_embeddings[i])
-        #     data_y.append(latent_space_representation_of_padded_embeddings[i + 1])
-        for i in range(0, number_of_sentences - self.seq_length):
-            data_x.append(latent_space_representation_of_padded_embeddings[i: i + self.seq_length])
-            data_y.append(latent_space_representation_of_padded_embeddings[i + self.seq_length])
-
-        data_x = torch.tensor(data_x).to(self.device)
-        data_y = torch.tensor(data_y).to(self.device)
-
-        # samples, timesteps, features
-        # dataloader_x = DataLoader(data_x, batch_size=64)
-        # dataloader_y = DataLoader(data_y, batch_size=64)
-        # data_x = np.reshape(data_x, (n_patterns, self.seq_length, feature_length))
-
-        return data_x, data_y
 
     @staticmethod
     def split(x, n_splits):

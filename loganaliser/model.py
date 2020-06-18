@@ -14,7 +14,7 @@ class LSTM(nn.Module):
         # self.attn = nn.Linear(self.n_hidden_units * 2, n_input)
         # self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
         self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units, num_layers=n_layers,
-                            dropout=0.5, batch_first=True)
+                            dropout=0.5, batch_first=True, bidirectional=True)
         self.decoder = nn.Linear(n_hidden_units, n_output)
 
         if tie_weights:

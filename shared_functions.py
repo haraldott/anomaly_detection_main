@@ -15,6 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 import pickle
 from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
 import heapq
+import re
 
 
 def transfer_labels(dataset1_templates, dataset2_templates, dataset2_corpus, word_embeddings, template_class_mapping,
@@ -238,7 +239,7 @@ def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies
             cos_distances.update({label: cosine(anom_emb, norm_emb)})
         largest_labels_indeces = heapq.nsmallest(top_k, cos_distances, key=cos_distances.get)
         largest_labels = [i for i in largest_labels_indeces if cos_distances.get(i) < thresh]
-        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels[0]})
+        top_k_anomaly_embedding_label_mapping.update({sentence: largest_labels})
     return top_k_anomaly_embedding_label_mapping
 
 
@@ -436,6 +437,10 @@ def pre_process_log_events(*file):
             line = line.replace(":", "")
             line = line.replace("[", "")
             line = line.replace("]", "")
+            line = line.replace("_", " ")
+            line = line.replace("-", " ")
             line = line.lstrip(' ')
+            line = line.rstrip(' ')
+            line = re.sub(' +', ' ', line)
             new_text.write(line)
         new_text.close()
