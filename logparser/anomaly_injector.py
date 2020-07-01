@@ -63,7 +63,8 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
     number_of_deletes = math.floor(len(total_lines) * overall_anomaly_ratio)
-    instance_information = pickle.load(open(instance_information_in, 'rb'))
+    with open(instance_information_in, 'rb') as instance_information_in_file:
+        instance_information = pickle.load(instance_information_in_file)
 
     instance_id_list = []
 
@@ -121,7 +122,8 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
             for index_of_altered_line_inside_block in indices_inside_blocks_to_alter.get(instance_id_block_index):
                 overall_index_of_deleted_line = instance_block_begin_line + index_of_altered_line_inside_block
                 anomaly_indices.append(overall_index_of_deleted_line)
-    pickle.dump(new_instance_information, open(instance_information_out, 'wb'))
+    with open(instance_information_out, 'wb') as f:
+        pickle.dump(new_instance_information, f)
 
     anomaly_indices.sort()
     for index in anomaly_indices:

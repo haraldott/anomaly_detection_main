@@ -17,9 +17,9 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=10,
-               mode="regression",
-               anomaly_type='random_lines',
+def experiment(epochs=30,
+               mode="multiclass",
+               anomaly_type='insert_words',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
@@ -97,13 +97,24 @@ def experiment(epochs=10,
 
     pre_process_log_events(corpus_test, corpus_train, templates_normal, templates_pre_anomaly)
 
-    ### INJECT ANOMALIES in test ds
+    ### INJECT ALTERATIONS in test ds
     test_ds_anomaly_lines, test_ds_liens_before_injection, train_ds_lines_after_injection = \
             inject_anomalies(anomaly_type=anomaly_type,
                              corpus_input=corpus_test,
                              corpus_output=corpus_test_injected,
                              anomaly_indices_output_path=test_anomaly_indeces,
                              instance_information_in=test_instance_information,
+                             instance_information_out=test_instance_information_injected,
+                             anomaly_amount=anomaly_amount,
+                             results_dir=results_dir_experiment)
+
+    # INJECT ANOMALIES in test ds
+    test_ds_anomaly_lines, _, _ = \
+            inject_anomalies(anomaly_type="random_lines",
+                             corpus_input=corpus_test_injected,
+                             corpus_output=corpus_test_injected,
+                             anomaly_indices_output_path=test_anomaly_indeces,
+                             instance_information_in=test_instance_information_injected,
                              instance_information_out=test_instance_information_injected,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment)
