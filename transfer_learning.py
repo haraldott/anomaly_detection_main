@@ -2,7 +2,7 @@ import matplotlib
 
 from logparser.anomaly_injector import transfer_train_log
 
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 from settings import settings
 from wordembeddings.transform_glove import merge_templates
 import logparser.Drain.Drain_demo as drain
@@ -163,23 +163,23 @@ def experiment(epochs=0,
         if not os.path.exists(finetuning_model_dir):
             finetune(templates=templates_train_1, output_dir=finetuning_model_dir)
 
-    word_embeddings = get_embeddings(embeddings_model, merged_templates)
+    sentence_to_embeddings_mapping = get_embeddings(embeddings_model, merged_templates)
 
-    write_to_tsv_files_bert_sentences(word_embeddings=word_embeddings,
+    write_to_tsv_files_bert_sentences(word_embeddings=sentence_to_embeddings_mapping,
                                       tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
                                       tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
-    embeddings_dim = list(word_embeddings.values())[0].size()[0]
+    embeddings_dim = list(sentence_to_embeddings_mapping.values())[0].size()[0]
 
     if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-        get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, word_embeddings)
+        get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
 
     # transform output of bert into numpy word embedding vectors
-    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_train_1, outputfile=embeddings_train_1)
+    transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_1, outputfile=embeddings_train_1)
 
-    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_train_2, outputfile=embeddings_train_2)
+    transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_2, outputfile=embeddings_train_2)
 
-    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_test_injected, outputfile=embeddings_test_2)
+    transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_test_injected, outputfile=embeddings_test_2)
 
     ############################
     ###### MULTICLASS
@@ -188,9 +188,9 @@ def experiment(epochs=0,
         target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(normal_corpus=open(corpus_train_1, 'r').readlines(),
                                                                                                  encoder_path=label_encoder,
                                                                                                  templates=templates_train_1,
-                                                                                                 embeddings=word_embeddings)
+                                                                                                 embeddings=sentence_to_embeddings_mapping)
 
-        sentences_ds2_label_ds1_mapping = get_nearest_neighbour_embedding_label_mapping(word_embeddings,
+        sentences_ds2_label_ds1_mapping = get_nearest_neighbour_embedding_label_mapping(sentence_to_embeddings_mapping,
                                                                                         normal_label_embeddings_map,
                                                                                         templates_train_2 + templates_test_anomalies_injected)
 
@@ -221,7 +221,9 @@ def experiment(epochs=0,
                                transfer_learning=False,
                                attention=attention,
                                prediction_only=prediction_only,
-                               transfer_learning_initial_training=True)
+                               transfer_learning_initial_training=True,
+                               mode=mode,
+                               sentence_to_embeddings_mapping=sentence_to_embeddings_mapping)
 
         if not prediction_only:
             lstm_ds_1.start_training()
@@ -235,7 +237,7 @@ def experiment(epochs=0,
                                test_instance_information_file=test_instance_information_injected_2,
                                savemodelpath=lstm_model_save_path,
                                seq_length=seq_len,
-                               num_epochs=0,
+                               num_epochs=5,
                                no_anomaly=no_anomaly,
                                results_dir=cwd + results_dir_experiment,
                                embeddings_model='bert',
@@ -249,7 +251,9 @@ def experiment(epochs=0,
                                corpus_of_log_containing_anomalies=corpus_test_injected,
                                transfer_learning=True,
                                attention=attention,
-                               prediction_only=prediction_only)
+                               prediction_only=prediction_only,
+                               mode=mode,
+                               sentence_to_embeddings_mapping=sentence_to_embeddings_mapping)
 
         if not prediction_only:
             lstm_ds_2.start_training()

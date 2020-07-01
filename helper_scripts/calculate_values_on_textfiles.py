@@ -1,6 +1,8 @@
 from sklearn.metrics import f1_score, precision_score
 import numpy as np
 from numpy import percentile
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def calc_mean():
@@ -12,6 +14,23 @@ def calc_mean():
     print("reverse_order_loss: {}, std: {}".format(np.mean(reverse_order_loss), np.std(reverse_order_loss)))
     print("no_anomaly_loss: {}, std: {}".format(np.mean(no_anomaly_loss), np.std(no_anomaly_loss)))
 
+
+
+def distribution_plots(results_dir, normal_vals, anomaly_vals, epochs, units, emb_size, precision=0):
+    sns.distplot(normal_vals, hist=False, kde=True,
+                 kde_kws={'linewidth': 3},
+                 label='Dataset A')
+
+    sns.distplot(anomaly_vals, hist=False, kde=True,
+                 kde_kws={'linewidth': 3},
+                 label='Dataset B')
+
+    plt.legend(prop={'size': 16})
+    #plt.title('{} Epochs, {} units, {} emb_size, p {}'.format(epochs, units, emb_size, precision))
+    plt.xlabel('Loss value')
+    plt.ylabel('Density')
+    plt.savefig(results_dir + 'plot')
+    plt.clf()
 
 
 def calc_percentile_outliers(normal_loss_values_path="/Users/haraldott/Downloads/results/regression/bert_epochs_130_seq_len_7_description__random_lines_1/normal_loss_values",

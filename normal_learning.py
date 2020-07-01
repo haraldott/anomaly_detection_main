@@ -2,7 +2,7 @@ import matplotlib
 
 from loganaliser.binary import BinaryClassification
 
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 from settings import settings
 from wordembeddings.transform_glove import merge_templates
 import logparser.Drain.Drain_demo as drain
@@ -17,8 +17,8 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=30,
-               mode="multiclass",
+def experiment(epochs=10,
+               mode="regression",
                anomaly_type='random_lines',
                anomaly_amount=1,
                clip=1.0,
@@ -133,30 +133,30 @@ def experiment(epochs=30,
         if not os.path.exists(finetuning_model_dir):
             finetune(templates=templates_train, output_dir=finetuning_model_dir, epochs=finetune_epochs)
 
-    word_embeddings = get_embeddings(embeddings_model, merged_templates)
+    sentence_to_embeddings_mapping = get_embeddings(embeddings_model, merged_templates)
 
-    write_to_tsv_files_bert_sentences(word_embeddings=word_embeddings,
+    write_to_tsv_files_bert_sentences(word_embeddings=sentence_to_embeddings_mapping,
                                       tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
                                       tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
 
-    embeddings_dim = list(word_embeddings.values())[0].size()[0]
+    embeddings_dim = list(sentence_to_embeddings_mapping.values())[0].size()[0]
 
     if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-        get_cosine_distance(test_ds_liens_before_injection, train_ds_lines_after_injection, results_dir_experiment, word_embeddings)
+        get_cosine_distance(test_ds_liens_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
 
     # transform output of bert into numpy word embedding vectors
-    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_train, outputfile=embeddings_train)
+    transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train, outputfile=embeddings_train)
 
-    transform_bert.transform(sentence_embeddings=word_embeddings, logfile=corpus_test_injected, outputfile=embeddings_test)
+    transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_test_injected, outputfile=embeddings_test)
 
     if mode == "multiclass":
         target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(normal_corpus=open(corpus_train, 'r').readlines(),
                                                                                                  encoder_path=label_encoder,
                                                                                                  templates=templates_train,
-                                                                                                 embeddings=word_embeddings)
+                                                                                                 embeddings=sentence_to_embeddings_mapping)
         list(set())
         top_k_label_mapping = get_top_k_embedding_label_mapping(
-                                set_embeddings_of_log_containing_anomalies=word_embeddings,
+                                set_embeddings_of_log_containing_anomalies=sentence_to_embeddings_mapping,
                                 normal_label_embedding_mapping=normal_label_embeddings_map)
 
         lstm = Multiclass(n_features=n_classes,
@@ -182,7 +182,9 @@ def experiment(epochs=30,
                           corpus_of_log_containing_anomalies=corpus_test_injected,
                           transfer_learning=False,
                           attention=attention,
-                          prediction_only=prediction_only)
+                          prediction_only=prediction_only,
+                          mode=mode,
+                          sentence_to_embeddings_mapping=sentence_to_embeddings_mapping)
 
     elif mode == "regression":
         lstm = Regression(train_vectors=embeddings_train,
@@ -204,7 +206,8 @@ def experiment(epochs=30,
                           n_features=embeddings_dim,
                           transfer_learning=False,
                           attention=attention,
-                          prediction_only=prediction_only)
+                          prediction_only=prediction_only,
+                          mode=mode)
 
     elif mode == "binary":
         lstm = BinaryClassification(num_epochs=epochs,

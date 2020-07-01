@@ -9,7 +9,7 @@ from shared_functions import DetermineAnomalies, write_lines_to_file
 
 class Multiclass(AnomalyDetection):
     def __init__(self, target_labels, top_k_label_mapping, corpus_of_log_containing_anomalies, normal_label_embeddings_map,
-                 *args, **kwargs):
+                 sentence_to_embeddings_mapping, *args, **kwargs):
         self.distance = nn.CrossEntropyLoss()
         self.target_labels = target_labels
         super(Multiclass, self).__init__(*args, **kwargs)
@@ -19,7 +19,8 @@ class Multiclass(AnomalyDetection):
                                                       order_of_values_of_file_containing_anomalies=self.target_indices,
                                                       corpus_of_log_containing_anomalies=corpus_of_log_containing_anomalies,
                                                       normal_label_embeddings_map=normal_label_embeddings_map,
-                                                      results_dir=self.results_dir)
+                                                      results_dir=self.results_dir,
+                                                      sentence_to_embeddings_mapping = sentence_to_embeddings_mapping)
 
 
 

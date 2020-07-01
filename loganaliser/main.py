@@ -33,6 +33,7 @@ class AnomalyDetection:
                  embeddings_model,
                  attention,
                  prediction_only,
+                 mode,
                  no_anomaly=False,
                  learning_rate=1e-4,
                  savemodelpath='saved_models/lstm.pth',
@@ -85,7 +86,8 @@ class AnomalyDetection:
             self.model = lstm_model.LSTM(n_input=self.n_input,
                                          n_hidden_units=self.n_hidden_units,
                                          n_layers=self.n_layers,
-                                         n_output=self.feature_length).to(self.device)
+                                         n_output=self.feature_length,
+                                         mode=mode).to(self.device)
         if transfer_learning or prediction_only:
             self.model.load_state_dict(torch.load(self.savemodelpath))
         # self.model = self.model.double()  # TODO: check this double stuff
@@ -274,7 +276,7 @@ class AnomalyDetection:
         scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in res.confusion_matrix))
         disp = ConfusionMatrixDisplay(confusion_matrix=res.confusion_matrix, display_labels=[0, 1])
 
-        disp = disp.plot(include_values=True, cmap='inferno', values_format='d')
+        disp = disp.plot(include_values=True, cmap='Blues', values_format='d')
         plt.savefig(results_dir + 'confusion_matrix.png')
         plt.clf()
         scores_file.close()

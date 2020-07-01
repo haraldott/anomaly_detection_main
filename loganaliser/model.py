@@ -3,11 +3,12 @@ import torch
 import torch.nn.functional as F
 
 class LSTM(nn.Module):
-    def __init__(self, n_input, n_hidden_units, n_layers, n_output, dropout=0.1, tie_weights=False):
+    def __init__(self, n_input, n_hidden_units, n_layers, n_output, mode, dropout=0.1, tie_weights=False):
         super(LSTM, self).__init__()
         self.n_hidden_units = n_hidden_units
         self.n_layers = n_layers
         self.dropout = dropout
+        self.mode = mode
 
         # Layers
 
@@ -37,7 +38,10 @@ class LSTM(nn.Module):
         output, hidden = self.lstm(input, hidden)
         output = nn.Dropout(p=self.dropout)(output)
         decoded = self.decoder(output[:, -1, :])
-        return decoded, hidden
+        if self.mode == "regression":
+            return decoded, hidden
+        elif self.mode == "multiclass":
+            return F.log_softmax(decoded, dim=1), hidden
 
     def init_hidden(self, bsz, device):
         weight = next(self.parameters())
