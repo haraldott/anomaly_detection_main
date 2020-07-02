@@ -4,7 +4,7 @@ import pickle
 import random
 from shutil import copyfile
 import numpy as np
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 utah_new_random_line = "My personal randomly injected line.\n"
 overall_anomaly_ratio = 0.02
@@ -76,11 +76,12 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
 
     # select instance_ic blocks in which we will delete
     instance_id_indices_selected_for_altering = random.choices(range(0, len(instance_id_list)), k=number_of_alterations)
+    changes_per_instance = Counter(instance_id_indices_selected_for_altering)
     indices_inside_blocks_to_alter = defaultdict(list)
 
     # delete lines and keep track of them
-    for instance_id_block_to_alter in instance_id_indices_selected_for_altering:
-        for _ in range(ins_del_dup_anomalies_per_block):
+    for instance_id_block_to_alter, alterations in changes_per_instance.items():
+        for _ in range(0, alterations):
             index_to_alter = random.randint(0, len(instance_id_list[instance_id_block_to_alter]) - 1)
 
             if mode == "ins":

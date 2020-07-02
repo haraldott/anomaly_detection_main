@@ -352,7 +352,7 @@ class DetermineAnomalies():
                 best_precision = this_precision
         print("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
         with open(self.results_dir + "thresh.txt", "a") as f:
-            f.write("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
+            f.write("best f1: {}\nbest thresh: {}\n".format(best_f1, best_thresh))
         # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
         if no_anomaly:
             true_labels = 1 - true_labels
