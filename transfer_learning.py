@@ -24,6 +24,7 @@ def experiment(epochs=0,
                clip=1.0,
                attention=False,
                prediction_only=False,
+               alteration_ratio=0.05,
                option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
@@ -115,16 +116,30 @@ def experiment(epochs=0,
     if option != "UtahSashoTransfer":
         transfer_train_log(corpus_train_1, corpus_train_1)
 
-    ### INJECT ANOMALIES in test ds
-    test_ds_anomaly_lines, test_ds_lines_before_injection, train_ds_lines_after_injection = \
-            inject_anomalies(anomaly_type=anomaly_type,
-                             corpus_input=corpus_test_2,
+    ### INJECT ALTERATIONS in test ds
+    if anomaly_type is not "random_lines":
+        _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
+                inject_anomalies(anomaly_type=anomaly_type,
+                                 corpus_input=corpus_test_2,
+                                 corpus_output=corpus_test_injected,
+                                 anomaly_indices_output_path=test_anomaly_indeces,
+                                 instance_information_in=test_instance_information_2,
+                                 instance_information_out=test_instance_information_injected_2,
+                                 anomaly_amount=anomaly_amount,
+                                 results_dir=results_dir_experiment,
+                                 alteration_ratio=alteration_ratio)
+
+    # INJECT ANOMALIES in test ds
+    test_ds_anomaly_lines, _, _ = \
+            inject_anomalies(anomaly_type="random_lines",
+                             corpus_input=corpus_test_injected,
                              corpus_output=corpus_test_injected,
                              anomaly_indices_output_path=test_anomaly_indeces,
-                             instance_information_in=test_instance_information_2,
+                             instance_information_in=test_instance_information_injected_2,
                              instance_information_out=test_instance_information_injected_2,
                              anomaly_amount=anomaly_amount,
-                             results_dir=results_dir_experiment)
+                             results_dir=results_dir_experiment,
+                             alteration_ratio=alteration_ratio)
 
     ### if in binary mode, inject anomalies also in train ds
     if mode == "binary":

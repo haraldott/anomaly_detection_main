@@ -170,7 +170,7 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
     for index, loss_val in zip(anomaly_loss_order, anomaly_loss_values):
         anomaly_loss_values_correct_order[index] = loss_val
 
-    per = percentile(normal_loss_values, 99.2)
+    per = percentile(normal_loss_values, 99.9)
 
     pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
     pred_outliers_loss_values = [val for val in anomaly_loss_values_correct_order if val > per]
