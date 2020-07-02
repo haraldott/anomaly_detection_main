@@ -17,9 +17,9 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=2,
+def experiment(epochs=30,
                mode="multiclass",
-               anomaly_type='insert_words',
+               anomaly_type='random_lines',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
@@ -111,13 +111,26 @@ def experiment(epochs=2,
                                  results_dir=results_dir_experiment,
                                  alteration_ratio=alteration_ratio)
 
-    # INJECT ANOMALIES in test ds
-    test_ds_anomaly_lines, _, _ = \
+        # INJECT ANOMALIES in test ds
+        test_ds_anomaly_lines, _, _ = \
+                inject_anomalies(anomaly_type="random_lines",
+                                 corpus_input=corpus_test_injected,
+                                 corpus_output=corpus_test_injected,
+                                 anomaly_indices_output_path=test_anomaly_indeces,
+                                 instance_information_in=test_instance_information_injected,
+                                 instance_information_out=test_instance_information_injected,
+                                 anomaly_amount=anomaly_amount,
+                                 results_dir=results_dir_experiment,
+                                 alteration_ratio=alteration_ratio)
+
+    else:
+        # INJECT ANOMALIES in test ds
+        test_ds_anomaly_lines, _, _ = \
             inject_anomalies(anomaly_type="random_lines",
-                             corpus_input=corpus_test_injected,
+                             corpus_input=corpus_test,
                              corpus_output=corpus_test_injected,
                              anomaly_indices_output_path=test_anomaly_indeces,
-                             instance_information_in=test_instance_information_injected,
+                             instance_information_in=test_instance_information,
                              instance_information_out=test_instance_information_injected,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
