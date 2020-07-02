@@ -7,16 +7,12 @@ import numpy as np
 from collections import defaultdict
 
 utah_new_random_line = "My personal randomly injected line.\n"
-number_of_instances_to_inject_anomalies_in = 20
-max_number_of_anomalies_per_instance = 4
-number_of_swaps_per_instance = 4
-overall_anomaly_ratio = 0.035
+overall_anomaly_ratio = 0.02
+
 ins_del_dup_anomalies_per_block = 3
 words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after",
                            "brain", "cell", "whatever"]
 words_for_random_replace = ["bullshit", "brain", "cell", "whatever"]
-max_number_of_words_to_be_altered = 1
-ratio_of_words_to_be_altered_per_line = 0.15
 
 
 #########################
@@ -54,7 +50,7 @@ def transfer_train_log(corpus_input, corpus_output):
 
 
 def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                               instance_information_out, mode):
+                               instance_information_out, mode, alteration_ratio):
     print(mode)
     if mode not in ["del", "dup", "ins"]:
         print("Allowed modes are del and dup. Exiting")
@@ -62,7 +58,10 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
-    number_of_deletes = math.floor(len(total_lines) * overall_anomaly_ratio)
+    if mode in ["del", "dup"]:
+        number_of_alterations = math.floor(len(total_lines) * alteration_ratio)
+    elif mode == "ins":
+        number_of_alterations = math.floor(len(total_lines) * overall_anomaly_ratio)
     with open(instance_information_in, 'rb') as instance_information_in_file:
         instance_information = pickle.load(instance_information_in_file)
 
@@ -76,7 +75,7 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
         instance_id_list.append(instance_block)
 
     # select instance_ic blocks in which we will delete
-    instance_id_indices_selected_for_altering = random.sample(range(0, len(instance_id_list)), number_of_deletes)
+    instance_id_indices_selected_for_altering = random.choices(range(0, len(instance_id_list)), k=number_of_alterations)
     indices_inside_blocks_to_alter = defaultdict(list)
 
     # delete lines and keep track of them
@@ -132,14 +131,14 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
 
 
 def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                 instance_information_out, number_of_words_to_be_added=1):
+                 instance_information_out, alteration_ratio, number_of_words_to_be_added=1):
     copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
 
     number_of_lines = len(total_lines)
-    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * alteration_ratio)
     line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
 
     lines_before_alter = []
@@ -172,7 +171,7 @@ def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
 
 
 def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                  instance_information_out, number_of_words_to_be_replaced=1):
+                  instance_information_out, alteration_ratio, number_of_words_to_be_replaced=1):
     copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
@@ -182,7 +181,7 @@ def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, inst
     lines_after_alter = []
 
     number_of_lines = len(total_lines)
-    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * alteration_ratio)
     line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
     for index in line_indices_to_be_altered:
         # select line for altering
@@ -214,7 +213,7 @@ def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, inst
 
 
 def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                 instance_information_out, number_of_words_to_be_removed=1):
+                 instance_information_out, alteration_ratio, number_of_words_to_be_removed=1):
     copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
@@ -225,7 +224,7 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
 
     number_of_lines = len(total_lines)
     # number_of_lines = sum([len(instance_id_dict[x]) for x in instance_id_dict])
-    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * overall_anomaly_ratio)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(number_of_lines * alteration_ratio)
     line_indices_to_be_altered = random.sample(range(len(total_lines)), number_of_anomaly_lines_to_be_manipulated)
     for index in line_indices_to_be_altered:
         # select line for altering
@@ -291,7 +290,8 @@ def reverse_order(corpus_input, corpus_output, instance_information_in, instance
 def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path,
             shuffles_per_instance=1):
     copyfile(instance_information_in, instance_information_out)
-    shuffle_distances = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
+    #shuffle_distances = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
+    shuffle_distances = [-2, -1, 1, 2]
     corpus = open(corpus_input, 'r').readlines()
     assert corpus
     instance_information = pickle.load(open(instance_information_in, 'rb'))
