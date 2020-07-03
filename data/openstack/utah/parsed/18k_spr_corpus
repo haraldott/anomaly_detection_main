@@ -1,14 +1,14 @@
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Terminating instance
 Instance successfully
 Deleting instance files 
@@ -27,11 +27,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -52,7 +52,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -76,7 +76,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -100,7 +100,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -124,11 +124,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -149,11 +149,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -174,12 +174,12 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
 Took seconds to build instance
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Terminating instance
 Instance successfully
@@ -199,11 +199,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -224,11 +224,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -249,11 +249,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -274,11 +274,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -299,11 +299,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -324,11 +324,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -349,11 +349,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -374,11 +374,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -399,11 +399,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -424,11 +424,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -449,11 +449,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -474,11 +474,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -499,11 +499,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -524,13 +524,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -550,11 +550,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -575,11 +575,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -600,11 +600,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -625,11 +625,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -650,11 +650,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -675,11 +675,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -700,11 +700,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -725,11 +725,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -750,11 +750,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -775,11 +775,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -800,11 +800,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -825,11 +825,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -850,11 +850,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -875,11 +875,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -900,11 +900,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -925,11 +925,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -950,11 +950,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -975,7 +975,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -999,11 +999,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1024,11 +1024,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1049,13 +1049,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -1075,11 +1075,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1100,11 +1100,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1125,7 +1125,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -1149,11 +1149,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1174,11 +1174,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1199,7 +1199,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -1223,11 +1223,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1248,11 +1248,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1273,11 +1273,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1298,11 +1298,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1323,11 +1323,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1348,11 +1348,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1373,11 +1373,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1398,11 +1398,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1423,11 +1423,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1448,11 +1448,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1473,14 +1473,14 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Terminating instance
 Instance successfully
 Deleting instance files 
@@ -1499,11 +1499,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1524,11 +1524,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1549,7 +1549,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -1573,11 +1573,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1598,11 +1598,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1623,11 +1623,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1648,11 +1648,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1673,11 +1673,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1698,11 +1698,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1723,13 +1723,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -1749,11 +1749,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1774,11 +1774,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1799,11 +1799,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1824,11 +1824,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1849,11 +1849,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1874,11 +1874,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1899,11 +1899,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1924,11 +1924,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1949,11 +1949,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -1974,7 +1974,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -1998,11 +1998,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2023,11 +2023,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2048,11 +2048,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2073,11 +2073,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2098,11 +2098,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2123,11 +2123,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2148,11 +2148,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2173,11 +2173,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2198,11 +2198,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2223,11 +2223,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2248,11 +2248,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2273,7 +2273,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -2297,11 +2297,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2322,13 +2322,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -2348,11 +2348,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2373,11 +2373,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2398,7 +2398,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -2422,11 +2422,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2447,11 +2447,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2472,11 +2472,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2497,11 +2497,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2522,11 +2522,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2547,11 +2547,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2572,11 +2572,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2597,11 +2597,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2622,11 +2622,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2647,11 +2647,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2672,11 +2672,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2697,11 +2697,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2722,11 +2722,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2747,11 +2747,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2772,7 +2772,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -2796,11 +2796,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2821,11 +2821,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2846,11 +2846,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2871,13 +2871,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -2897,12 +2897,12 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
 Took seconds to build instance
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Terminating instance
 Instance successfully
@@ -2922,11 +2922,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2947,13 +2947,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
 Took seconds to build instance
-During syncpowerstate the instance has a pending task spawning Skip
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Terminating instance
 Instance successfully
@@ -2973,11 +2973,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -2998,11 +2998,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3023,11 +3023,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3048,11 +3048,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3073,11 +3073,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3098,11 +3098,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3123,11 +3123,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3148,11 +3148,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3173,11 +3173,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3198,11 +3198,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3223,11 +3223,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3248,11 +3248,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3273,7 +3273,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -3297,11 +3297,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3322,11 +3322,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3347,11 +3347,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3372,11 +3372,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3397,11 +3397,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3422,11 +3422,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3447,11 +3447,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3472,11 +3472,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3497,11 +3497,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3522,11 +3522,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3547,7 +3547,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -3571,11 +3571,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3596,11 +3596,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3621,7 +3621,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -3645,11 +3645,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3670,14 +3670,14 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Terminating instance
 Instance successfully
 Deleting instance files 
@@ -3696,11 +3696,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3721,11 +3721,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3746,11 +3746,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3771,11 +3771,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3796,11 +3796,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3821,11 +3821,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3846,11 +3846,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3871,12 +3871,12 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3897,11 +3897,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3922,11 +3922,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3947,11 +3947,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3972,11 +3972,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -3997,11 +3997,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4022,11 +4022,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4047,11 +4047,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4072,11 +4072,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4097,11 +4097,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4122,13 +4122,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -4148,11 +4148,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4173,11 +4173,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4198,11 +4198,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4223,11 +4223,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4248,11 +4248,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4273,11 +4273,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4298,7 +4298,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -4322,11 +4322,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4347,11 +4347,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4372,11 +4372,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4397,11 +4397,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4422,7 +4422,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -4446,11 +4446,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4471,11 +4471,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4496,11 +4496,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4521,13 +4521,13 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 Took seconds to build instance
 Terminating instance
 Instance successfully
@@ -4547,7 +4547,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -4571,11 +4571,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4596,11 +4596,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4621,11 +4621,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4646,7 +4646,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
@@ -4670,11 +4670,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4695,11 +4695,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4720,11 +4720,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4745,11 +4745,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4770,11 +4770,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4795,11 +4795,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4820,11 +4820,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4845,11 +4845,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4870,11 +4870,11 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Took seconds to build instance
 Terminating instance
@@ -4895,7 +4895,7 @@ Claim successful
 Creating image
 VM Lifecycle Event
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task spawning Skip
+During sync power state the instance has a pending task spawning Skip
 VM Lifecycle Event
 Instance successfully
 Took seconds to the instance on the hypervisor

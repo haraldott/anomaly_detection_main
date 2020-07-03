@@ -7,7 +7,7 @@ Total vcpu VCPU used VCPU
 Claim successful
 Creating image
 VM Lifecycle Event
-During syncpowerstate the instance has a pending task Skip
+During sync power state the instance has a pending task Skip
 Instance successfully
 Took seconds to the instance on the hypervisor
 Took seconds to build instance

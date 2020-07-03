@@ -7,7 +7,6 @@ import numpy as np
 from collections import defaultdict, Counter
 
 utah_new_random_line = "My personal randomly injected line.\n"
-overall_anomaly_ratio = 0.02
 
 ins_del_dup_anomalies_per_block = 3
 words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after",
@@ -50,7 +49,7 @@ def transfer_train_log(corpus_input, corpus_output):
 
 
 def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                               instance_information_out, mode, alteration_ratio):
+                               instance_information_out, mode, alteration_ratio, anomaly_ratio):
     print(mode)
     if mode not in ["del", "dup", "ins"]:
         print("Allowed modes are del and dup. Exiting")
@@ -61,7 +60,7 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
     if mode in ["del", "dup"]:
         number_of_alterations = math.floor(len(total_lines) * alteration_ratio)
     elif mode == "ins":
-        number_of_alterations = math.floor(len(total_lines) * overall_anomaly_ratio)
+        number_of_alterations = math.floor(len(total_lines) * anomaly_ratio)
     with open(instance_information_in, 'rb') as instance_information_in_file:
         instance_information = pickle.load(instance_information_in_file)
 
@@ -289,7 +288,7 @@ def reverse_order(corpus_input, corpus_output, instance_information_in, instance
 
 
 def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path,
-            shuffles_per_instance=1):
+            alteration_ratio, shuffles_per_instance=1):
     copyfile(instance_information_in, instance_information_out)
     #shuffle_distances = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
     shuffle_distances = [-2, -1, 1, 2]
@@ -299,7 +298,7 @@ def shuffle(corpus_input, corpus_output, instance_information_in, instance_infor
     assert instance_information
 
     total_number_of_lines = len(corpus)
-    number_of_anomaly_lines_to_be_manipulated = math.floor(total_number_of_lines * overall_anomaly_ratio)
+    number_of_anomaly_lines_to_be_manipulated = math.floor(total_number_of_lines * alteration_ratio)
     interval_indeces_with_more_than_four_lines = []
     for interval_index, interval in enumerate(instance_information):
         if interval[1] - interval[0] > 4:

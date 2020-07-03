@@ -81,7 +81,7 @@ def write_lines_to_file(file_path, content, new_line=False):
 
 
 def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                     instance_information_out, anomaly_amount, results_dir, alteration_ratio):
+                     instance_information_out, anomaly_amount, results_dir, alteration_ratio, anomaly_ratio):
     if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
         if anomaly_type == "insert_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = insert_words(corpus_input, corpus_output,
@@ -112,19 +112,19 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
     elif anomaly_type == "duplicate_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                           instance_information_in, instance_information_out, mode="dup",
-                                                          alteration_ratio=alteration_ratio)
+                                                          alteration_ratio=alteration_ratio, anomaly_ratio=anomaly_ratio)
     elif anomaly_type == "delete_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                           instance_information_in, instance_information_out, mode="del",
-                                                          alteration_ratio=alteration_ratio)
+                                                          alteration_ratio=alteration_ratio, anomaly_ratio=anomaly_ratio)
     elif anomaly_type == "random_lines":
         anomalies_true_label = delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_output_path,
                                                           instance_information_in, instance_information_out, mode="ins",
-                                                          alteration_ratio=alteration_ratio)
+                                                          alteration_ratio=alteration_ratio, anomaly_ratio=anomaly_ratio)
     elif anomaly_type == "shuffle":
         anomalies_true_label = shuffle(corpus_input, corpus_output, instance_information_in,
                                        instance_information_out,
-                                       anomaly_indices_output_path)
+                                       anomaly_indices_output_path, alteration_ratio)
     elif anomaly_type == "no_anomaly":
         anomalies_true_label = no_anomaly(corpus_input, corpus_output, instance_information_in,
                                           instance_information_out,
