@@ -17,7 +17,7 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=30,
+def experiment(epochs=40,
                mode="multiclass",
                anomaly_type='insert_words',
                anomaly_amount=1,
@@ -26,9 +26,14 @@ def experiment(epochs=30,
                prediction_only=False,
                alteration_ratio=0.05,
                anomaly_ratio=0.02,
-               option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
+               option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None, finetune_epochs=4):
     cwd = os.getcwd() + "/"
+
+    if n_hidden_units not in [128, 256, 512]:
+        print("ERROR: hidden units must be 128, 256 or 512, if you wish more flexibility, go to loganaliser/model.py and through the checks for 128, 256, 512 out.")
+        return -1
+
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
           .format(epochs, mode, attention, anomaly_type))
 

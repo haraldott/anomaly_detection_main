@@ -16,7 +16,12 @@ class LSTM(nn.Module):
         # self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
         self.lstm = nn.LSTM(input_size=n_input, hidden_size=n_hidden_units // 2, num_layers=n_layers,
                             dropout=0.5, batch_first=True, bidirectional=True)
-        self.decoder = nn.Linear(n_hidden_units, n_output)
+
+        if self.n_hidden_units == 512:
+            self.decoder_1 = nn.Linear(n_hidden_units, 256)
+            self.decoder_2 = nn.Linear(256, n_output)
+        elif self.n_hidden_units in [256, 128]:
+            self.decoder = nn.Linear(n_hidden_units, n_output)
 
         if tie_weights:
             if n_input != n_hidden_units:
@@ -29,15 +34,27 @@ class LSTM(nn.Module):
         initrange = 0.1
         # enhancement: if nn.Embeddings() layer is used, turn this on
         # self.encoder.weight.data.uniform_(-initrange, initrange)
-        self.decoder.bias.data.zero_()
-        self.decoder.weight.data.uniform_(-initrange, initrange)
+        if self.n_hidden_units == 512:
+            self.decoder_1.bias.data.zero_()
+            self.decoder_1.weight.data.uniform_(-initrange, initrange)
+            self.decoder_2.bias.data.zero_()
+            self.decoder_2.weight.data.uniform_(-initrange, initrange)
+        if self.n_hidden_units in [256, 128]:
+            self.decoder.bias.data.zero_()
+            self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
         input = nn.Dropout(p=self.dropout)(input)
         # attn_weights = F.softmax(self.attn(torch.cat((input[0], hidden[0]), 1)), dim=1)
         output, hidden = self.lstm(input, hidden)
         output = nn.Dropout(p=self.dropout)(output)
-        decoded = self.decoder(output[:, -1, :])
+
+        if self.n_hidden_units == 512:
+            pre_decoded = self.decoder_1(output)
+            decoded = self.decoder_2(pre_decoded[:, -1, :])
+        if self.n_hidden_units in [256, 128]:
+            decoded = self.decoder(output[:, -1, :])
+
         if self.mode == "regression":
             return decoded, hidden
         elif self.mode == "multiclass":
