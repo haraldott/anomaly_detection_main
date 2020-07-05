@@ -37,4 +37,4 @@ def show_f1_score_injection_ratio(f1_file):
     plt.ylabel('F1 score')
     plt.savefig("f1plot.png", dpi=500)
 
-show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")
+#show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")

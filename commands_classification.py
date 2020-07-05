@@ -11,16 +11,47 @@ from normal_learning import experiment
 #     for ratio, f1 in experiment_results_f1.items():
 #         results.write("{:.2f},{:.2f}\n".format(ratio, f1))
 
-alteration_ratio = 0.05
-insert_words_experiment = {}
-while alteration_ratio <= 0.4:
-    experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass", prediction_only=True, anomaly_ratio=0.02, alteration_ratio=0.05)
-    alteration_ratio += 0.05
 
-with open('insert_words_results_anomaly_ratio_0.02.txt', 'w') as results:
-    for ratio, f1 in insert_words_experiment.items():
-        results.write("{:.2f},{:.2f}\n".format(ratio, f1))
 
+
+
+
+
+
+
+# alteration_ratio = 0.05
+# insert_words_experiment = {}
+# while alteration_ratio <= 0.4:
+#     experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass", prediction_only=True, anomaly_ratio=0.02, alteration_ratio=0.05)
+#     alteration_ratio += 0.05
+#
+# with open('insert_words_results_anomaly_ratio_0.02.txt', 'w') as results:
+#     for ratio, f1 in insert_words_experiment.items():
+#         results.write("{:.2f},{:.2f}\n".format(ratio, f1))
+#
+# ########################
+#
+# alteration_ratio = 0.05
+# insert_words_experiment = {}
+# while alteration_ratio <= 0.4:
+#     experiment(anomaly_type='delete_lines', anomaly_amount=1, mode="multiclass", prediction_only=True, anomaly_ratio=0.02, alteration_ratio=0.05)
+#     alteration_ratio += 0.05
+#
+# with open('insert_words_results_anomaly_ratio_0.02.txt', 'w') as results:
+#     for ratio, f1 in insert_words_experiment.items():
+#         results.write("{:.2f},{:.2f}\n".format(ratio, f1))
+#
+# ########################
+#
+# alteration_ratio = 0.05
+# insert_words_experiment = {}
+# while alteration_ratio <= 0.4:
+#     experiment(anomaly_type='shuffle', anomaly_amount=1, mode="multiclass", prediction_only=True, anomaly_ratio=0.02, alteration_ratio=0.05)
+#     alteration_ratio += 0.05
+#
+# with open('insert_words_results_anomaly_ratio_0.02.txt', 'w') as results:
+#     for ratio, f1 in insert_words_experiment.items():
+#         results.write("{:.2f},{:.2f}\n".format(ratio, f1))
 #
 #
 # experiment(epochs=100, mode="multiclass", anomaly_type='random_lines', anomaly_amount=1, prediction_only=False, finetune_epochs=1, finetuning=True, experiment="finetuning_1_epoch")
