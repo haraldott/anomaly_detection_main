@@ -86,7 +86,7 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
             if mode == "ins":
                 instance_id_list[instance_id_block_to_alter][index_to_alter:index_to_alter] = [utah_new_random_line]
             if mode == "del":
-                indices_inside_blocks_to_alter.update({instance_id_block_to_alter: index_to_alter})
+                indices_inside_blocks_to_alter[instance_id_block_to_alter].append(index_to_alter)
                 del instance_id_list[instance_id_block_to_alter][index_to_alter]
             elif mode == "dup":
                 # given, we want to duplicate line i, and line i+1 ... i+j are already exactly the same line,
@@ -98,7 +98,7 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
                         instance_id_list[instance_id_block_to_alter][next_index + 1] == line:
                     next_index += 1
                 instance_id_list[instance_id_block_to_alter][next_index + 1:next_index + 1] = [line]
-                indices_inside_blocks_to_alter.update({instance_id_block_to_alter: next_index + 1})
+                indices_inside_blocks_to_alter[instance_id_block_to_alter].append(next_index + 1)
         if mode == "ins":
             for i, sentence in enumerate(instance_id_list[instance_id_block_to_alter]):
                 if sentence == utah_new_random_line:
