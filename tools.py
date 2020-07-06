@@ -37,4 +37,14 @@ def show_f1_score_injection_ratio(f1_file):
     plt.ylabel('F1 score')
     plt.savefig("f1plot.png", dpi=500)
 
+
+def plot_loss_for_finetuning(loss_eval, training_loss):
+    # plot_loss_for_finetuning([4.26, 4.05, 3.9, 3.85],[7.12, 4.45, 2.54, 1.88])
+    plt.plot([1,2,3,4], loss_eval, 'o-', label='Evaluation Loss', color='red')
+    plt.plot([1,2,3,4], training_loss, 'o-', label='Training Loss', color='blue')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig("finetuning_loss.png", dpi=500)
+
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")

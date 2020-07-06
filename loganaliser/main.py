@@ -242,16 +242,16 @@ class AnomalyDetection:
     @staticmethod
     def write_intermediate_metrics(log_frequency_interval, num_epochs, results_dir, results, eval_loss):
         # plot metrics every 5 epochs
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval),
-                                 y=[x.f1 for x in results], mode='lines+markers', name='F1'))
-        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval),
-                                 y=[x.precision for x in results], mode='lines+markers', name='Precision'))
-        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval),
-                                 y=[x.recall for x in results], mode='lines+markers', name='Recall'))
-        fig.add_trace(go.Scatter(x=np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval),
-                                 y=[x.accuracy for x in results], mode='lines+markers', name='Accuracy'))
-        fig.write_html(results_dir + 'metrics.html')
+        this_x_axis = np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval)
+        plt.figure()
+        plt.plot(this_x_axis, [x.f1 for x in results], 'o-', label='F1')
+        plt.plot(this_x_axis, [x.precision for x in results], 'o-', label='Precision')
+        plt.plot(this_x_axis, [x.recall for x in results], 'o-', label='Recall')
+        plt.plot(this_x_axis, [x.accuracy for x in results], 'o-', label='Accuracy')
+        plt.xlabel('Epochs')
+        plt.ylabel('Recall/Precision/Accuracy/F1')
+        plt.legend()
+        plt.savefig(results_dir + 'metrics.png', dpi=500)
 
         # write metrics to file
         with open(results_dir + "metrics.csv", 'w') as metrics_file:
@@ -260,9 +260,11 @@ class AnomalyDetection:
                 metrics_file.write("{}, {}, {}, {}, {}\n".format((i+1)*log_frequency_interval, x.f1, x.precision, x.recall, x.accuracy))
 
         # plot training loss
-        loss_fig = go.Figure()
-        loss_fig.add_trace(go.Scatter(x=np.arange(0, num_epochs, 1), y=eval_loss, mode='lines+markers', name='Loss'))
-        loss_fig.write_html(results_dir + 'loss.html')
+        plt.figure()
+        plt.plot(np.arange(0, num_epochs, 1), eval_loss, 'o-', label='Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.savefig(results_dir + 'loss.html', dpi=500)
 
 
     @staticmethod
@@ -277,7 +279,7 @@ class AnomalyDetection:
         disp = ConfusionMatrixDisplay(confusion_matrix=res.confusion_matrix, display_labels=[0, 1])
 
         disp = disp.plot(include_values=True, cmap='Blues', values_format='d')
-        plt.savefig(results_dir + 'confusion_matrix.png')
+        plt.savefig(results_dir + 'confusion_matrix.png', dpi=500)
         plt.clf()
         scores_file.close()
 
