@@ -264,7 +264,7 @@ class AnomalyDetection:
         plt.plot(np.arange(0, num_epochs, 1), eval_loss, 'o-', label='Loss')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
-        plt.savefig(results_dir + 'loss.html', dpi=500)
+        plt.savefig(results_dir + 'loss.png', dpi=500)
 
 
     @staticmethod
