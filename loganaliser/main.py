@@ -249,9 +249,9 @@ class AnomalyDetection:
         plt.plot(this_x_axis, [x.recall for x in results], 'o-', label='Recall')
         plt.plot(this_x_axis, [x.accuracy for x in results], 'o-', label='Accuracy')
         plt.xlabel('Epochs')
-        plt.ylabel('Recall/Precision/Accuracy/F1')
+        plt.ylabel('Metric Value')
         plt.legend()
-        plt.savefig(results_dir + 'metrics.png', dpi=500)
+        plt.savefig(results_dir + 'metrics.png', dpi=300)
 
         # write metrics to file
         with open(results_dir + "metrics.csv", 'w') as metrics_file:
@@ -264,7 +264,7 @@ class AnomalyDetection:
         plt.plot(np.arange(0, num_epochs, 1), eval_loss, 'o-', label='Loss')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
-        plt.savefig(results_dir + 'loss.png', dpi=500)
+        plt.savefig(results_dir + 'loss.png', dpi=300)
 
 
     @staticmethod
