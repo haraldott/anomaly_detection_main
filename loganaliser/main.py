@@ -261,7 +261,7 @@ class AnomalyDetection:
 
         # plot training loss
         plt.figure()
-        plt.plot(np.arange(0, num_epochs, 1), eval_loss, 'o-', label='Loss')
+        plt.plot(np.arange(0, num_epochs, 1), eval_loss, '.-', label='Loss')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.savefig(results_dir + 'loss.png', dpi=300)
