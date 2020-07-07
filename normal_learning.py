@@ -44,8 +44,8 @@ def experiment(epochs=60,
     else:
         results_dir = settings[option]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}/".format(
-        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
+    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}_alteration_ratio_{}_anomaly_ratio_{}/".format(
+        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment, alteration_ratio, anomaly_ratio)
 
     train_ds = settings[option]["raw_normal"]  # path of normal file for training
     test_ds = settings[option]["raw_anomaly"]  # path of file in which anomalies will be injected
