@@ -25,7 +25,7 @@ def experiment(epochs=60,
                attention=False,
                prediction_only=False,
                alteration_ratio=0.05,
-               anomaly_ratio=0.02,
+               anomaly_ratio=0.04,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None, finetune_epochs=4):
     cwd = os.getcwd() + "/"

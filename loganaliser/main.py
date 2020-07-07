@@ -244,6 +244,7 @@ class AnomalyDetection:
         # plot metrics every 5 epochs
         this_x_axis = np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval)
         plt.figure()
+        plt.ylim(bottom=0.0, top=1.0)
         plt.plot(this_x_axis, [x.f1 for x in results], 'o-', label='F1')
         plt.plot(this_x_axis, [x.precision for x in results], 'o-', label='Precision')
         plt.plot(this_x_axis, [x.recall for x in results], 'o-', label='Recall')
@@ -276,10 +277,10 @@ class AnomalyDetection:
         scores_file.write("Accuracy-Score: {}\n".format(str(res.accuracy)))
         scores_file.write("confusion matrix:\n")
         scores_file.write('\n'.join('\t'.join('%0.3f' % x for x in y) for y in res.confusion_matrix))
+        plt.figure()
         disp = ConfusionMatrixDisplay(confusion_matrix=res.confusion_matrix, display_labels=[0, 1])
-
         disp = disp.plot(include_values=True, cmap='Blues', values_format='d')
-        plt.savefig(results_dir + 'confusion_matrix.png', dpi=500)
+        plt.savefig(results_dir + 'confusion_matrix.png', dpi=300)
         plt.clf()
         scores_file.close()
 

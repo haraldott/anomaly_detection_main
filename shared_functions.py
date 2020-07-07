@@ -2,6 +2,8 @@ from typing import Dict
 
 import matplotlib
 
+from tools import plot_roc_curve
+
 matplotlib.use('Agg')
 import numpy as np
 from logparser.anomaly_injector import insert_words, remove_words, delete_or_duplicate_events, shuffle, no_anomaly, replace_words, reverse_order
@@ -161,7 +163,8 @@ def calculate_normal_loss(normal_lstm_model, results_dir, values_type, cwd):
 # REGRESSION OUTLIERS
 ###############################################################
 
-def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss_order, anomaly_true_labels, no_anomaly):
+def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss_order, anomaly_true_labels, no_anomaly,
+                           results_dir):
     # anomaly_loss_order = open(anomaly_loss_order, 'rb').readlines()
     # anomaly_loss_order = [int(x) for x in anomaly_loss_order]
 
@@ -188,6 +191,8 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
     if no_anomaly:
         true_labels = 1 - true_labels
         pred_labels = 1 - np.asarray(pred_labels)
+
+    plot_roc_curve(true_labels, pred_labels, results_dir)
 
     f1 = f1_score(true_labels, pred_labels)
     precision = precision_score(true_labels, pred_labels)
@@ -357,6 +362,8 @@ class DetermineAnomalies():
         if no_anomaly:
             true_labels = 1 - true_labels
             pred_anomaly_labels = 1 - np.asarray(pred_anomaly_labels)
+
+        plot_roc_curve(true_labels, pred_anomaly_labels, self.results_dir)
 
         f1 = f1_score(true_labels, pred_anomaly_labels)
         precision = precision_score(true_labels, pred_anomaly_labels)

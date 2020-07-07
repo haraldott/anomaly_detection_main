@@ -60,7 +60,7 @@ class Regression(AnomalyDetection):
                     normal_loss_values = self.predict(self.train_data_x, self.train_data_y, self.distance)
                     anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
                     result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
-                                                    self.lines_that_have_anomalies, self.no_anomaly)
+                                                    self.lines_that_have_anomalies, self.no_anomaly, self.results_dir)
                     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
                     .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds) \
@@ -92,7 +92,7 @@ class Regression(AnomalyDetection):
         loss_values_test = self.predict(self.test_data_x, self.test_data_y, self.distance)
         res = calculate_anomaly_loss(loss_values_test, loss_values_train, self.target_indices,
                                      self.lines_that_have_anomalies,
-                                     self.no_anomaly)
+                                     self.no_anomaly, self.results_dir)
         distribution_plots(self.results_dir, loss_values_train, loss_values_test, self.num_epochs, self.seq_length,
                            768, 0)
         res.train_loss_values = loss_values_train
