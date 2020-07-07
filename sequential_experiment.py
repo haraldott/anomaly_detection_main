@@ -11,7 +11,7 @@ experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass",
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_multiclass_duplicate_lines_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.2:
+    while alteration_ratio <= 0.15:
         f1, precision = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass",
                                    prediction_only=True, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
                                    embeddings_model='bert')
@@ -21,7 +21,7 @@ with open(results_folder + 'bert_multiclass_duplicate_lines_results_anomaly_rati
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_multiclass_delete_lines_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.2:
+    while alteration_ratio <= 0.15:
         f1, precision = experiment(anomaly_type='delete_lines', anomaly_amount=1, mode="multiclass",
                                    prediction_only=True, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
                                    embeddings_model='bert')
@@ -31,7 +31,7 @@ with open(results_folder + 'bert_multiclass_delete_lines_results_anomaly_ratio_0
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_multiclass_shuffle_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.2:
+    while alteration_ratio <= 0.15:
         f1, precision = experiment(anomaly_type='shuffle', anomaly_amount=1, mode="multiclass",
                                    prediction_only=True, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
                                    embeddings_model='bert')
@@ -42,7 +42,7 @@ with open(results_folder + 'bert_multiclass_shuffle_results_anomaly_ratio_0.05.t
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_regression_duplicate_lines_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.2:
+    while alteration_ratio <= 0.15:
         f1, precision = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="regression",
                                    prediction_only=True, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
                                    embeddings_model='bert')
@@ -52,7 +52,7 @@ with open(results_folder + 'bert_regression_duplicate_lines_results_anomaly_rati
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_regression_delete_lines_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.2:
+    while alteration_ratio <= 0.15:
         f1, precision = experiment(anomaly_type='delete_lines', anomaly_amount=1, mode="regression",
                                    prediction_only=True, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
                                    embeddings_model='bert')
@@ -62,7 +62,7 @@ with open(results_folder + 'bert_regression_delete_lines_results_anomaly_ratio_0
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_regression_shuffle_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.2:
+    while alteration_ratio <= 0.15:
         f1, precision = experiment(anomaly_type='shuffle', anomaly_amount=1, mode="regression",
                                    prediction_only=True, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
                                    embeddings_model='bert')
