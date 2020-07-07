@@ -132,7 +132,8 @@ def delete_or_duplicate_events(corpus_input, corpus_output, anomaly_indices_outp
 
 def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
                  instance_information_out, alteration_ratio, number_of_words_to_be_added=1):
-    copyfile(instance_information_in, instance_information_out)
+    if instance_information_in != instance_information_out:
+        copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
@@ -172,7 +173,8 @@ def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
 
 def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
                   instance_information_out, alteration_ratio, number_of_words_to_be_replaced=1):
-    copyfile(instance_information_in, instance_information_out)
+    if instance_information_in != instance_information_out:
+        copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
@@ -214,7 +216,8 @@ def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, inst
 
 def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
                  instance_information_out, alteration_ratio, number_of_words_to_be_removed=1):
-    copyfile(instance_information_in, instance_information_out)
+    if instance_information_in != instance_information_out:
+        copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
     total_lines = total_lines_file.readlines()
     total_lines_file.close()
@@ -258,7 +261,8 @@ def remove_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
 
 
 def reverse_order(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
-    copyfile(instance_information_in, instance_information_out)
+    if instance_information_in != instance_information_out:
+        copyfile(instance_information_in, instance_information_out)
     with open(corpus_input, 'r') as f:
         total_lines = f.readlines()
     instance_information = pickle.load(open(instance_information_in, 'rb'))
@@ -289,7 +293,8 @@ def reverse_order(corpus_input, corpus_output, instance_information_in, instance
 
 def shuffle(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path,
             alteration_ratio, shuffles_per_instance=1):
-    copyfile(instance_information_in, instance_information_out)
+    if instance_information_in != instance_information_out:
+        copyfile(instance_information_in, instance_information_out)
     #shuffle_distances = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
     shuffle_distances = [-2, -1, 1, 2]
     corpus = open(corpus_input, 'r').readlines()
@@ -358,6 +363,7 @@ def shuffle(corpus_input, corpus_output, instance_information_in, instance_infor
 
 
 def no_anomaly(corpus_input, corpus_output, instance_information_in, instance_information_out, anomaly_indices_output_path):
-    copyfile(instance_information_in, instance_information_out)
+    if instance_information_in != instance_information_out:
+        copyfile(instance_information_in, instance_information_out)
     copyfile(corpus_input, corpus_output)
     return []

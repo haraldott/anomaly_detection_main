@@ -17,15 +17,15 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=0,
+def experiment(epochs=60,
                mode="multiclass",
-               anomaly_type='random_lines',
+               anomaly_type='insert_words',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
                prediction_only=False,
                alteration_ratio=0.05,
-               anomaly_ratio=0.02,
+               anomaly_ratio=0.05,
                option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
@@ -107,9 +107,9 @@ def experiment(epochs=0,
 
     ### DRAIN PARSING
     #if not os.path.exists(corpus_train_1) or not os.path.exists(corpus_test_2):
-    drain.execute(directory=raw_dir_1, file=train_ds_1, output=parsed_dir_1, logtype=logtype_1)
-    drain.execute(directory=raw_dir_2, file=train_ds_2, output=parsed_dir_2, logtype=logtype_2)
-    drain.execute(directory=raw_dir_2, file=test_ds_2, output=parsed_dir_2, logtype=logtype_2)
+    #drain.execute(directory=raw_dir_1, file=train_ds_1, output=parsed_dir_1, logtype=logtype_1)
+    #drain.execute(directory=raw_dir_2, file=train_ds_2, output=parsed_dir_2, logtype=logtype_2)
+    #drain.execute(directory=raw_dir_2, file=test_ds_2, output=parsed_dir_2, logtype=logtype_2)
 
     pre_process_log_events(corpus_test_2, corpus_train_1, corpus_train_2)
 
@@ -119,8 +119,8 @@ def experiment(epochs=0,
 
     ### INJECT ALTERATIONS in test ds
     if anomaly_type is not "random_lines":
-        _, test_ds_liens_before_injection, train_ds_lines_after_injection = \
-                inject_anomalies(anomaly_type=anomaly_type,
+        _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
+                inject_anomalies(anomaly_type="duplicate_lines",
                                  corpus_input=corpus_test_2,
                                  corpus_output=corpus_test_injected,
                                  anomaly_indices_output_path=test_anomaly_indeces,
@@ -128,8 +128,45 @@ def experiment(epochs=0,
                                  instance_information_out=test_instance_information_injected_2,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
-                                 alteration_ratio=alteration_ratio,
+                                 alteration_ratio=0.03,
                                  anomaly_ratio=anomaly_ratio)
+
+        _, _, train_ds_lines_after_injection = \
+                inject_anomalies(anomaly_type="delete_lines",
+                                 corpus_input=corpus_test_injected,
+                                 corpus_output=corpus_test_injected,
+                                 anomaly_indices_output_path=test_anomaly_indeces,
+                                 instance_information_in=test_instance_information_injected_2,
+                                 instance_information_out=test_instance_information_injected_2,
+                                 anomaly_amount=anomaly_amount,
+                                 results_dir=results_dir_experiment,
+                                 alteration_ratio=0.03,
+                                 anomaly_ratio=anomaly_ratio)
+
+        _, _, train_ds_lines_after_injection = \
+            inject_anomalies(anomaly_type="remove_words",
+                             corpus_input=corpus_test_injected,
+                             corpus_output=corpus_test_injected,
+                             anomaly_indices_output_path=test_anomaly_indeces,
+                             instance_information_in=test_instance_information_injected_2,
+                             instance_information_out=test_instance_information_injected_2,
+                             anomaly_amount=anomaly_amount,
+                             results_dir=results_dir_experiment,
+                             alteration_ratio=0.03,
+                             anomaly_ratio=anomaly_ratio)
+
+        _, _, train_ds_lines_after_injection = \
+            inject_anomalies(anomaly_type="replace_words",
+                             corpus_input=corpus_test_injected,
+                             corpus_output=corpus_test_injected,
+                             anomaly_indices_output_path=test_anomaly_indeces,
+                             instance_information_in=test_instance_information_injected_2,
+                             instance_information_out=test_instance_information_injected_2,
+                             anomaly_amount=anomaly_amount,
+                             results_dir=results_dir_experiment,
+                             alteration_ratio=0.03,
+                             anomaly_ratio=anomaly_ratio)
+
 
         # INJECT ANOMALIES in test ds
         test_ds_anomaly_lines, _, _ = \
@@ -203,8 +240,8 @@ def experiment(epochs=0,
 
     embeddings_dim = list(sentence_to_embeddings_mapping.values())[0].size()[0]
 
-    if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-        get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
+    # if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
+    #     get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
 
     # transform output of bert into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_1, outputfile=embeddings_train_1)
