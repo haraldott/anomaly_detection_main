@@ -1,8 +1,8 @@
-from os import mkdir
+from os import makedirs
 
 from normal_learning import experiment
 results_folder = 'results_sequential/'
-mkdir(results_folder)
+makedirs(results_folder, exist_ok=True)
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_multiclass_duplicate_lines_results_anomaly_ratio_0.05.txt', 'w') as results:

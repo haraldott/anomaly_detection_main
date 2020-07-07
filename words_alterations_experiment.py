@@ -1,9 +1,9 @@
-from os import mkdir
+from os import makedirs
 
 from normal_learning import experiment
 
 results_folder = 'results_qualitative/'
-mkdir(results_folder)
+makedirs(results_folder, exist_ok=True)
 
 alteration_ratio = 0.05
 with open(results_folder + 'bert_multiclass_insert_words_results_anomaly_ratio_0.04.txt', 'w') as results:
