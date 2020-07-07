@@ -109,7 +109,7 @@ settings = {
             'dataset_1':
                 {
                     # files
-                    "raw_normal": "137k_spr",
+                    "raw_normal": "137k_spr_2",
                     # dirs
                     "raw_dir": "data/openstack/utah/raw/sorted_per_request/",
                     "parsed_dir": "data/openstack/utah/parsed/",
@@ -118,6 +118,7 @@ settings = {
                     "logtype": "OpenStack",
                     # instance information file
                     "instance_information_file_normal": "data/openstack/utah/raw/sorted_per_request_pickle/137k_spr.pickle",
+                    "instance_information_file_normal_after_injections": "data/openstack/utah/raw/sorted_per_request_pickle/137k_spr_injected.pickle"
                  },
             'dataset_2':
                 {

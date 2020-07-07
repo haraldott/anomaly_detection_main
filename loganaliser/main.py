@@ -69,11 +69,13 @@ class AnomalyDetection:
 
         if embeddings_model == 'glove':
             self.train_data_x, self.train_data_y, = self.prepare_data_latent_space(self.train_vectors, self.train_instance_information_file)
-            self.test_data_x, self.test_data_y = self.prepare_data_latent_space(self.test_vectors, self.test_instance_information_file)
+            if test_vectors is not None:
+                self.test_data_x, self.test_data_y = self.prepare_data_latent_space(self.test_vectors, self.test_instance_information_file)
 
         elif embeddings_model == "bert" or embeddings_model == "gpt2":
             self.train_data_x, self.train_data_y = self.prepare_data_per_request(self.train_vectors, self.train_instance_information_file)
-            self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors, self.test_instance_information_file)
+            if test_vectors is not None:
+                self.test_data_x, self.test_data_y = self.prepare_data_per_request(self.test_vectors, self.test_instance_information_file)
 
 
         if attention:

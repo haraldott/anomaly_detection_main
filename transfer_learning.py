@@ -61,12 +61,15 @@ def experiment(epochs=60,
     train_instance_information_1 = settings[option]["dataset_1"]['instance_information_file_normal']
     train_instance_information_2 = settings[option]["dataset_2"]['instance_information_file_normal']
 
+    train_instance_information_injected_1 = settings[option]["dataset_1"]['instance_information_file_normal_after_injections']
+
     # for binary
     BINARY_train_instance_information_injected_1 = settings[option]["dataset_1"]['instance_information_file_normal'] +  train_ds_1 + "_" + anomaly_type + "_" + str(anomaly_amount)
     BINARY_train_instance_information_injected_2 = settings[option]["dataset_2"]['instance_information_file_normal'] +  train_ds_2 + "_" + anomaly_type + "_" + str(anomaly_amount)
 
     test_instance_information_2 = settings[option]["dataset_2"]['instance_information_file_anomalies_pre_inject']
     test_instance_information_injected_2 = settings[option]["dataset_2"]['instance_information_file_anomalies_injected'] + test_ds_2 + "_" + anomaly_type + "_" + str(anomaly_amount)
+
 
     anomalies_injected_dir_2 = parsed_dir_2 + "anomalies_injected/"
     anomaly_indeces_dir_2 = parsed_dir_2 + "anomalies_injected/anomaly_indeces/"
@@ -107,25 +110,25 @@ def experiment(epochs=60,
 
     ### DRAIN PARSING
     #if not os.path.exists(corpus_train_1) or not os.path.exists(corpus_test_2):
-    #drain.execute(directory=raw_dir_1, file=train_ds_1, output=parsed_dir_1, logtype=logtype_1)
-    #drain.execute(directory=raw_dir_2, file=train_ds_2, output=parsed_dir_2, logtype=logtype_2)
-    #drain.execute(directory=raw_dir_2, file=test_ds_2, output=parsed_dir_2, logtype=logtype_2)
+    drain.execute(directory=raw_dir_1, file=train_ds_1, output=parsed_dir_1, logtype=logtype_1)
+    drain.execute(directory=raw_dir_2, file=train_ds_2, output=parsed_dir_2, logtype=logtype_2)
+    drain.execute(directory=raw_dir_2, file=test_ds_2, output=parsed_dir_2, logtype=logtype_2)
 
     pre_process_log_events(corpus_test_2, corpus_train_1, corpus_train_2)
 
     # manipulate train ds 1
-    if option != "UtahSashoTransfer":
-        transfer_train_log(corpus_train_1, corpus_train_1)
+    # if option != "UtahSashoTransfer":
+    #     transfer_train_log(corpus_train_1, corpus_train_1)
 
     ### INJECT ALTERATIONS in test ds
     if anomaly_type is not "random_lines":
         _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
                 inject_anomalies(anomaly_type="duplicate_lines",
-                                 corpus_input=corpus_test_2,
-                                 corpus_output=corpus_test_injected,
+                                 corpus_input=corpus_train_1,
+                                 corpus_output=corpus_train_1,
                                  anomaly_indices_output_path=test_anomaly_indeces,
-                                 instance_information_in=test_instance_information_2,
-                                 instance_information_out=test_instance_information_injected_2,
+                                 instance_information_in=train_instance_information_1,
+                                 instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
                                  alteration_ratio=0.03,
@@ -133,11 +136,11 @@ def experiment(epochs=60,
 
         _, _, train_ds_lines_after_injection = \
                 inject_anomalies(anomaly_type="delete_lines",
-                                 corpus_input=corpus_test_injected,
-                                 corpus_output=corpus_test_injected,
+                                 corpus_input=corpus_train_1,
+                                 corpus_output=corpus_train_1,
                                  anomaly_indices_output_path=test_anomaly_indeces,
-                                 instance_information_in=test_instance_information_injected_2,
-                                 instance_information_out=test_instance_information_injected_2,
+                                 instance_information_in=train_instance_information_injected_1,
+                                 instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
                                  alteration_ratio=0.03,
@@ -145,11 +148,11 @@ def experiment(epochs=60,
 
         _, _, train_ds_lines_after_injection = \
             inject_anomalies(anomaly_type="remove_words",
-                             corpus_input=corpus_test_injected,
-                             corpus_output=corpus_test_injected,
+                             corpus_input=corpus_train_1,
+                             corpus_output=corpus_train_1,
                              anomaly_indices_output_path=test_anomaly_indeces,
-                             instance_information_in=test_instance_information_injected_2,
-                             instance_information_out=test_instance_information_injected_2,
+                             instance_information_in=train_instance_information_injected_1,
+                             instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
                              alteration_ratio=0.03,
@@ -157,11 +160,11 @@ def experiment(epochs=60,
 
         _, _, train_ds_lines_after_injection = \
             inject_anomalies(anomaly_type="replace_words",
-                             corpus_input=corpus_test_injected,
-                             corpus_output=corpus_test_injected,
+                             corpus_input=corpus_train_1,
+                             corpus_output=corpus_train_1,
                              anomaly_indices_output_path=test_anomaly_indeces,
-                             instance_information_in=test_instance_information_injected_2,
-                             instance_information_out=test_instance_information_injected_2,
+                             instance_information_in=train_instance_information_injected_1,
+                             instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
                              alteration_ratio=0.03,
@@ -171,10 +174,10 @@ def experiment(epochs=60,
         # INJECT ANOMALIES in test ds
         test_ds_anomaly_lines, _, _ = \
                 inject_anomalies(anomaly_type="random_lines",
-                                 corpus_input=corpus_test_injected,
+                                 corpus_input=corpus_test_2,
                                  corpus_output=corpus_test_injected,
                                  anomaly_indices_output_path=test_anomaly_indeces,
-                                 instance_information_in=test_instance_information_injected_2,
+                                 instance_information_in=test_instance_information_2,
                                  instance_information_out=test_instance_information_injected_2,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
@@ -270,7 +273,7 @@ def experiment(epochs=60,
                                n_input=embeddings_dim,
                                target_labels=target_normal_labels,
                                train_vectors=embeddings_train_1,
-                               train_instance_information_file=train_instance_information_1,
+                               train_instance_information_file=train_instance_information_injected_1,
                                test_vectors=None,
                                test_instance_information_file=None,
                                savemodelpath=lstm_model_save_path,

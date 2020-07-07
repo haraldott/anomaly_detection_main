@@ -98,9 +98,9 @@ def experiment(epochs=60,
     os.makedirs(anomaly_indeces_dir, exist_ok=True)
 
     ### DRAIN PARSING
-    if not os.path.exists(corpus_train) or not os.path.exists(corpus_test):
-        drain.execute(directory=raw_dir, file=train_ds, output=parsed_dir, logtype=logtype)
-        drain.execute(directory=raw_dir, file=test_ds, output=parsed_dir, logtype=logtype)
+    #if not os.path.exists(corpus_train) or not os.path.exists(corpus_test):
+    drain.execute(directory=raw_dir, file=train_ds, output=parsed_dir, logtype=logtype)
+    drain.execute(directory=raw_dir, file=test_ds, output=parsed_dir, logtype=logtype)
 
     pre_process_log_events(corpus_test, corpus_train, templates_normal, templates_pre_anomaly)
 
