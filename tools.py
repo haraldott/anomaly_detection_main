@@ -20,7 +20,7 @@ def distribution_plots(results_dir, normal_vals, anomaly_vals, epochs, units, em
     plt.xlabel('Loss value')
     plt.ylabel('Density')
     plt.savefig(results_dir + 'regression_lost.png', dpi=300)
-    plt.clf()
+    plt.close()
 
 
 def show_f1_score_injection_ratio(f1_file):
@@ -38,6 +38,7 @@ def show_f1_score_injection_ratio(f1_file):
     plt.xlabel('Injection ratio')
     plt.ylabel('F1 score')
     plt.savefig("f1plot.png", dpi=300)
+    plt.close()
 
 
 def plot_loss_for_finetuning(loss_eval, training_loss):
@@ -49,6 +50,7 @@ def plot_loss_for_finetuning(loss_eval, training_loss):
     plt.ylabel('Loss')
     plt.legend()
     plt.savefig("finetuning_loss.png", dpi=300)
+    plt.close()
 
 def plot_roc_curve(true_labels, pred_labels, results_dir):
     plt.figure()
@@ -60,6 +62,7 @@ def plot_roc_curve(true_labels, pred_labels, results_dir):
     plt.title('Receiver Operating Characteristic (ROC) Curve')
     plt.legend()
     plt.savefig(results_dir + "roc_curve.png", dpi=300)
+    plt.close()
 
 
 def compare_approaches(glove, bert, gpt):

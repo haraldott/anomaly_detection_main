@@ -253,6 +253,7 @@ class AnomalyDetection:
         plt.ylabel('Metric Value')
         plt.legend()
         plt.savefig(results_dir + 'metrics.png', dpi=300)
+        plt.close()
 
         # write metrics to file
         with open(results_dir + "metrics.csv", 'w') as metrics_file:
@@ -266,6 +267,7 @@ class AnomalyDetection:
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.savefig(results_dir + 'loss.png', dpi=300)
+        plt.close()
 
 
     @staticmethod
