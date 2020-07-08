@@ -123,6 +123,18 @@ def experiment(epochs=30,
     ### INJECT ALTERATIONS in test ds
     if anomaly_type is not "random_lines":
         _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
+            inject_anomalies(anomaly_type="shuffle",
+                             corpus_input=corpus_train_1,
+                             corpus_output=corpus_train_1,
+                             anomaly_indices_output_path=test_anomaly_indeces,
+                             instance_information_in=train_instance_information_1,
+                             instance_information_out=train_instance_information_injected_1,
+                             anomaly_amount=anomaly_amount,
+                             results_dir=results_dir_experiment,
+                             alteration_ratio=0.02,
+                             anomaly_ratio=anomaly_ratio)
+
+        _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
                 inject_anomalies(anomaly_type="duplicate_lines",
                                  corpus_input=corpus_train_1,
                                  corpus_output=corpus_train_1,
@@ -131,7 +143,7 @@ def experiment(epochs=30,
                                  instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
-                                 alteration_ratio=0.01,
+                                 alteration_ratio=0.02,
                                  anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -143,7 +155,7 @@ def experiment(epochs=30,
                                  instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
-                                 alteration_ratio=0.01,
+                                 alteration_ratio=0.02,
                                  anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -155,7 +167,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.01,
+                             alteration_ratio=0.02,
                              anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -167,7 +179,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.01,
+                             alteration_ratio=0.02,
                              anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -179,7 +191,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.01,
+                             alteration_ratio=0.02,
                              anomaly_ratio=anomaly_ratio)
 
 
