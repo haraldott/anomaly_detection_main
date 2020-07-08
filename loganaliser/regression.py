@@ -74,7 +74,7 @@ class Regression(AnomalyDetection):
                 loss_values.append(eval_loss / self.folds)
             # training done, do final prediction
             log_output.close()
-            if self.test_data_x is not None and self.log_frequency_interval < self.num_epochs:
+            if self.test_vectors is not None and self.log_frequency_interval < self.num_epochs:
                 self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
                                             intermediate_results, loss_values)
 

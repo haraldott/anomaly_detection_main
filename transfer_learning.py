@@ -17,7 +17,7 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=1,
+def experiment(epochs=30,
                mode="multiclass",
                anomaly_type='insert_words',
                anomaly_amount=1,

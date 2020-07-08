@@ -47,6 +47,8 @@ class AnomalyDetection:
         if test_vectors is not None:
             self.test_vectors = pickle.load(open(test_vectors, 'rb'))
             self.test_instance_information_file = test_instance_information_file
+        else:
+            self.test_vectors = None
         self.loadautoencodermodel = loadautoencodermodel
         self.savemodelpath = savemodelpath
         self.n_layers = n_layers
