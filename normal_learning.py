@@ -192,7 +192,6 @@ def experiment(epochs=60,
                                                                                                  encoder_path=label_encoder,
                                                                                                  templates=templates_train,
                                                                                                  embeddings=sentence_to_embeddings_mapping)
-        list(set())
         top_k_label_mapping = get_top_k_embedding_label_mapping(
                                 set_embeddings_of_log_containing_anomalies=sentence_to_embeddings_mapping,
                                 normal_label_embedding_mapping=normal_label_embeddings_map)

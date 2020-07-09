@@ -47,8 +47,8 @@ class AutoEncoder(nn.Module):
 
 class VanillaAutoEncoder:
     def __init__(self,
-                 load_vectors='../data/openstack/utah/padded_embeddings_pickle/openstack_18k_anomalies.pickle',
-                 model_save_path='saved_models/18k_anomalies_autoencoder.pth',
+                 load_vectors='/Users/haraldott/Development/thesis/detector/data/openstack/utah/embeddings/137k_spr18k_sprfor_vae.pickle',
+                 model_save_path='saved_models/137k18k_autoencoder.pth',
                  learning_rate=1e-5,
                  batch_size=64,
                  num_epochs=200,

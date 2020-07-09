@@ -94,7 +94,8 @@ class AnomalyDetection:
                                          mode=mode).to(self.device)
         if transfer_learning or prediction_only:
             self.model.load_state_dict(torch.load(self.savemodelpath))
-        # self.model = self.model.double()  # TODO: check this double stuff
+        if embeddings_model == 'glove':
+            self.model = self.model.double()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
 
@@ -176,7 +177,7 @@ class AnomalyDetection:
             sentence = torch.from_numpy(sentence)
             sentence = sentence.reshape(-1)
             encoded_sentence = autoencoder_model.encode(sentence)
-            latent_space_representation_of_padded_embeddings.append(torch.from_numpy(encoded_sentence.detach()))
+            latent_space_representation_of_padded_embeddings.append(encoded_sentence.detach())
 
         return self.prepare_data_per_request(latent_space_representation_of_padded_embeddings, instance_information_file)
 

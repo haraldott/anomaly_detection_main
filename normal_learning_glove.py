@@ -5,12 +5,13 @@ import matplotlib
 from loganaliser.binary import BinaryClassification
 
 #matplotlib.use('Agg')
-from loganaliser.vanilla_autoencoder import VanillaAutoEncoder
+from loganaliser.vanilla_autoencoder import VanillaAutoEncoder, AutoEncoder
 from settings import settings
 from wordembeddings import transform_glove
 from wordembeddings.transform_glove import merge_templates
 import logparser.Drain.Drain_demo as drain
 import wordembeddings.transform_bert as transform_bert
+import torch
 from loganaliser.regression import Regression
 from loganaliser.multiclass import Multiclass
 from wordembeddings.bert_finetuning import finetune
@@ -19,6 +20,7 @@ from shared_functions import calculate_precision_and_plot, get_cosine_distance, 
 import os
 from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
+import pickle
 
 
 def experiment(epochs=10,
@@ -30,9 +32,14 @@ def experiment(epochs=10,
                prediction_only=False,
                alteration_ratio=0.05,
                anomaly_ratio=0.04,
-               option='Normal', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
-               embeddings_model='glove', experiment='x', embeddings_dim=200):
+               option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
+               embeddings_model='glove', experiment='x', label_encoder=None, embeddings_dim=200):
     cwd = os.getcwd() + "/"
+
+    if n_hidden_units not in [128, 256, 512]:
+        print("ERROR: hidden units must be 128, 256 or 512, if you wish more flexibility, go to loganaliser/model.py and through the checks for 128, 256, 512 out.")
+        return -1
+
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"
           .format(epochs, mode, attention, anomaly_type))
 
@@ -43,8 +50,9 @@ def experiment(epochs=10,
     else:
         results_dir = settings[option]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}/".format(
-        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
+    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}_alteration_ratio_{}_anomaly_ratio_{}/".format(
+        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers,
+        clip, experiment, alteration_ratio, anomaly_ratio)
 
     train_ds = settings[option]["raw_normal"]  # path of normal file for training
     test_ds = settings[option]["raw_anomaly"]  # path of file in which anomalies will be injected
@@ -80,9 +88,9 @@ def experiment(epochs=10,
     embeddingsfile_for_glove = '../' + embeddings_dir + train_ds + '_combined_vectors'
     embeddingsfile_for_transformer = cwd + embeddings_dir + train_ds + '_combined_vectors.txt'
 
-    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + "_" + experiment + '_lstm.pth'
+    lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + "_epochs_" + str(epochs) + "_" + embeddings_model + "_" + mode + "_" + experiment + '_lstm.pth'
 
-    vae_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + '_vae.pth'
+    vae_model_save_path = cwd + 'loganaliser/saved_models/137k18k_autoencoder.pth'
 
     # take corpus parsed by drain, inject anomalies in this file
     corpus_test_injected = cwd + anomalies_injected_dir + test_ds + "_" + anomaly_type
@@ -100,12 +108,10 @@ def experiment(epochs=10,
     ### DRAIN PARSING
     #if not os.path.exists(corpus_train) or not os.path.exists(corpus_test):
 
-    #drain.execute(directory=raw_dir, file=train_ds, output=parsed_dir, logtype=logtype)
-    #drain.execute(directory=raw_dir, file=test_ds, output=parsed_dir, logtype=logtype)
+    drain.execute(directory=raw_dir, file=train_ds, output=parsed_dir, logtype=logtype)
+    drain.execute(directory=raw_dir, file=test_ds, output=parsed_dir, logtype=logtype)
 
     pre_process_log_events(corpus_test, corpus_train, templates_normal, templates_pre_anomaly)
-
-
 
     ### INJECT ANOMALIES in test ds
     if anomaly_type is not "random_lines":
@@ -177,41 +183,95 @@ def experiment(epochs=10,
 
     transform_glove.transform(vectorsfile=embeddingsfile_for_transformer, logfile=merged_templates, outputfile=embeddings_templates_combined, templates=merged_templates)
 
-    vae = VanillaAutoEncoder(load_vectors=embeddings_templates_combined,
-                             model_save_path=vae_model_save_path,
-                             train_mode=True)
-    vae.start()
 
-    lstm = Regression(train_vectors=embeddings_train,
-                      train_instance_information_file=train_instance_information,
-                      test_vectors=embeddings_test,
-                      test_instance_information_file=test_instance_information_injected,
-                      savemodelpath=lstm_model_save_path,
-                      seq_length=seq_len,
-                      num_epochs=epochs,
-                      n_hidden_units=n_hidden_units,
-                      n_layers=n_layers,
-                      embeddings_model='bert',
-                      no_anomaly=no_anomaly,
-                      clip=clip,
-                      results_dir=cwd + results_dir_experiment,
-                      batch_size=batch_size,
-                      lines_that_have_anomalies=test_ds_anomaly_lines,
-                      n_input=embeddings_dim,
-                      n_features=embeddings_dim,
-                      transfer_learning=False,
-                      attention=attention,
-                      prediction_only=prediction_only,
-                      loadautoencodermodel=vae_model_save_path)
+    vae = VanillaAutoEncoder(load_vectors=embeddings_templates_combined,
+                             model_save_path=vae_model_save_path)
+    vae.start()
+    padded_embeddings = pickle.load(open(embeddings_templates_combined, 'rb'))
+    longest_sent = len(padded_embeddings[0])
+    vae = AutoEncoder(longest_sent=longest_sent,embeddings_dim=embeddings_dim, train_mode=False)
+    vae.double()
+    vae.load_state_dict(torch.load(vae_model_save_path))
+    vae.eval()
+
+    padded_embeddings = pickle.load(open(embeddings_templates_combined, 'rb'))
+    sentence_to_embeddings_mapping = {}
+    for i, sentence in enumerate(merged_templates):
+        embedding = torch.from_numpy(padded_embeddings[i])
+        embedding = embedding.reshape(-1)
+        latent_space_rep = vae.encode(embedding)
+        sentence_to_embeddings_mapping[sentence] = latent_space_rep
+
+    if mode == "multiclass":
+        target_normal_labels, n_classes, normal_label_embeddings_map, _ = get_labels_from_corpus(
+                                                                            normal_corpus=open(corpus_train, 'r').readlines(),
+                                                                            encoder_path=label_encoder,
+                                                                            templates=templates_train,
+                                                                            embeddings=sentence_to_embeddings_mapping)
+        top_k_label_mapping = get_top_k_embedding_label_mapping(
+                                set_embeddings_of_log_containing_anomalies=sentence_to_embeddings_mapping,
+                                normal_label_embedding_mapping=normal_label_embeddings_map)
+
+        lstm = Multiclass(n_features=n_classes,
+                          n_input=128,
+                          target_labels=target_normal_labels,
+                          train_vectors=embeddings_train,
+                          train_instance_information_file=train_instance_information,
+                          test_vectors=embeddings_test,
+                          test_instance_information_file=test_instance_information_injected,
+                          savemodelpath=lstm_model_save_path,
+                          seq_length=seq_len,
+                          num_epochs=epochs,
+                          no_anomaly=no_anomaly,
+                          results_dir=cwd + results_dir_experiment,
+                          embeddings_model='bert',
+                          n_layers=n_layers,
+                          n_hidden_units=n_hidden_units,
+                          batch_size=batch_size,
+                          clip=clip,
+                          top_k_label_mapping=top_k_label_mapping,
+                          normal_label_embeddings_map=normal_label_embeddings_map,
+                          lines_that_have_anomalies=test_ds_anomaly_lines,
+                          corpus_of_log_containing_anomalies=corpus_test_injected,
+                          transfer_learning=False,
+                          attention=attention,
+                          prediction_only=prediction_only,
+                          mode=mode,
+                          sentence_to_embeddings_mapping=sentence_to_embeddings_mapping)
+
+
+    elif mode == "regression":
+        lstm = Regression(train_vectors=embeddings_train,
+                          train_instance_information_file=train_instance_information,
+                          test_vectors=embeddings_test,
+                          test_instance_information_file=test_instance_information_injected,
+                          savemodelpath=lstm_model_save_path,
+                          seq_length=seq_len,
+                          num_epochs=epochs,
+                          n_hidden_units=n_hidden_units,
+                          n_layers=n_layers,
+                          embeddings_model=embeddings_model,
+                          no_anomaly=no_anomaly,
+                          clip=clip,
+                          results_dir=cwd + results_dir_experiment,
+                          batch_size=batch_size,
+                          lines_that_have_anomalies=test_ds_anomaly_lines,
+                          n_input=128,
+                          n_features=128,
+                          transfer_learning=False,
+                          attention=attention,
+                          prediction_only=prediction_only,
+                          loadautoencodermodel=vae_model_save_path,
+                          mode=mode)
 
     if not prediction_only:
         lstm.start_training()
 
-    f1, precision = lstm.final_prediction()
+    f1, precision, recall = lstm.final_prediction()
     calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
                                  anomaly_amount, n_hidden_units, n_layers, clip, experiment, mode)
     print("done.")
-    return f1, precision
+    return f1, precision, recall
 
 if __name__ == '__main__':
     experiment()
