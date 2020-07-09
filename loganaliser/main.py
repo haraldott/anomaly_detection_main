@@ -254,7 +254,7 @@ class AnomalyDetection:
         plt.plot(this_x_axis, [x.recall for x in results], 'o-', label='Recall')
         plt.plot(this_x_axis, [x.accuracy for x in results], 'o-', label='Accuracy')
         plt.xlabel('Epochs')
-        plt.ylabel('Metric Value')
+        plt.ylabel('Scores')
         plt.legend()
         plt.savefig(results_dir + 'metrics.png', dpi=300)
         plt.close()

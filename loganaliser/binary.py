@@ -302,6 +302,5 @@ class BinaryClassification:
                                             self.no_anomaly)
         self.write_classification_metrics(result)
         AnomalyDetection.write_final_metrics(self.results_dir, result)
-        return result.f1, result.precision
-
+        return result.f1, result.precision, result.recall
 

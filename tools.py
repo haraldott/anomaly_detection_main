@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import StrMethodFormatter
 from sklearn.metrics import roc_curve
-
+from typing import Dict
 
 def distribution_plots(results_dir, normal_vals, anomaly_vals, epochs, units, emb_size, precision=0):
     plt.figure()
@@ -65,8 +65,47 @@ def plot_roc_curve(true_labels, pred_labels, results_dir):
     plt.close()
 
 
-def compare_approaches(glove, bert, gpt):
+def compare_approaches(glove: Dict, bert: Dict, gpt: Dict):
+    #compare_approaches(glove={"precision": 0.5, "f1": 0.6, "recall": 0.9}, bert={"precision": 0.8, "f1": 0.7, "recall": 1.0}, gpt={"precision": 0.7, "f1": 0.6, "recall": 0.97})
     plt.figure()
+
+    labels = ['Glove', 'Bert', 'GPT-2']
+    precisions = [glove.get('precision'), bert.get('precision'), gpt.get('precision')]
+    f1s = [glove.get('f1'), bert.get('f1'), gpt.get('f1')]
+    recalls = [glove.get('recall'), bert.get('recall'), gpt.get('recall')]
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.30  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width, precisions, width, label='Precision', color='blue')
+    rects2 = ax.bar(x, f1s, width, label='F1', color='red')
+    rects3 = ax.bar(x + width, recalls, width, label='Recall', color='orange')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Scores')
+    #ax.set_title('Scores by group and gender')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    def autolabel(rects):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom')
+
+    autolabel(rects1)
+    autolabel(rects2)
+    autolabel(rects3)
+
+    fig.tight_layout()
+
+    plt.show()
 
 
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")

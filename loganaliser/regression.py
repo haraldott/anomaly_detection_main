@@ -99,4 +99,4 @@ class Regression(AnomalyDetection):
         res.train_loss_values = loss_values_train
         self.write_regression_metrics(res)
         self.write_final_metrics(self.results_dir, res)
-        return res.f1, res.precision
+        return res.f1, res.precision, res.recall

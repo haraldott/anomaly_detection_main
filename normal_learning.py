@@ -82,7 +82,7 @@ def experiment(epochs=60,
         lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + '_with_finetune' + '_lstm.pth'
     else:
         finetuning_model_dir = "bert-base-uncased"
-        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + "_" + experiment + '_lstm.pth'
+        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + "_epochs_" + str(epochs) + "_" + embeddings_model + "_" + mode + "_" + experiment + '_lstm.pth'
 
     # take corpus parsed by drain, inject anomalies in this file
     corpus_test_injected = cwd + anomalies_injected_dir + test_ds + "_" + anomaly_type
@@ -271,11 +271,11 @@ def experiment(epochs=60,
     if not prediction_only:
         lstm.start_training()
 
-    f1, precision = lstm.final_prediction()
+    f1, precision, recall = lstm.final_prediction()
     calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
                                  anomaly_amount, n_hidden_units, n_layers, clip, experiment, mode)
     print("done.")
-    return f1, precision
+    return f1, precision, recall
 
 if __name__ == '__main__':
     experiment()
