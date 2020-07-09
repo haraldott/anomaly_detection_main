@@ -24,7 +24,7 @@ def experiment(epochs=30,
                clip=1.0,
                attention=False,
                prediction_only=False,
-               alteration_ratio=0.05,
+               alteration_ratio=0.02,
                anomaly_ratio=0.05,
                option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
@@ -131,7 +131,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.02,
+                             alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
         _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
@@ -143,7 +143,7 @@ def experiment(epochs=30,
                                  instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
-                                 alteration_ratio=0.02,
+                                 alteration_ratio=alteration_ratio,
                                  anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -155,7 +155,7 @@ def experiment(epochs=30,
                                  instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
-                                 alteration_ratio=0.02,
+                                 alteration_ratio=alteration_ratio,
                                  anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -167,7 +167,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.02,
+                             alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -179,7 +179,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.02,
+                             alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
         _, _, train_ds_lines_after_injection = \
@@ -191,7 +191,7 @@ def experiment(epochs=30,
                              instance_information_out=train_instance_information_injected_1,
                              anomaly_amount=anomaly_amount,
                              results_dir=results_dir_experiment,
-                             alteration_ratio=0.02,
+                             alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
 
@@ -410,11 +410,11 @@ def experiment(epochs=30,
 
 
 
-    f1, precision = lstm_ds_2.final_prediction()
+    f1, precision, recall = lstm_ds_2.final_prediction()
     calculate_precision_and_plot(results_dir_experiment, cwd, embeddings_model, epochs, seq_len, anomaly_type,
                                  anomaly_amount, n_hidden_units, n_layers, clip, experiment, mode)
     print("done.")
-    return f1, precision
+    return f1, precision, recall
 
 if __name__ == '__main__':
     experiment()
