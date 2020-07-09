@@ -39,8 +39,8 @@ def experiment(epochs=30,
     else:
         results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
 
-    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}/".format(
-        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment)
+    results_dir_experiment = "transfer_{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}_alteration_ratio_{}_anomaly_ratio_{}/".format(
+        results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment, alteration_ratio, anomaly_ratio)
 
     train_ds_1 = settings[option]["dataset_1"]["raw_normal"]
     train_ds_2 = settings[option]["dataset_2"]["raw_normal"]
@@ -89,7 +89,7 @@ def experiment(epochs=30,
         lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds_1 + '_with_finetune' + '_lstm.pth'
     else:
         finetuning_model_dir = "bert-base-uncased"
-        lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds_1 + "_" + experiment + '_lstm.pth'
+        lstm_model_save_path = cwd + 'loganaliser/saved_models/transfer_' + train_ds_1 + "_" + experiment + '_lstm.pth'
 
     # take corpus parsed by drain, inject anomalies in this file
     corpus_test_injected = cwd + anomalies_injected_dir_2 + test_ds_2 + "_" + anomaly_type
