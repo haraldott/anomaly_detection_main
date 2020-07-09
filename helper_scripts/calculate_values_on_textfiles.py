@@ -31,6 +31,7 @@ def distribution_plots(results_dir, normal_vals, anomaly_vals, epochs, units, em
     plt.ylabel('Density')
     plt.savefig(results_dir + 'plot')
     plt.clf()
+    plt.close('all')
 
 
 def calc_percentile_outliers(normal_loss_values_path="/Users/haraldott/Downloads/results/regression/bert_epochs_130_seq_len_7_description__random_lines_1/normal_loss_values",

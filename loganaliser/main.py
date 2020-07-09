@@ -257,7 +257,7 @@ class AnomalyDetection:
         plt.ylabel('Scores')
         plt.legend()
         plt.savefig(results_dir + 'metrics.png', dpi=300)
-        plt.close()
+        plt.close('all')
 
         # write metrics to file
         with open(results_dir + "metrics.csv", 'w') as metrics_file:
@@ -271,7 +271,7 @@ class AnomalyDetection:
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.savefig(results_dir + 'loss.png', dpi=300)
-        plt.close()
+        plt.close('all')
 
 
     @staticmethod
@@ -288,6 +288,7 @@ class AnomalyDetection:
         disp = disp.plot(include_values=True, cmap='Blues', values_format='d')
         plt.savefig(results_dir + 'confusion_matrix.png', dpi=300)
         plt.clf()
+        plt.close('all')
         scores_file.close()
 
 

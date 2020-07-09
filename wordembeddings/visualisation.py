@@ -20,6 +20,7 @@ def tsne_plot_2d(filename, label, emb, words=[], a=1):
     plt.grid(True)
     plt.savefig(filename, format='png', dpi=500, bbox_inches='tight')
     plt.show()
+    plt.close('all')
 
 
 def plot_glove(vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt'):
