@@ -173,28 +173,46 @@ def calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, anomaly_loss
     for index, loss_val in zip(anomaly_loss_order, anomaly_loss_values):
         anomaly_loss_values_correct_order[index] = loss_val
 
-    per = percentile(normal_loss_values, 99.9)
+    t_per = 90.0
+    best_f1 = 0.0
+    best_per = 0.0
 
-    pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
-    pred_outliers_loss_values = [val for val in anomaly_loss_values_correct_order if val > per]
+    def apply_percentile_value(this_per):
+        per = percentile(normal_loss_values, this_per)
 
-    # produce labels for f1 score, precision, etc.
-    pred_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
-    for anomaly_index in pred_outliers_indeces:
-        pred_labels[anomaly_index] = 1
+        temp_pred_outliers_indeces = [i for i, val in enumerate(anomaly_loss_values_correct_order) if val > per]
+        temp_pred_outliers_loss_values = [val for val in anomaly_loss_values_correct_order if val > per]
 
-    true_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
-    for anomaly_index in anomaly_true_labels:
-        true_labels[anomaly_index] = 1
+        # produce labels for f1 score, precision, etc.
+        temp_pred_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
+        for anomaly_index in temp_pred_outliers_indeces:
+            temp_pred_labels[anomaly_index] = 1
 
-    # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
-    if no_anomaly:
-        true_labels = 1 - true_labels
-        pred_labels = 1 - np.asarray(pred_labels)
+        temp_true_labels = np.zeros(len(anomaly_loss_values_correct_order), dtype=int)
+        for anomaly_index in anomaly_true_labels:
+            temp_true_labels[anomaly_index] = 1
+
+        # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
+        if no_anomaly:
+            temp_true_labels = 1 - temp_true_labels
+            temp_pred_labels = 1 - np.asarray(temp_pred_labels)
+
+        f1 = f1_score(temp_true_labels, temp_pred_labels)
+        return f1, temp_true_labels, temp_pred_labels, temp_pred_outliers_indeces, temp_pred_outliers_loss_values
+
+    # find best percentile value
+    while t_per <= 99.9:
+        f1, _, _, _, _ = apply_percentile_value(t_per)
+        if f1 > best_f1:
+            best_f1 = f1
+            best_per = t_per
+        t_per = round(t_per + 0.1, 2)
+
+    # use the one that we've found
+    f1, true_labels, pred_labels, pred_outliers_indeces, pred_outliers_loss_values = apply_percentile_value(best_per)
+
 
     plot_roc_curve(true_labels, pred_labels, results_dir)
-
-    f1 = f1_score(true_labels, pred_labels)
     precision = precision_score(true_labels, pred_labels)
     recall = recall_score(true_labels, pred_labels)
     accuracy = accuracy_score(true_labels, pred_labels)
