@@ -1,26 +1,19 @@
+import os
+import pickle
 import subprocess
 
-import matplotlib
+import torch
 
-from loganaliser.binary import BinaryClassification
-
-#matplotlib.use('Agg')
+import logparser.Drain.Drain_demo as drain
+from loganaliser.multiclass import Multiclass
+from loganaliser.regression import Regression
+# matplotlib.use('Agg')
 from loganaliser.vanilla_autoencoder import VanillaAutoEncoder, AutoEncoder
 from settings import settings
+from shared_functions import calculate_precision_and_plot, inject_anomalies, get_labels_from_corpus, \
+    pre_process_log_events, get_top_k_embedding_label_mapping
 from wordembeddings import transform_glove
 from wordembeddings.transform_glove import merge_templates
-import logparser.Drain.Drain_demo as drain
-import wordembeddings.transform_bert as transform_bert
-import torch
-from loganaliser.regression import Regression
-from loganaliser.multiclass import Multiclass
-from wordembeddings.bert_finetuning import finetune
-from shared_functions import calculate_precision_and_plot, get_cosine_distance, inject_anomalies, get_labels_from_corpus, \
-    pre_process_log_events, get_top_k_embedding_label_mapping
-import os
-from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
-from shared_functions import get_embeddings
-import pickle
 
 
 def experiment(epochs=10,
