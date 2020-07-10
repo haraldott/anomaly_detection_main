@@ -19,11 +19,11 @@ from shared_functions import get_embeddings
 
 def experiment(epochs=60,
                mode="multiclass",
-               anomaly_type='random_lines',
+               anomaly_type='reverse_order',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
-               prediction_only=False,
+               prediction_only=True,
                alteration_ratio=0.05,
                anomaly_ratio=0.04,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
@@ -105,7 +105,7 @@ def experiment(epochs=60,
     pre_process_log_events(corpus_test, corpus_train, templates_normal, templates_pre_anomaly)
 
     ### INJECT ALTERATIONS in test ds
-    if anomaly_type is not "random_lines":
+    if not anomaly_type in ["random_lines", "reverse_order"]:
         _, test_ds_liens_before_injection, train_ds_lines_after_injection = \
                 inject_anomalies(anomaly_type=anomaly_type,
                                  corpus_input=corpus_test,
@@ -132,10 +132,23 @@ def experiment(epochs=60,
                                      alteration_ratio=alteration_ratio,
                                      anomaly_ratio=anomaly_ratio)
 
-    else:
+    elif anomaly_type == "random_lines":
         # INJECT ANOMALIES in test ds
         test_ds_anomaly_lines, _, _ = \
             inject_anomalies(anomaly_type="random_lines",
+                             corpus_input=corpus_test,
+                             corpus_output=corpus_test_injected,
+                             anomaly_indices_output_path=test_anomaly_indeces,
+                             instance_information_in=test_instance_information,
+                             instance_information_out=test_instance_information_injected,
+                             anomaly_amount=anomaly_amount,
+                             results_dir=results_dir_experiment,
+                             alteration_ratio=alteration_ratio,
+                             anomaly_ratio=anomaly_ratio)
+
+    elif anomaly_type == "reverse_order":
+        test_ds_anomaly_lines, _, _ = \
+            inject_anomalies(anomaly_type=anomaly_type,
                              corpus_input=corpus_test,
                              corpus_output=corpus_test_injected,
                              anomaly_indices_output_path=test_anomaly_indeces,
