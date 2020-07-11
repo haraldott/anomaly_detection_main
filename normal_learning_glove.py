@@ -26,7 +26,7 @@ def experiment(epochs=10,
                alteration_ratio=0.05,
                anomaly_ratio=0.04,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
-               embeddings_model='glove', experiment='x', label_encoder=None, embeddings_dim=200):
+               embeddings_model='glove', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
 
     if n_hidden_units not in [128, 256, 512]:
@@ -78,8 +78,7 @@ def experiment(epochs=10,
     embeddings_test = cwd + embeddings_dir + test_ds + '.pickle'
     embeddings_templates_combined = cwd + embeddings_dir + train_ds + test_ds + 'for_vae.pickle'
 
-    embeddingsfile_for_glove = '../' + embeddings_dir + train_ds + '_combined_vectors'
-    embeddingsfile_for_transformer = cwd + embeddings_dir + train_ds + '_combined_vectors.txt'
+    embeddingsfile_for_transformer = cwd + "data/openstack/utah/glove.6B.300d.txt"
 
     lstm_model_save_path = cwd + 'loganaliser/saved_models/' + train_ds + "_epochs_" + str(epochs) + "_" + embeddings_model + "_" + mode + "_" + experiment + '_lstm.pth'
 
@@ -161,16 +160,11 @@ def experiment(epochs=10,
         for template in merged_templates:
             f.write(template)
 
-    subprocess.call(['glove-c/word_embeddings.sh',
-                     '-c', merged_templates_file,
-                     '-s', embeddingsfile_for_glove,
-                     '-v', str(embeddings_dim)])
-
     # if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
     #     get_cosine_distance(test_ds_liens_before_injection, train_ds_lines_after_injection, results_dir_experiment, word_embeddings)
 
     # transform output of bert into numpy word embedding vectors
-    transform_glove.transform(vectorsfile=embeddingsfile_for_transformer, logfile=corpus_train, outputfile=embeddings_train, templates=merged_templates)
+    embeddings_dim = transform_glove.transform(vectorsfile=embeddingsfile_for_transformer, logfile=corpus_train, outputfile=embeddings_train, templates=merged_templates)
 
     transform_glove.transform(vectorsfile=embeddingsfile_for_transformer, logfile=corpus_test_injected, outputfile=embeddings_test, templates=merged_templates)
 

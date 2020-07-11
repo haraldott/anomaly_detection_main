@@ -6,7 +6,8 @@ import pandas as pd
 def _load_word_vectors(templates,
                        vectorsfile='../data/openstack/utah/embeddings/openstack_18k_plus_52k_vectors.txt'):
     # transform glove output
-    vectors_file = open(vectorsfile, 'r')
+    vectors_file = open(vectorsfile, 'r+', encoding="utf-8")
+    #vectors_lookup = [line.decode('utf-8').strip() for line in vectors_file.readlines()]
     vectors_lookup = vectors_file.readlines()
 
     words_vectors = {}
@@ -65,6 +66,8 @@ def transform(templates,
     padded_embeddings = (padded_emb - p_min) / (p_max - p_min)
 
     pickle.dump(padded_embeddings, open(outputfile, 'wb'))
+
+    return embeddings_dim
 
 
 def merge_templates(*template_files, merged_template_path):

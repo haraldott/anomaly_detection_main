@@ -15,7 +15,7 @@ import tarfile
 from wordembeddings.transform_gpt_2 import get_word_embeddings
 from sklearn.preprocessing import LabelEncoder
 import pickle
-from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer
+from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer, TransfoXLModel, TransfoXLTokenizer
 import heapq
 import re
 
@@ -461,6 +461,9 @@ def get_embeddings(type, templates_location):
     elif type == "gpt2":
         word_embeddings = get_word_embeddings(templates_location, pretrained_weights='gpt2',
                                               tokenizer_class=GPT2Tokenizer, model_class=GPT2Model)
+    elif type == "xl":
+        word_embeddings = get_word_embeddings(templates_location, pretrained_weights='transfo-xl-wt103',
+                                              tokenizer_class=TransfoXLTokenizer, model_class=TransfoXLModel)
     else:
         raise Exception("unknown embeddings model selected")
     return word_embeddings

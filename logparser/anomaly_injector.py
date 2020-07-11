@@ -9,7 +9,7 @@ from collections import defaultdict, Counter
 utah_new_random_line = "My personal randomly injected line.\n"
 
 ins_del_dup_anomalies_per_block = 3
-words_for_random_insert = ["time <*>", "for", "when", "during <*>", "deleted", "random", "bullshit", "this", "after",
+words_for_random_insert = ["time", "for", "when", "during", "deleted", "random", "bullshit", "this", "after",
                            "brain", "cell", "whatever"]
 words_for_random_replace = ["bullshit", "brain", "cell", "whatever"]
 
