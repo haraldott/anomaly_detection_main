@@ -56,7 +56,7 @@ class Regression(AnomalyDetection):
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                if epoch % self.log_frequency_interval == 0:
+                if epoch % self.log_frequency_interval == 0 and not self.transfer_learning_initial_training:
                     normal_loss_values = self.predict(self.train_data_x, self.train_data_y, self.distance)
                     anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
                     result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,

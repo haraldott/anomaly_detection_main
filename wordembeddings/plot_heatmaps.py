@@ -3,10 +3,16 @@ import sys
 import plotly.graph_objects as go
 import plotly.express as px
 from scipy.spatial.distance import cosine
-from wordembeddings.transform_bert import get_sentence_vectors
+from wordembeddings.transform_gpt_2 import get_sentence_vectors
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
+from transformers import GPT2Model, GPT2Tokenizer, BertModel, BertTokenizer, TransfoXLModel, TransfoXLTokenizer
+
+# bert-base-uncased, BertTokenizer, BertModel
+# gpt2, GPT2Tokenizer , GPT2Model
+# transfo-xl-wt103 ,TransfoXLTokenizer , TransfoXLModel
+
 
 # sasho_templates_location = '/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/logs_aggregated_normal_only_spr.csv_templates'
 #utah_templates_location = '/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_templates'
@@ -15,14 +21,15 @@ import matplotlib.pylab as plt
 #utah = get_sentence_vectors(templates_location=utah_templates_location, bert_model='bert-base-uncased')
 
 
-
 # sasho_templates_location = '/Users/haraldott/Development/thesis/detector/data/openstack/sasho/parsed/logs_aggregated_normal_only_spr.csv_templates'
-utah_templates_location = '/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_templates'
+utah_templates_location = '/Users/haraldott/Development/thesis/detector/data/openstack/utah/parsed/18k_spr_templates' #_no_cleansing
 
 # sasho_finetune = get_sentence_vectors(templates_location=sasho_templates_location,
 #                                       bert_model='wordembeddings/finetuning-models/Sasho/')
-utah_cleansing = get_sentence_vectors(templates_location=utah_templates_location,
-                                      bert_model='finetuning-models/18k_spr_templates_cleansed')
+utah_cleansing = get_sentence_vectors(templates=open(utah_templates_location, 'r').readlines(),
+                                      pretrained_weights="finetuning-models/18k_spr_templates_cleansed",
+                                      tokenizer_class=BertTokenizer,
+                                      model_class=BertModel)
 
 
 
@@ -45,10 +52,10 @@ print("average distance:  {}".format(average_distance))
 mask = np.zeros_like(cosine_distances)
 mask[np.tril_indices_from(mask)] = True
 with sns.axes_style("white"):
-    ax = sns.heatmap(cosine_distances, mask=mask, vmax=.6, square=True, cmap="YlOrRd_r")
+    ax = sns.heatmap(cosine_distances, mask=mask, vmax=.8, square=True, cmap="YlOrRd_r")
     ax.invert_yaxis()
     plt.yticks(rotation=0)
-    plt.savefig("finetuning.png", dpi=300)
+    plt.savefig("bert_finetuning_cleansed.png", dpi=300)
     plt.clf()
 
 
@@ -90,29 +97,29 @@ with sns.axes_style("white"):
 
 
 
-cosine_distances_finetune = []
-
-for outer_template_vector in utah_cleansing:
-    temp_cosine_distances = []
-    for inner_template_vector in utah_cleansing:
-        temp_cosine_distances.append(cosine(outer_template_vector, inner_template_vector))
-    cosine_distances_finetune.append(temp_cosine_distances)
-
-fig = go.Figure(data=go.Heatmap(
-    z=cosine_distances_finetune))
-fig.show()
-
-
-
-cosine_distances_diff = []
-for i, j in zip(cosine_distances_finetune, cosine_distances):
-    cos_diff_temp = []
-    for k, l in zip(i, j):
-        cos_diff_temp.append(abs(k - l))
-    cosine_distances_diff.append(cos_diff_temp)
-
-fig = go.Figure(data=go.Heatmap(z=cosine_distances_diff))
-fig.show()
+# cosine_distances_finetune = []
+#
+# for outer_template_vector in utah_cleansing:
+#     temp_cosine_distances = []
+#     for inner_template_vector in utah_cleansing:
+#         temp_cosine_distances.append(cosine(outer_template_vector, inner_template_vector))
+#     cosine_distances_finetune.append(temp_cosine_distances)
+#
+# fig = go.Figure(data=go.Heatmap(
+#     z=cosine_distances_finetune))
+# fig.show()
+#
+#
+#
+# cosine_distances_diff = []
+# for i, j in zip(cosine_distances_finetune, cosine_distances):
+#     cos_diff_temp = []
+#     for k, l in zip(i, j):
+#         cos_diff_temp.append(abs(k - l))
+#     cosine_distances_diff.append(cos_diff_temp)
+#
+# fig = go.Figure(data=go.Heatmap(z=cosine_distances_diff))
+# fig.show()
 
 
 

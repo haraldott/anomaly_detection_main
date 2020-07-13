@@ -139,7 +139,7 @@ def experiment(epochs=30,
                                  corpus_input=corpus_train_1,
                                  corpus_output=corpus_train_1,
                                  anomaly_indices_output_path=test_anomaly_indeces,
-                                 instance_information_in=train_instance_information_1,
+                                 instance_information_in=train_instance_information_injected_1,
                                  instance_information_out=train_instance_information_injected_1,
                                  anomaly_amount=anomaly_amount,
                                  results_dir=results_dir_experiment,
@@ -360,9 +360,9 @@ def experiment(epochs=30,
     ############################
     elif mode == "regression":
         lstm_ds_1 = Regression(train_vectors=embeddings_train_1,
-                               train_instance_information_file=train_instance_information_1,
-                               test_vectors=embeddings_train_1,
-                               test_instance_information_file=train_instance_information_1,
+                               train_instance_information_file=train_instance_information_injected_1,
+                               test_vectors=None,
+                               test_instance_information_file=None,
                                savemodelpath=lstm_model_save_path,
                                seq_length=seq_len,
                                num_epochs=epochs,
@@ -380,6 +380,7 @@ def experiment(epochs=30,
                                attention=attention,
                                prediction_only=prediction_only,
                                mode=mode,
+                               transfer_learning_initial_training=True
                                )
 
         if not prediction_only:
