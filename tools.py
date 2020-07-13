@@ -65,14 +65,14 @@ def plot_roc_curve(true_labels, pred_labels, results_dir):
     plt.close('all')
 
 
-def compare_approaches(glove: Dict, bert: Dict, gpt: Dict):
+def compare_approaches(glove: Dict, xl: Dict, gpt: Dict):
     #compare_approaches(glove={"precision": 0.5, "f1": 0.6, "recall": 0.9}, bert={"precision": 0.8, "f1": 0.7, "recall": 1.0}, gpt={"precision": 0.7, "f1": 0.6, "recall": 0.97})
     plt.figure()
 
-    labels = ['Glove', 'Bert', 'GPT-2']
-    precisions = [glove.get('precision'), bert.get('precision'), gpt.get('precision')]
-    f1s = [glove.get('f1'), bert.get('f1'), gpt.get('f1')]
-    recalls = [glove.get('recall'), bert.get('recall'), gpt.get('recall')]
+    labels = ['Glove', 'XL', 'GPT-2']
+    precisions = [glove.get('precision'), xl.get('precision'), gpt.get('precision')]
+    f1s = [glove.get('f1'), xl.get('f1'), gpt.get('f1')]
+    recalls = [glove.get('recall'), xl.get('recall'), gpt.get('recall')]
 
     x = np.arange(len(labels))  # the label locations
     width = 0.30  # the width of the bars
