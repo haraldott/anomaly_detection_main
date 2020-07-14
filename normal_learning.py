@@ -19,15 +19,15 @@ from shared_functions import get_embeddings
 
 def experiment(epochs=60,
                mode="multiclass",
-               anomaly_type='reverse_order',
+               anomaly_type='remove_words',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
                prediction_only=True,
                alteration_ratio=0.05,
-               anomaly_ratio=0.04,
+               anomaly_ratio=0.05,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
-               embeddings_model='xl', experiment='x', label_encoder=None, finetune_epochs=4):
+               embeddings_model='bert', experiment='x', label_encoder=None, finetune_epochs=4):
     cwd = os.getcwd() + "/"
 
     if n_hidden_units not in [128, 256, 512]:
@@ -205,9 +205,6 @@ def experiment(epochs=60,
                                                                                                  encoder_path=label_encoder,
                                                                                                  templates=templates_train,
                                                                                                  embeddings=sentence_to_embeddings_mapping)
-        top_k_label_mapping = get_top_k_embedding_label_mapping(
-                                set_embeddings_of_log_containing_anomalies=sentence_to_embeddings_mapping,
-                                normal_label_embedding_mapping=normal_label_embeddings_map)
 
         lstm = Multiclass(n_features=n_classes,
                           n_input=embeddings_dim,
@@ -226,7 +223,6 @@ def experiment(epochs=60,
                           n_hidden_units=n_hidden_units,
                           batch_size=batch_size,
                           clip=clip,
-                          top_k_label_mapping=top_k_label_mapping,
                           normal_label_embeddings_map=normal_label_embeddings_map,
                           lines_that_have_anomalies=test_ds_anomaly_lines,
                           corpus_of_log_containing_anomalies=corpus_test_injected,

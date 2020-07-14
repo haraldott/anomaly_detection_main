@@ -255,12 +255,11 @@ class ClassificationResult():
 
 
 def get_top_k_embedding_label_mapping(set_embeddings_of_log_containing_anomalies,
-                                      normal_label_embedding_mapping) -> Dict:
+                                      normal_label_embedding_mapping, thresh) -> Dict:
     """
     Control, how many neighbours you want, also with threshold and get a list of the best ones
     """
     top_k = 1
-    thresh = 0.35
     top_k_anomaly_embedding_label_mapping = {}
     for sentence, anom_emb in set_embeddings_of_log_containing_anomalies.items():
         cos_distances = {}
@@ -292,11 +291,10 @@ def get_nearest_neighbour_embedding_label_mapping(sentence_embedding_mapping,
 
 class DetermineAnomalies():
     def __init__(self, lines_that_have_anomalies, corpus_of_log_containing_anomalies, normal_label_embeddings_map,
-                 top_k_anomaly_embedding_label_mapping, order_of_values_of_file_containing_anomalies,
+                 order_of_values_of_file_containing_anomalies,
                  results_dir, sentence_to_embeddings_mapping):
         self.lines_that_have_anomalies = lines_that_have_anomalies
         self.corpus_of_log_containing_anomalies = open(corpus_of_log_containing_anomalies, 'r').readlines()
-        self.top_k_anomaly_embedding_label_mapping = top_k_anomaly_embedding_label_mapping
         self.order_of_values_of_file_containing_anomalies = order_of_values_of_file_containing_anomalies
         self.normal_label_embeddings_map = normal_label_embeddings_map
         self.results_dir = results_dir
@@ -317,45 +315,66 @@ class DetermineAnomalies():
         distance_between_true_and_pred_class = []
         pred_anomaly_labels = []
         pred_outliers_indeces = []
-        for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
-            most_probable_real_class = self.top_k_anomaly_embedding_label_mapping.get(sentence)
-            if most_probable_real_class in top_k_labels_pred:
-            #if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
-                # check if we missed
-                #if (true_labels[i] != 0):
-                distances = []
-                for pred_label in top_k_labels_pred:
-                    # if we have a list with multiple nearest neighbors, we only want the nearest one
-                    if type(most_probable_real_class) is list:
-                        if most_probable_real_class:
-                            distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
-                                                    self.normal_label_embeddings_map.get(most_probable_real_class[0])))
+        best_f1 = 0
+        best_thresh = None
+
+        for thresh in np.arange(0,1,0.01):
+            top_k_anomaly_embedding_label_mapping = get_top_k_embedding_label_mapping(self.sentence_to_embeddings_mapping,
+                                                                                      self.normal_label_embeddings_map,
+                                                                                      thresh)
+            temp_distance_between_true_and_pred_class = []
+            temp_pred_anomaly_labels = []
+            temp_pred_outliers_indeces = []
+
+            for i, (top_k_labels_pred, sentence) in enumerate(zip(predicted_labels, self.corpus_of_log_containing_anomalies)):
+                most_probable_real_class = top_k_anomaly_embedding_label_mapping.get(sentence)
+                if most_probable_real_class in top_k_labels_pred:
+                #if bool(set(most_probable_real_class) & set(top_k_labels_pred)):
+                    # check if we missed
+                    #if (true_labels[i] != 0):
+                    distances = []
+                    for pred_label in top_k_labels_pred:
+                        # if we have a list with multiple nearest neighbors, we only want the nearest one
+                        if type(most_probable_real_class) is list:
+                            if most_probable_real_class:
+                                distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                        self.normal_label_embeddings_map.get(most_probable_real_class[0])))
+                            else:
+                                distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                        self.sentence_to_embeddings_mapping.get(sentence)))
                         else:
                             distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
-                                                    self.sentence_to_embeddings_mapping.get(sentence)))
-                    else:
-                        distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
-                                                self.normal_label_embeddings_map.get(most_probable_real_class)))
-                distance_between_true_and_pred_class.append(min(distances))
-                pred_anomaly_labels.append(0)
-            else:
-                #if (true_labels[i] != 1):
-                distances = []
-                for pred_label in top_k_labels_pred:
-                    # if we have a list with multiple nearest neighbors, we only want the nearest one
-                    if type(most_probable_real_class) is list:
-                        if most_probable_real_class:
-                            distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
-                                                    self.normal_label_embeddings_map.get(most_probable_real_class[0])))
+                                                    self.normal_label_embeddings_map.get(most_probable_real_class)))
+                    temp_distance_between_true_and_pred_class.append(min(distances))
+                    temp_pred_anomaly_labels.append(0)
+                else:
+                    #if (true_labels[i] != 1):
+                    distances = []
+                    for pred_label in top_k_labels_pred:
+                        # if we have a list with multiple nearest neighbors, we only want the nearest one
+                        if type(most_probable_real_class) is list:
+                            if most_probable_real_class:
+                                distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                        self.normal_label_embeddings_map.get(most_probable_real_class[0])))
+                            else:
+                                distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
+                                                        self.sentence_to_embeddings_mapping.get(sentence)))
                         else:
                             distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
-                                                    self.sentence_to_embeddings_mapping.get(sentence)))
-                    else:
-                        distances.append(cosine(self.normal_label_embeddings_map.get(pred_label),
-                                                self.normal_label_embeddings_map.get(most_probable_real_class)))
-                distance_between_true_and_pred_class.append(min(distances))
-                pred_outliers_indeces.append(i)
-                pred_anomaly_labels.append(1)
+                                                    self.normal_label_embeddings_map.get(most_probable_real_class)))
+                    temp_distance_between_true_and_pred_class.append(min(distances))
+                    temp_pred_outliers_indeces.append(i)
+                    temp_pred_anomaly_labels.append(1)
+
+            f1_temp = f1_score(true_labels, temp_pred_anomaly_labels)
+            if f1_temp > best_f1:
+                distance_between_true_and_pred_class = temp_distance_between_true_and_pred_class
+                pred_anomaly_labels = temp_pred_anomaly_labels
+                pred_outliers_indeces = temp_pred_outliers_indeces
+                best_f1 = f1_temp
+                best_thresh = thresh
+
+        print("best thresh: {}".format(best_thresh))
 
         # grid search for threshold for which best f1
         temp_pred_anom_labels = pred_anomaly_labels.copy()

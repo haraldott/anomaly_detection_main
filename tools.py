@@ -3,17 +3,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import StrMethodFormatter
 from sklearn.metrics import roc_curve
-from typing import Dict
+from typing import Dict, List
+
 
 def distribution_plots(results_dir, normal_vals, anomaly_vals, epochs, units, emb_size, precision=0):
     plt.figure()
     sns.distplot(normal_vals, hist=False, kde=True,
                  kde_kws={'linewidth': 3},
-                 label='normal')
+                 label='train data')
 
     sns.distplot(anomaly_vals, hist=False, kde=True,
                  kde_kws={'linewidth': 3},
-                 label='anomaly')
+                 label='test data')
 
     plt.legend()
     #plt.title('{} Epochs, {} units, {} emb_size, p {}'.format(epochs, units, emb_size, precision))
@@ -65,21 +66,21 @@ def plot_roc_curve(true_labels, pred_labels, results_dir):
     plt.close('all')
 
 
-def compare_approaches(glove: Dict, xl: Dict, gpt: Dict):
-    #compare_approaches(glove={"precision": 0.5, "f1": 0.6, "recall": 0.9}, bert={"precision": 0.8, "f1": 0.7, "recall": 1.0}, gpt={"precision": 0.7, "f1": 0.6, "recall": 0.97})
+def compare_approaches(bert: List, xl: List, gpt: List, plotpath):
+    #compare_approaches(bert={"precision": 0.5, "f1": 0.6, "recall": 0.9}, bert={"precision": 0.8, "f1": 0.7, "recall": 1.0}, gpt={"precision": 0.7, "f1": 0.6, "recall": 0.97})
     plt.figure()
 
-    labels = ['Glove', 'XL', 'GPT-2']
-    precisions = [glove.get('precision'), xl.get('precision'), gpt.get('precision')]
-    f1s = [glove.get('f1'), xl.get('f1'), gpt.get('f1')]
-    recalls = [glove.get('recall'), xl.get('recall'), gpt.get('recall')]
+    labels = ['Bert', 'XL', 'GPT-2']
+    f1s = [bert[0], xl[0], gpt[0]]
+    precisions = [bert[1], xl[1], gpt[1]]
+    recalls = [bert[2], xl[2], gpt[2]]
 
     x = np.arange(len(labels))  # the label locations
     width = 0.30  # the width of the bars
 
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width, precisions, width, label='Precision', color='blue')
-    rects2 = ax.bar(x, f1s, width, label='F1', color='red')
+    rects1 = ax.bar(x, precisions, width, label='Precision', color='red')
+    rects2 = ax.bar(x - width, f1s, width, label='F1', color='blue')
     rects3 = ax.bar(x + width, recalls, width, label='Recall', color='orange')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
@@ -105,7 +106,10 @@ def compare_approaches(glove: Dict, xl: Dict, gpt: Dict):
 
     fig.tight_layout()
 
-    plt.show()
+    plt.savefig(plotpath, dpi=300)
+    plt.clf()
+    plt.close()
 
+# compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.53,0.39,0.83], xl=[0.56,0.39,1.00], plotpath="/Users/haraldott/Downloads/results_sequential/delete_lines_5_percent.png")
 
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")
