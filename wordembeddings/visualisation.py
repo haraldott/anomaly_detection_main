@@ -79,5 +79,5 @@ def write_to_tsv_files_bert_sentences(word_embeddings,
     with open(tsv_file_vectors, 'wt') as out_file_vectors, open(tsv_file_sentences, 'wt') as out_file_sentences:
         tsv_writer = csv.writer(out_file_vectors, delimiter='\t')
         for sentence, vector in word_embeddings.items():
-            tsv_writer.writerow(vector)
+            tsv_writer.writerow(vector.numpy())
             out_file_sentences.write(sentence)

@@ -26,7 +26,7 @@ def experiment(epochs=30,
                prediction_only=False,
                alteration_ratio=0.02,
                anomaly_ratio=0.05,
-               option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=128, batch_size=64, finetuning=False,
+               option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
     cwd = os.getcwd() + "/"
     print("############\n STARTING\n Epochs:{}, Mode:{}, Attention:{}, Anomaly Type:{}"

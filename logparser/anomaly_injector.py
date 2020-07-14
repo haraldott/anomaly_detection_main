@@ -6,12 +6,13 @@ from shutil import copyfile
 import numpy as np
 from collections import defaultdict, Counter
 
-utah_new_random_line = "My personal randomly injected line.\n"
+utah_new_random_line = "Timeout for executing the request.\n"
+utah_new_random_line = ".\n"
 
 ins_del_dup_anomalies_per_block = 3
-words_for_random_insert = ["time", "for", "when", "during", "deleted", "random", "bullshit", "this", "after",
-                           "brain", "cell", "whatever"]
-words_for_random_replace = ["bullshit", "brain", "cell", "whatever"]
+words_for_random_insert = ["time", "for", "when", "during", "deleted", "access", "this", "after",
+                           "cell"]
+words_for_random_replace = ["time", "during", "causing", "replace"]
 
 
 #########################
