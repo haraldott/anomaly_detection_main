@@ -5,8 +5,8 @@ results_folder = 'results_transfer/'
 makedirs(results_folder, exist_ok=True)
 
 # Bert multiclass
-alteration_ratio = 0.05
-with open(results_folder + 'bert_classification_transfer_results_anomaly_ratio_0.05.txt', 'a') as results:
+alteration_ratio = 0.02
+with open(results_folder + 'bert_classification_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.06:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass",
                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
@@ -16,8 +16,8 @@ with open(results_folder + 'bert_classification_transfer_results_anomaly_ratio_0
         alteration_ratio = round(alteration_ratio + 0.01, 2)
 
 # Bert regression
-alteration_ratio = 0.05
-with open(results_folder + 'bert_regression_transfer_results_anomaly_ratio_0.05.txt', 'a') as results:
+alteration_ratio = 0.02
+with open(results_folder + 'bert_regression_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.06:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="regression",
                                            prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
