@@ -18,8 +18,8 @@ from shared_functions import get_embeddings
 
 
 def experiment(epochs=60,
-               mode="multiclass",
-               anomaly_type='remove_words',
+               mode="regression",
+               anomaly_type='insert_words',
                anomaly_amount=1,
                clip=1.0,
                attention=False,

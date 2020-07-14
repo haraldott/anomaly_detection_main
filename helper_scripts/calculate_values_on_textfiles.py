@@ -72,5 +72,20 @@ def calc_f1_based_on_percentile(normal_loss_values_path="/Users/haraldott/Downlo
     print("precision: {}".format(precision_score(true_labels, pred_labels)))
 
 
+def box_plots(normal_loss_values, anomaly_loss_values):
+    with open(normal_loss_values) as f:
+        normal_loss_values = [float(y) for y in f.readlines()]
+    with open(anomaly_loss_values) as f:
+        anomaly_loss_values = [float(y) for y in f.readlines()]
+
+    data = [normal_loss_values, anomaly_loss_values]
+    fig, ax = plt.subplots()
+    ax.set_title("Box plots for training and test data")
+    ax.boxplot(data)
+    ax.set_xticklabels(["Training Data", "Test Data"])
+    plt.savefig("/Users/haraldott/Development/thesis/detector/data/openstack/utah/results/UtahSorted/regression_xl_epochs_60_seq_len_7_anomaly_type_insert_words_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.05_anomaly_ratio_0.05/boxplots.png", dpi=300)
+    plt.clf()
+
 if __name__ == '__main__':
-    calc_f1_based_on_percentile()
+    box_plots('/Users/haraldott/Development/thesis/detector/data/openstack/utah/results/UtahSorted/regression_xl_epochs_60_seq_len_7_anomaly_type_insert_words_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.05_anomaly_ratio_0.05/normal_loss_values', '/Users/haraldott/Development/thesis/detector/data/openstack/utah/results/UtahSorted/regression_xl_epochs_60_seq_len_7_anomaly_type_insert_words_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.05_anomaly_ratio_0.05/anomaly_loss_values')
+

@@ -5,9 +5,31 @@ from normal_learning import experiment
 results_folder = 'results_qualitative/'
 makedirs(results_folder, exist_ok=True)
 
-# experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",
-#                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
-#                                    embeddings_model='bert', epochs=100)
+experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",
+                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+                                   embeddings_model='bert', epochs=100)
+
+experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",
+                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+                                   embeddings_model='gpt', epochs=100)
+
+experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",
+                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+                                   embeddings_model='xl', epochs=100)
+
+experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
+                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+                                   embeddings_model='bert', epochs=100)
+
+experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
+                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+                                   embeddings_model='gpt', epochs=100)
+
+experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
+                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+                                   embeddings_model='xl', epochs=100)
+
+
 # alteration_ratio = 0.05
 # with open(results_folder + 'bert_multiclass_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
 #     while alteration_ratio <= 0.15:
@@ -91,10 +113,10 @@ makedirs(results_folder, exist_ok=True)
 #######################
 #######################
 
-
-experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",
-                                   prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
-                                   embeddings_model='xl', epochs=60)
+#
+# experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",
+#                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
+#                                    embeddings_model='xl', epochs=60)
 # alteration_ratio = 0.05
 # with open(results_folder + 'xl_multiclass_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
 #     while alteration_ratio <= 0.15:
