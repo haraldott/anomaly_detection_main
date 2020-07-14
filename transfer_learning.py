@@ -39,7 +39,7 @@ def experiment(epochs=30,
     else:
         results_dir = settings[option]["dataset_2"]["results_dir"] + "/"
 
-    results_dir_experiment = "transfer_{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}_alteration_ratio_{}_anomaly_ratio_{}/".format(
+    results_dir_experiment = "{}_{}_epochs_{}_seq_len_{}_anomaly_type_{}_{}_hidden_{}_layers_{}_clip_{}_experiment_{}_alteration_ratio_{}_anomaly_ratio_{}/".format(
         results_dir + mode, embeddings_model, epochs, seq_len, anomaly_type, anomaly_amount, n_hidden_units, n_layers, clip, experiment, alteration_ratio, anomaly_ratio)
 
     train_ds_1 = settings[option]["dataset_1"]["raw_normal"]
