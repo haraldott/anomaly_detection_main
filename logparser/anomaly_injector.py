@@ -29,20 +29,20 @@ def transfer_train_log(corpus_input, corpus_output):
             corpus_lines[i] = "Image created successfully\n"
         elif line == "Deletion of complete\n":
             corpus_lines[i] = "Deletion completed successfully\n"
-        elif line == "Total disk  GB used  GB\n":
-            corpus_lines[i] = "Overall disk size GB used  GB\n"
-        elif line == "Took  seconds to build instance\n":
-            corpus_lines[i] = "Instance has been built in  seconds\n"
-        elif line == "During sync_power_state the instance has a pending task spawning Skip\n":
-            corpus_lines[i] = "During sync_power_state a task is being started on the instance Skip\n"
-        elif line == "Instance  successfully\n":
-            corpus_lines[i] = "Instance altered successfully\n"
+        # elif line == "Total disk GB used GB\n":
+        #     corpus_lines[i] = "Overall disk size GB used GB\n"
+        # elif line == "Took  seconds to build instance\n":
+        #     corpus_lines[i] = "Instance has been built in  seconds\n"
+        # elif line == "During sync_power_state the instance has a pending task spawning Skip\n":
+        #     corpus_lines[i] = "During sync_power_state a task is being started on the instance Skip\n"
+        # elif line == "Instance successfully\n":
+        #     corpus_lines[i] = "Instance altered successfully\n"
         elif line == "Claim successful\n":
             corpus_lines[i] = "Instance Claim OK\n"
         elif line == "Deleting instance files\n":
             corpus_lines[i] = "Removing instance files\n"
-        elif line == "VM  Lifecycle Event\n":
-            corpus_lines[i] = "VM  Lifecycle Event was triggered\n"
+        # elif line == "VM Lifecycle Event\n":
+        #     corpus_lines[i] = "VM Lifecycle Event executed\n"
 
     with open(corpus_output, 'w') as corpus_file_output:
         for line in corpus_lines:

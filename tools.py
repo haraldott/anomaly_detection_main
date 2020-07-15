@@ -110,6 +110,60 @@ def compare_approaches(bert: List, xl: List, gpt: List, plotpath):
     plt.clf()
     plt.close()
 
-# compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.53,0.39,0.83], xl=[0.56,0.39,1.00], plotpath="/Users/haraldott/Downloads/results_sequential/delete_lines_5_percent.png")
+
+# compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.53,0.39,0.83], xl=[0.56,0.39,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_delete_lines_5_percent.png")
+# compare_approaches(bert=[0.61,0.44,1.00], gpt=[0.40,0.27,0.75], xl=[0.48,0.31,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_delete_lines_10_percent.png")
+# compare_approaches(bert=[0.50,0.34,1.00], gpt=[0.35,0.23,0.76], xl=[0.43,0.27,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_delete_lines_15_percent.png")
+#
+# compare_approaches(bert=[0.68,0.52,1.00], gpt=[0.52,0.39,0.79], xl=[0.51,0.34,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_duplicate_lines_5_percent.png")
+# compare_approaches(bert=[0.56,0.39,1.00], gpt=[0.43,0.30,0.75], xl=[0.44,0.28,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_duplicate_lines_10_percent.png")
+# compare_approaches(bert=[0.47,0.31,1.00], gpt=[0.38,0.25,0.79], xl=[0.38,0.24,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_duplicate_lines_15_percent.png")
+#
+# compare_approaches(bert=[0.60,0.43,1.00], gpt=[0.42,0.29,0.80], xl=[0.47,0.31,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_shuffle_lines_5_percent.png")
+# compare_approaches(bert=[0.59,0.42,1.00], gpt=[0.44,0.30,0.82], xl=[0.48,0.32,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_shuffle_lines_10_percent.png")
+# compare_approaches(bert=[0.60,0.43,1.00], gpt=[0.41,0.28,0.77], xl=[0.47,0.31,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_shuffle_lines_15_percent.png")
+
+
+# compare_approaches(bert=[0.75,0.60,1.00], gpt=[0.25,0.19,0.34], xl=[0.65,0.49,0.95], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_delete_lines_5_percent.png")
+# compare_approaches(bert=[0.61,0.44,1.00], gpt=[0.21,0.14,0.40], xl=[0.53,0.41,0.74], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_delete_lines_10_percent.png")
+# compare_approaches(bert=[0.52,0.35,1.00], gpt=[0.24,0.15,0.51], xl=[0.43,0.28,0.92], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_delete_lines_15_percent.png")
+#
+# compare_approaches(bert=[0.75,0.60,1.00], gpt=[0.23,0.17,0.37], xl=[0.67,0.51,0.95], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_duplicate_lines_5_percent.png")
+# compare_approaches(bert=[0.60,0.43,0.99], gpt=[0.21,0.14,0.41], xl=[0.51,0.35,0.94], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_duplicate_lines_10_percent.png")
+# compare_approaches(bert=[0.53,0.36,1.00], gpt=[0.22,0.16,0.33], xl=[0.44,0.29,0.93], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_duplicate_lines_15_percent.png")
+#
+# compare_approaches(bert=[0.66,0.50,1.00], gpt=[0.23,0.15,0.49], xl=[0.62,0.46,0.96], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_shuffle_lines_5_percent.png")
+# compare_approaches(bert=[0.66,0.50,1.00], gpt=[0.21,0.15,0.37], xl=[0.63,0.49,0.88], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_shuffle_lines_10_percent.png")
+# compare_approaches(bert=[0.69,0.53,1.00], gpt=[0.25,0.18,0.43], xl=[0.59,0.42,0.98], plotpath="/Users/haraldott/Downloads/results/results_sequential/regression/regression_shuffle_lines_15_percent.png")
+
+
+
+
+
+compare_approaches(bert=[0.77,0.63,1.00], gpt=[0.56,0.44,0.77], xl=[0.48,0.31,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_insert_words_5_percent.png")
+compare_approaches(bert=[0.72,0.56,1.00], gpt=[0.53,0.39,0.81], xl=[0.45,0.29,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_insert_words_10_percent.png")
+compare_approaches(bert=[0.67,0.51,1.00], gpt=[0.47,0.33,0.80], xl=[0.43,0.27,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_insert_words_15_percent.png")
+
+compare_approaches(bert=[0.76,0.61,1.00], gpt=[0.59,0.46,0.82], xl=[0.48,0.32,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_remove_words_5_percent.png")
+compare_approaches(bert=[0.68,0.52,1.00], gpt=[0.56,0.43,0.81], xl=[0.44,0.28,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_remove_words_10_percent.png")
+compare_approaches(bert=[0.64,0.47,1.00], gpt=[0.51,0.37,0.81], xl=[0.41,0.26,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_remove_words_15_percent.png")
+
+compare_approaches(bert=[0.73,0.58,1.00], gpt=[0.57,0.45,0.81], xl=[0.48,0.31,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_replace_words_5_percent.png")
+compare_approaches(bert=[0.68,0.51,1.00], gpt=[0.52,0.37,0.84], xl=[0.43,0.27,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_replace_words_10_percent.png")
+compare_approaches(bert=[0.58,0.41,1.00], gpt=[0.47,0.32,0.84], xl=[0.39,0.24,1.00], plotpath="/Users/haraldott/Downloads/results/results_qualitative/multiclass/multiclass_replace_words_15_percent.png")
+
+compare_approaches(bert=[0.84,0.73,1.00], gpt=[0.25,0.19,0.34], xl=[0.89,0.85,0.93], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_insert_words_5_percent.png")
+compare_approaches(bert=[0.79,0.66,1.00], gpt=[0.21,0.14,0.40], xl=[0.84,0.79,0.90], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_insert_words_10_percent.png")
+compare_approaches(bert=[0.74,0.58,1.00], gpt=[0.24,0.15,0.51], xl=[0.79,0.72,0.88], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_insert_words_15_percent.png")
+
+compare_approaches(bert=[0.84,0.73,0.99], gpt=[0.23,0.17,0.37], xl=[0.67,0.51,0.95], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_remove_words_5_percent.png")
+compare_approaches(bert=[0.77,0.63,0.99], gpt=[0.21,0.14,0.41], xl=[0.51,0.35,0.94], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_remove_words_10_percent.png")
+compare_approaches(bert=[0.73,0.58,0.99], gpt=[0.22,0.16,0.33], xl=[0.44,0.29,0.93], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_remove_words_15_percent.png")
+
+compare_approaches(bert=[0.66,0.50,1.00], gpt=[0.23,0.15,0.49], xl=[0.62,0.46,0.96], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_replace_words_5_percent.png")
+compare_approaches(bert=[0.66,0.50,1.00], gpt=[0.21,0.15,0.37], xl=[0.63,0.49,0.88], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_replace_words_10_percent.png")
+compare_approaches(bert=[0.69,0.53,1.00], gpt=[0.25,0.18,0.43], xl=[0.59,0.42,0.98], plotpath="/Users/haraldott/Downloads/results/results_qualitative/regression/regression_replace_words_15_percent.png")
+
+
 
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")

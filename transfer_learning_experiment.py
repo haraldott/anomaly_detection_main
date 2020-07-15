@@ -7,10 +7,10 @@ makedirs(results_folder, exist_ok=True)
 # Bert multiclass
 alteration_ratio = 0.02
 with open(results_folder + 'bert_classification_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.06:
+    while alteration_ratio <= 0.07:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass",
                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
-                                   embeddings_model='bert', epochs=100)
+                                   embeddings_model='bert', epochs=60)
         results.write("{:.2f},{:.2f},{:.2f},{:.2f}\n".format(alteration_ratio, f1, precision, recall))
         results.flush()
         alteration_ratio = round(alteration_ratio + 0.01, 2)
@@ -18,10 +18,10 @@ with open(results_folder + 'bert_classification_transfer_results_anomaly_ratio_0
 # Bert regression
 alteration_ratio = 0.02
 with open(results_folder + 'bert_regression_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.06:
+    while alteration_ratio <= 0.07:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="regression",
                                            prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
-                                           embeddings_model='bert', epochs=100)
+                                           embeddings_model='bert', epochs=60)
         results.write("{:.2f},{:.2f},{:.2f},{:.2f}\n".format(alteration_ratio, f1, precision, recall))
         results.flush()
         alteration_ratio = round(alteration_ratio + 0.01, 2)
@@ -29,10 +29,10 @@ with open(results_folder + 'bert_regression_transfer_results_anomaly_ratio_0.05.
 # # GPT multiclass
 alteration_ratio = 0.02
 with open(results_folder + 'gpt2_classification_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.06:
+    while alteration_ratio <= 0.07:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass",
                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
-                                   embeddings_model='gpt2', epochs=100)
+                                   embeddings_model='gpt2', epochs=60)
         results.write("{:.2f},{:.2f},{:.2f},{:.2f}\n".format(alteration_ratio, f1, precision, recall))
         results.flush()
         alteration_ratio = round(alteration_ratio + 0.01, 2)
@@ -40,10 +40,10 @@ with open(results_folder + 'gpt2_classification_transfer_results_anomaly_ratio_0
 # GPT regression
 alteration_ratio = 0.02
 with open(results_folder + 'gpt2_regression_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.06:
+    while alteration_ratio <= 0.07:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="regression",
                                            prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
-                                           embeddings_model='gpt2', epochs=100)
+                                           embeddings_model='gpt2', epochs=60)
         results.write("{:.2f},{:.2f},{:.2f},{:.2f}\n".format(alteration_ratio, f1, precision, recall))
         results.flush()
         alteration_ratio = round(alteration_ratio + 0.01, 2)
@@ -53,10 +53,10 @@ with open(results_folder + 'gpt2_regression_transfer_results_anomaly_ratio_0.05.
 # GPT regression
 alteration_ratio = 0.02
 with open(results_folder + 'xl_regression_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.06:
+    while alteration_ratio <= 0.07:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="regression",
                                            prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
-                                           embeddings_model='xl', epochs=100)
+                                           embeddings_model='xl', epochs=60)
         results.write("{:.2f},{:.2f},{:.2f},{:.2f}\n".format(alteration_ratio, f1, precision, recall))
         results.flush()
         alteration_ratio = round(alteration_ratio + 0.01, 2)
@@ -64,10 +64,10 @@ with open(results_folder + 'xl_regression_transfer_results_anomaly_ratio_0.05.tx
 # GPT regression
 alteration_ratio = 0.02
 with open(results_folder + 'xl_multiclass_transfer_results_anomaly_ratio_0.05.txt', 'w') as results:
-    while alteration_ratio <= 0.06:
+    while alteration_ratio <= 0.07:
         f1, precision, recall = experiment(anomaly_type='duplicate_lines', anomaly_amount=1, mode="multiclass",
                                            prediction_only=False, anomaly_ratio=0.05, alteration_ratio=alteration_ratio,
-                                           embeddings_model='xl', epochs=100)
+                                           embeddings_model='xl', epochs=60)
         results.write("{:.2f},{:.2f},{:.2f},{:.2f}\n".format(alteration_ratio, f1, precision, recall))
         results.flush()
         alteration_ratio = round(alteration_ratio + 0.01, 2)

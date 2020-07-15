@@ -62,7 +62,10 @@ class AnomalyDetection:
         self.results_dir = results_dir
         self.lines_that_have_anomalies = lines_that_have_anomalies
         self.feature_length = n_features
-        self.log_frequency_interval = 10
+        if transfer_learning:
+            self.log_frequency_interval = 1
+        else:
+            self.log_frequency_interval = 10
         self.n_input = n_input
         self.no_anomaly = no_anomaly
         self.transfer_learning_initial_training = transfer_learning_initial_training

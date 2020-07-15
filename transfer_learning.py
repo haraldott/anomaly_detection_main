@@ -17,14 +17,14 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=30,
+def experiment(epochs=60,
                mode="multiclass",
                anomaly_type='insert_words',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
                prediction_only=False,
-               alteration_ratio=0.02,
+               alteration_ratio=0.04,
                anomaly_ratio=0.05,
                option='UtahUtahTransfer', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None):
@@ -117,8 +117,8 @@ def experiment(epochs=30,
     pre_process_log_events(corpus_test_2, corpus_train_1, corpus_train_2)
 
     # manipulate train ds 1
-    # if option != "UtahSashoTransfer":
-    #     transfer_train_log(corpus_train_1, corpus_train_1)
+    if option != "UtahSashoTransfer":
+        transfer_train_log(corpus_train_1, corpus_train_1)
 
     ### INJECT ALTERATIONS in test ds
     if anomaly_type is not "random_lines":
