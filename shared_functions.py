@@ -318,7 +318,7 @@ class DetermineAnomalies():
         best_f1 = 0
         best_thresh = None
 
-        for thresh in np.arange(0,1,0.05):
+        for thresh in np.arange(0,1,0.04):
             top_k_anomaly_embedding_label_mapping = get_top_k_embedding_label_mapping(self.sentence_to_embeddings_mapping,
                                                                                       self.normal_label_embeddings_map,
                                                                                       thresh)
