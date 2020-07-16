@@ -24,7 +24,7 @@ def experiment(epochs=60,
                clip=1.0,
                attention=False,
                prediction_only=True,
-               alteration_ratio=0.05,
+               alteration_ratio=0.15,
                anomaly_ratio=0.05,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
                embeddings_model='bert', experiment='x', label_encoder=None, finetune_epochs=4):
