@@ -1,9 +1,12 @@
+import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import StrMethodFormatter
 from sklearn.metrics import roc_curve
 from typing import Dict, List
+from os import listdir
+from os.path import isfile, join
 
 
 def distribution_plots(results_dir, normal_vals, anomaly_vals, epochs, units, emb_size, precision=0):
@@ -110,6 +113,10 @@ def compare_approaches(bert: List, xl: List, gpt: List, plotpath):
     plt.clf()
     plt.close()
 
+
+def read_files_for_plots(path):
+    dirs = os.listdir(path)
+    print(dirs)
 
 # compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.53,0.39,0.83], xl=[0.56,0.39,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_delete_lines_5_percent.png")
 # compare_approaches(bert=[0.61,0.44,1.00], gpt=[0.40,0.27,0.75], xl=[0.48,0.31,1.00], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_delete_lines_10_percent.png")
