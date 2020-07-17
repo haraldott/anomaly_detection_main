@@ -121,66 +121,66 @@ def compare_approaches(bert: List, xl: List, gpt: List, plotpath):
 
 
 # REGRESSION QUALITATIVE
-compare_approaches(bert=[0.78,0.64,1.00], gpt=[0.96,0.93,1.00], xl=[0.56,0.53,0.58], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.74,0.58,1.00], gpt=[0.96,0.91,1.00], xl=[0.52,0.53,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.70,0.53,1.00], gpt=[0.97,0.94,1.00], xl=[0.47,0.38,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.15.png")
-
-compare_approaches(bert=[0.76,0.61,1.00], gpt=[0.87,0.78,1.00], xl=[0.56,0.52,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.81,0.68,1.00], xl=[0.46,0.37,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.66,0.49,1.00], gpt=[0.74,0.59,1.00], xl=[0.43,0.33,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.15.png")
-
-compare_approaches(bert=[0.76,0.62,1.00], gpt=[0.96,0.91,1.00], xl=[0.50,0.43,0.59], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.68,0.51,1.00], gpt=[0.93,0.87,1.00], xl=[0.48,0.39,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.63,0.46,1.00], gpt=[0.91,0.83,1.00], xl=[0.37,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.15.png")
-
-
-# REGRESSION SEQUENTIAL
-compare_approaches(bert=[0.71,0.56,1.00], gpt=[0.96,0.92,1.00], xl=[0.43,0.34,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.60,0.43,1.00], gpt=[0.96,0.93,1.00], xl=[0.33,0.22,0.65], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.52,0.36,1.00], gpt=[0.96,0.92,1.00], xl=[0.27,0.17,0.63], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.15.png")
-
-compare_approaches(bert=[0.75,0.60,1.00], gpt=[0.93,0.87,1.00], xl=[0.67,0.51,0.95], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.60,0.43,0.99], gpt=[0.93,0.86,1.00], xl=[0.51,0.35,0.94], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.53,0.36,1.00], gpt=[0.89,0.80,1.00], xl=[0.44,0.29,0.93], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.15.png")
-
-compare_approaches(bert=[0.64,0.47,1.00], gpt=[0.97,0.95,1.00], xl=[0.37,0.26,0.64], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.95,0.91,1.00], xl=[0.36,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.96,0.91,1.00], xl=[0.36,0.28,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.15.png")
-
-
-
-
-# REGRESSION QUALITATIVE
-compare_approaches(bert=[(0.78+0.76+0.76)/3, (0.64+0.61+0.62) / 3, 1.00], gpt=[(0.96+0.87+0.96) / 3,(0.93+0.78+0.91) / 3,1.00], xl=[(0.56+0.56+0.5) / 3, (0.53+0.56+0.50),(0.58+0.6+0.59) / 3], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.05.png")
-
-
-compare_approaches(bert=[(0.74+0.7+0.68) / 3,(0.58+0.54+0.51) / 3,1.00], gpt=[(0.96 + 0.81 + 0.93) / 3,(0.91),1.00], xl=[0.52,0.53,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.10.png")
-
-compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.81,0.68,1.00], xl=[0.46,0.37,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.10.png")
-
-compare_approaches(bert=[0.68,0.51,1.00], gpt=[0.93,0.87,1.00], xl=[0.48,0.39,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.10.png")
-
-
-
-
-
-compare_approaches(bert=[0.70,0.53,1.00], gpt=[0.97,0.94,1.00], xl=[0.47,0.38,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.15.png")
-compare_approaches(bert=[0.66,0.49,1.00], gpt=[0.74,0.59,1.00], xl=[0.43,0.33,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.15.png")
-compare_approaches(bert=[0.63,0.46,1.00], gpt=[0.91,0.83,1.00], xl=[0.37,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.15.png")
-
-
-# REGRESSION SEQUENTIAL
-compare_approaches(bert=[0.71,0.56,1.00], gpt=[0.96,0.92,1.00], xl=[0.43,0.34,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.60,0.43,1.00], gpt=[0.96,0.93,1.00], xl=[0.33,0.22,0.65], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.52,0.36,1.00], gpt=[0.96,0.92,1.00], xl=[0.27,0.17,0.63], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.15.png")
-
-compare_approaches(bert=[0.75,0.60,1.00], gpt=[0.93,0.87,1.00], xl=[0.67,0.51,0.95], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.60,0.43,0.99], gpt=[0.93,0.86,1.00], xl=[0.51,0.35,0.94], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.53,0.36,1.00], gpt=[0.89,0.80,1.00], xl=[0.44,0.29,0.93], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.15.png")
-
-compare_approaches(bert=[0.64,0.47,1.00], gpt=[0.97,0.95,1.00], xl=[0.37,0.26,0.64], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.05.png")
-compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.95,0.91,1.00], xl=[0.36,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.10.png")
-compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.96,0.91,1.00], xl=[0.36,0.28,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.15.png")
+# compare_approaches(bert=[0.78,0.64,1.00], gpt=[0.96,0.93,1.00], xl=[0.56,0.53,0.58], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.74,0.58,1.00], gpt=[0.96,0.91,1.00], xl=[0.52,0.53,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.70,0.53,1.00], gpt=[0.97,0.94,1.00], xl=[0.47,0.38,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.15.png")
+#
+# compare_approaches(bert=[0.76,0.61,1.00], gpt=[0.87,0.78,1.00], xl=[0.56,0.52,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.81,0.68,1.00], xl=[0.46,0.37,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.66,0.49,1.00], gpt=[0.74,0.59,1.00], xl=[0.43,0.33,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.15.png")
+#
+# compare_approaches(bert=[0.76,0.62,1.00], gpt=[0.96,0.91,1.00], xl=[0.50,0.43,0.59], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.68,0.51,1.00], gpt=[0.93,0.87,1.00], xl=[0.48,0.39,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.63,0.46,1.00], gpt=[0.91,0.83,1.00], xl=[0.37,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.15.png")
+#
+#
+# # REGRESSION SEQUENTIAL
+# compare_approaches(bert=[0.71,0.56,1.00], gpt=[0.96,0.92,1.00], xl=[0.43,0.34,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.60,0.43,1.00], gpt=[0.96,0.93,1.00], xl=[0.33,0.22,0.65], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.52,0.36,1.00], gpt=[0.96,0.92,1.00], xl=[0.27,0.17,0.63], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.15.png")
+#
+# compare_approaches(bert=[0.75,0.60,1.00], gpt=[0.93,0.87,1.00], xl=[0.67,0.51,0.95], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.60,0.43,0.99], gpt=[0.93,0.86,1.00], xl=[0.51,0.35,0.94], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.53,0.36,1.00], gpt=[0.89,0.80,1.00], xl=[0.44,0.29,0.93], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.15.png")
+#
+# compare_approaches(bert=[0.64,0.47,1.00], gpt=[0.97,0.95,1.00], xl=[0.37,0.26,0.64], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.95,0.91,1.00], xl=[0.36,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.96,0.91,1.00], xl=[0.36,0.28,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.15.png")
+#
+#
+#
+#
+# # REGRESSION QUALITATIVE
+# compare_approaches(bert=[(0.78+0.76+0.76)/3, (0.64+0.61+0.62) / 3, 1.00], gpt=[(0.96+0.87+0.96) / 3,(0.93+0.78+0.91) / 3,1.00], xl=[(0.56+0.56+0.5) / 3, (0.53+0.56+0.50),(0.58+0.6+0.59) / 3], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.05.png")
+#
+#
+# compare_approaches(bert=[(0.74+0.7+0.68) / 3,(0.58+0.54+0.51) / 3,1.00], gpt=[(0.96 + 0.81 + 0.93) / 3,(0.91),1.00], xl=[0.52,0.53,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.10.png")
+#
+# compare_approaches(bert=[0.70,0.54,1.00], gpt=[0.81,0.68,1.00], xl=[0.46,0.37,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.10.png")
+#
+# compare_approaches(bert=[0.68,0.51,1.00], gpt=[0.93,0.87,1.00], xl=[0.48,0.39,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.10.png")
+#
+#
+#
+#
+#
+# compare_approaches(bert=[0.70,0.53,1.00], gpt=[0.97,0.94,1.00], xl=[0.47,0.38,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_insert_words_anomaly_ratio_0.15.png")
+# compare_approaches(bert=[0.66,0.49,1.00], gpt=[0.74,0.59,1.00], xl=[0.43,0.33,0.62], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_remove_words_anomaly_ratio_0.15.png")
+# compare_approaches(bert=[0.63,0.46,1.00], gpt=[0.91,0.83,1.00], xl=[0.37,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression_replace_words_anomaly_ratio_0.15.png")
+#
+#
+# # REGRESSION SEQUENTIAL
+# compare_approaches(bert=[0.71,0.56,1.00], gpt=[0.96,0.92,1.00], xl=[0.43,0.34,0.60], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.60,0.43,1.00], gpt=[0.96,0.93,1.00], xl=[0.33,0.22,0.65], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.52,0.36,1.00], gpt=[0.96,0.92,1.00], xl=[0.27,0.17,0.63], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_delete_lines_anomaly_ratio_0.15.png")
+#
+# compare_approaches(bert=[0.75,0.60,1.00], gpt=[0.93,0.87,1.00], xl=[0.67,0.51,0.95], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.60,0.43,0.99], gpt=[0.93,0.86,1.00], xl=[0.51,0.35,0.94], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.53,0.36,1.00], gpt=[0.89,0.80,1.00], xl=[0.44,0.29,0.93], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_duplicate_lines_anomaly_ratio_0.15.png")
+#
+# compare_approaches(bert=[0.64,0.47,1.00], gpt=[0.97,0.95,1.00], xl=[0.37,0.26,0.64], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.05.png")
+# compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.95,0.91,1.00], xl=[0.36,0.26,0.61], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.10.png")
+# compare_approaches(bert=[0.65,0.48,1.00], gpt=[0.96,0.91,1.00], xl=[0.36,0.28,0.51], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_shuffle_lines_anomaly_ratio_0.15.png")
 
 
 
