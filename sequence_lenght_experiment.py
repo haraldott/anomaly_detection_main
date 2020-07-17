@@ -6,7 +6,7 @@ results_folder = 'results_seq_len/'
 makedirs(results_folder, exist_ok=True)
 
 
-with open(results_folder + 'bert_regression_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
+with open(results_folder + 'bert_regression_insert_words_results_anomaly_ratio_0.05.txt', 'a') as results:
     sequence_lenght = 8
     while sequence_lenght <= 8:
         f1, precision, recall = experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
@@ -17,7 +17,7 @@ with open(results_folder + 'bert_regression_insert_words_results_anomaly_ratio_0
         sequence_lenght = sequence_lenght + 1
 
 
-with open(results_folder + 'bert_multiclass_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
+with open(results_folder + 'bert_multiclass_insert_words_results_anomaly_ratio_0.05.txt', 'a') as results:
     sequence_lenght = 8
     while sequence_lenght <= 8:
         f1, precision, recall = experiment(anomaly_type='insert_words', anomaly_amount=1, mode="multiclass",

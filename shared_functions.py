@@ -377,24 +377,24 @@ class DetermineAnomalies():
         print("best thresh: {}".format(best_thresh))
 
         # grid search for threshold for which best f1
-        temp_pred_anom_labels = pred_anomaly_labels.copy()
-        best_f1 = None
-        best_thresh = None
-        for thresh in np.arange(0,1,0.01):
-            for dist in distance_between_true_and_pred_class:
-                if dist < thresh:
-                    temp_pred_anom_labels[i] = 0
-                else:
-                    temp_pred_anom_labels[i] = 1
-            this_f1 = f1_score(true_labels, temp_pred_anom_labels)
-            this_precision = precision_score(true_labels, temp_pred_anom_labels)
-            if best_f1 is None or this_f1 > best_f1:
-                best_f1 = this_f1
-                best_thresh = thresh
-                best_precision = this_precision
-        print("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
-        with open(self.results_dir + "thresh.txt", "a") as f:
-            f.write("best f1: {}\nbest thresh: {}\n".format(best_f1, best_thresh))
+        # temp_pred_anom_labels = pred_anomaly_labels.copy()
+        # best_f1 = None
+        # best_thresh = None
+        # for thresh in np.arange(0,1,0.01):
+        #     for dist in distance_between_true_and_pred_class:
+        #         if dist < thresh:
+        #             temp_pred_anom_labels[i] = 0
+        #         else:
+        #             temp_pred_anom_labels[i] = 1
+        #     this_f1 = f1_score(true_labels, temp_pred_anom_labels)
+        #     this_precision = precision_score(true_labels, temp_pred_anom_labels)
+        #     if best_f1 is None or this_f1 > best_f1:
+        #         best_f1 = this_f1
+        #         best_thresh = thresh
+        #         best_precision = this_precision
+        # print("best f1: {}\nbest thresh: {}".format(best_f1, best_thresh))
+        # with open(self.results_dir + "thresh.txt", "a") as f:
+        #     f.write("best f1: {}\nbest thresh: {}\n".format(best_f1, best_thresh))
         # this is a run without anomalies, we have to invert the 0 and 1, otherwise no metric works
         if no_anomaly:
             true_labels = 1 - true_labels

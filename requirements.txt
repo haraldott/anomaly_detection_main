@@ -10,7 +10,8 @@ seaborn==0.90
 bert-embedding==1.0.1
 pytorch-pretrained-bert==0.6.2
 transformers==2.3.0
-tensorflow==2.1.0
+tensorflow
 requests==2.22.0
 sklearn
 plotly==4.5.0
+ray
