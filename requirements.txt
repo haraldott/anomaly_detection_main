@@ -5,8 +5,8 @@ numpy==1.14.5
 keras==2.3.1
 skorch==0.7.0
 matplotlib==3.1.2
-adabound==0.05
-seaborn==0.90
+adabound==0.0.5
+seaborn==0.9.0
 bert-embedding==1.0.1
 pytorch-pretrained-bert==0.6.2
 transformers==2.3.0
@@ -14,4 +14,3 @@ tensorflow
 requests==2.22.0
 sklearn
 plotly==4.5.0
-ray
