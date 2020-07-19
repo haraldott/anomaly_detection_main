@@ -246,46 +246,46 @@ def read_in_values(*files):
 #
 # # REGRESSION QUALITATIVE
 # qualitative 5 percent average
-compare_approaches(bert=[round((0.78+0.76+0.76)/3, 2), round((0.64+0.61+0.62) / 3, 2), 1.00], gpt=[round((0.96+0.87+0.96) / 3, 2),round((0.93+0.78+0.91) / 3, 2),1.00], xl=[round((0.56+0.56+0.5) / 3,2), round((0.53+0.56+0.50) / 3, 2),round((0.58+0.6+0.59) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression/regression_qualitative_average_ratio_0.05.png")
-
-# qualitative 10 percent average
-compare_approaches(bert=[round((0.74+0.7+0.68) / 3, 2),round((0.58+0.54+0.51) / 3, 2),1.00], gpt=[round((0.96 + 0.81 + 0.93) / 3, 2),(0.91),1.00], xl=[round((0.52+0.46+0.48) / 3, 2), round((0.53+0.37 + 0.39) / 3, 2),round((0.51+0.6+0.62) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression/regression_qualitative_average_ratio_0.10.png")
-
-# qualitative 15 percent average
-compare_approaches(bert=[round((0.70 +0.66 +0.63 )/3,2) , round((0.53 +0.49 + 0.46)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.97 +0.74 + 0.91)/3,2) ,round((0.94 +0.59 + 0.83)/3,2) ,round((1.00 +1.00 +1.00 )/3,2) ], xl=[round((0.47 +0.43 + 0.37)/3,2) ,round((0.38 + 0.33+0.26 )/3,2) ,round((0.60 + 0.62+ 0.61)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression/regression_qualitative_average_ratio_0.15.png")
+# compare_approaches(bert=[round((0.78+0.76+0.76)/3, 2), round((0.64+0.61+0.62) / 3, 2), 1.00], gpt=[round((0.96+0.87+0.96) / 3, 2),round((0.93+0.78+0.91) / 3, 2),1.00], xl=[round((0.56+0.56+0.5) / 3,2), round((0.53+0.56+0.50) / 3, 2),round((0.58+0.6+0.59) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression/regression_qualitative_average_ratio_0.05.png")
+#
+# # qualitative 10 percent average
+# compare_approaches(bert=[round((0.74+0.7+0.68) / 3, 2),round((0.58+0.54+0.51) / 3, 2),1.00], gpt=[round((0.96 + 0.81 + 0.93) / 3, 2),(0.91),1.00], xl=[round((0.52+0.46+0.48) / 3, 2), round((0.53+0.37 + 0.39) / 3, 2),round((0.51+0.6+0.62) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression/regression_qualitative_average_ratio_0.10.png")
+#
+# # qualitative 15 percent average
+# compare_approaches(bert=[round((0.70 +0.66 +0.63 )/3,2) , round((0.53 +0.49 + 0.46)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.97 +0.74 + 0.91)/3,2) ,round((0.94 +0.59 + 0.83)/3,2) ,round((1.00 +1.00 +1.00 )/3,2) ], xl=[round((0.47 +0.43 + 0.37)/3,2) ,round((0.38 + 0.33+0.26 )/3,2) ,round((0.60 + 0.62+ 0.61)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/regression/regression_qualitative_average_ratio_0.15.png")
+# #
+# #
+# # REGRESSION SEQUENTIAL
+# # sequential 5 percent average
+# compare_approaches(bert=[round((0.71+0.71+0.64)/3, 2), round((0.56+0.47+0.62) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.96+0.93+0.97) / 3, 2),round((0.92+0.87+0.95) / 3, 2),round((1.00 +1.00 +1.00 )/3,2)], xl=[round((0.43+0.45+0.37) / 3,2), round((0.34+0.36+0.26) / 3, 2),round((0.60+0.60+0.64) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_sequential_average_ratio_0.05.png")
+#
+# # sequential 10 percent average
+# compare_approaches(bert=[round((0.60+0.58+0.65)/3, 2), round((0.43+0.48+0.51) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.96 + 0.93 + 0.95) / 3, 2),round((0.93+0.86+0.91) / 3),round((1.00 +1.00 +1.00 )/3,2)], xl=[round((0.33+0.34+0.36) / 3, 2), round((0.22+0.23 + 0.26) / 3, 2),round((0.65+0.68+0.61) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_sequential_average_ratio_0.10.png")
+#
+# # sequential 15 percent average
+# compare_approaches(bert=[round((0.52+0.52+0.65)/3, 2), round((0.36 +0.48 + 0.46)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.96 +0.89 + 0.96)/3,2) ,round((0.92 +0.80 + 0.91)/3,2) ,round((1.00 +1.00 +1.00 )/3,2) ], xl=[round((0.27 +0.30 + 0.36)/3,2) ,round((0.17 + 0.19+0.28)/3,2) ,round((0.63 + 0.74+ .51)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_sequential_average_ratio_0.15.png")
 #
 #
-# REGRESSION SEQUENTIAL
-# sequential 5 percent average
-compare_approaches(bert=[round((0.71+0.71+0.64)/3, 2), round((0.56+0.47+0.62) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.96+0.93+0.97) / 3, 2),round((0.92+0.87+0.95) / 3, 2),round((1.00 +1.00 +1.00 )/3,2)], xl=[round((0.43+0.45+0.37) / 3,2), round((0.34+0.36+0.26) / 3, 2),round((0.60+0.60+0.64) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_sequential_average_ratio_0.05.png")
-
-# sequential 10 percent average
-compare_approaches(bert=[round((0.60+0.58+0.65)/3, 2), round((0.43+0.48+0.51) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.96 + 0.93 + 0.95) / 3, 2),round((0.93+0.86+0.91) / 3),round((1.00 +1.00 +1.00 )/3,2)], xl=[round((0.33+0.34+0.36) / 3, 2), round((0.22+0.23 + 0.26) / 3, 2),round((0.65+0.68+0.61) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_sequential_average_ratio_0.10.png")
-
-# sequential 15 percent average
-compare_approaches(bert=[round((0.52+0.52+0.65)/3, 2), round((0.36 +0.48 + 0.46)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.96 +0.89 + 0.96)/3,2) ,round((0.92 +0.80 + 0.91)/3,2) ,round((1.00 +1.00 +1.00 )/3,2) ], xl=[round((0.27 +0.30 + 0.36)/3,2) ,round((0.17 + 0.19+0.28)/3,2) ,round((0.63 + 0.74+ .51)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/regression/regression_sequential_average_ratio_0.15.png")
-
-
-# MULTICLASS SEQUENTIAL
-# sequential 5 percent average
-compare_approaches(bert=[round((0.72+0.69+0.59)/3, 2), round((0.56+0.52+0.42) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.49+0.47+0.35) / 3, 2),round((0.36+0.36+0.24) / 3, 2),round((0.75 +0.68 +0.65 )/3,2)], xl=[round((0.52+0.53+0.47) / 3,2), round((0.36+0.36+0.31) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.05.png")
-
-# sequential 10 percent average
-compare_approaches(bert=[round((0.61+0.57+0.60)/3, 2), round((0.44+0.40+0.43) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.38 + 0.41 + 0.39) / 3, 2),round((0.26+0.29+0.27) / 3),round((0.76 +0.71 +0.70 )/3,2)], xl=[round((0.45+0.44+0.47) / 3, 2), round((0.29+0.29 + 0.30) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.10.png")
-
-# sequential 15 percent average
-compare_approaches(bert=[round((0.51+0.49+0.61)/3, 2), round((0.34 +0.33 + 0.44)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.32 +0.38 + 0.37)/3,2) ,round((0.21 +0.26 + 0.25)/3,2) ,round((0.69 +0.72 +0.68 )/3,2) ], xl=[round((0.40 +0.39 + 0.45)/3,2) ,round((0.25 + 0.24+0.29)/3,2) ,round((1.00 + 1.00+1.00)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.15.png")
-
-
-# MULTICLASS QUALITATIVE
-# qualitative 5 percent average
-compare_approaches(bert=[round((0.80+0.76+0.76)/3, 2), round((0.67+0.61+0.62) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.51+0.54+0.55) / 3, 2),round((0.41+0.44+0.43) / 3, 2),round((0.69 +0.69 +0.74 )/3,2)], xl=[round((0.60+0.58+0.57) / 3,2), round((0.43+0.41+0.40) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_qualitative_average_ratio_0.05.png")
-
-# qualitative 10 percent average
-compare_approaches(bert=[round((0.71+0.69+0.69)/3, 2), round((0.55+0.53+0.52) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.46 + 0.46 + 0.45) / 3, 2),round((0.35+0.35+0.33) / 3, 2),round((0.67 +0.67 +0.68)/3,2)], xl=[round((0.58+0.55+0.51) / 3, 2), round((0.41+0.38 + 0.34) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_qualitative_average_ratio_0.10.png")
-
-# qualitative 15 percent average
-compare_approaches(bert=[round((0.70+0.67+0.63)/3, 2), round((0.53 +0.50 + 0.46)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.44 +0.47 + 0.38)/3,2) ,round((0.32 +0.34 + 0.26)/3,2) ,round((0.70 +0.73 +0.67 )/3,2) ], xl=[round((0.57 +0.53 + 0.48)/3,2) ,round((0.40 +0.36+0.31)/3,2) ,round((1.00 + 1.00+ 1.00)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_qualitative_average_ratio_0.15.png")
+# # MULTICLASS SEQUENTIAL
+# # sequential 5 percent average
+# compare_approaches(bert=[round((0.72+0.69+0.59)/3, 2), round((0.56+0.52+0.42) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.49+0.47+0.35) / 3, 2),round((0.36+0.36+0.24) / 3, 2),round((0.75 +0.68 +0.65 )/3,2)], xl=[round((0.52+0.53+0.47) / 3,2), round((0.36+0.36+0.31) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.05.png")
+#
+# # sequential 10 percent average
+# compare_approaches(bert=[round((0.61+0.57+0.60)/3, 2), round((0.44+0.40+0.43) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.38 + 0.41 + 0.39) / 3, 2),round((0.26+0.29+0.27) / 3),round((0.76 +0.71 +0.70 )/3,2)], xl=[round((0.45+0.44+0.47) / 3, 2), round((0.29+0.29 + 0.30) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.10.png")
+#
+# # sequential 15 percent average
+# compare_approaches(bert=[round((0.51+0.49+0.61)/3, 2), round((0.34 +0.33 + 0.44)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.32 +0.38 + 0.37)/3,2) ,round((0.21 +0.26 + 0.25)/3,2) ,round((0.69 +0.72 +0.68 )/3,2) ], xl=[round((0.40 +0.39 + 0.45)/3,2) ,round((0.25 + 0.24+0.29)/3,2) ,round((1.00 + 1.00+1.00)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.15.png")
+#
+#
+# # MULTICLASS QUALITATIVE
+# # qualitative 5 percent average
+# compare_approaches(bert=[round((0.80+0.76+0.76)/3, 2), round((0.67+0.61+0.62) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.51+0.54+0.55) / 3, 2),round((0.41+0.44+0.43) / 3, 2),round((0.69 +0.69 +0.74 )/3,2)], xl=[round((0.60+0.58+0.57) / 3,2), round((0.43+0.41+0.40) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_qualitative_average_ratio_0.05.png")
+#
+# # qualitative 10 percent average
+# compare_approaches(bert=[round((0.71+0.69+0.69)/3, 2), round((0.55+0.53+0.52) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.46 + 0.46 + 0.45) / 3, 2),round((0.35+0.35+0.33) / 3, 2),round((0.67 +0.67 +0.68)/3,2)], xl=[round((0.58+0.55+0.51) / 3, 2), round((0.41+0.38 + 0.34) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_qualitative_average_ratio_0.10.png")
+#
+# # qualitative 15 percent average
+# compare_approaches(bert=[round((0.70+0.67+0.63)/3, 2), round((0.53 +0.50 + 0.46)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.44 +0.47 + 0.38)/3,2) ,round((0.32 +0.34 + 0.26)/3,2) ,round((0.70 +0.73 +0.67 )/3,2) ], xl=[round((0.57 +0.53 + 0.48)/3,2) ,round((0.40 +0.36+0.31)/3,2) ,round((1.00 + 1.00+ 1.00)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_qualitative_average_ratio_0.15.png")
 
 # compare_approaches(bert=[0.80,0.67,1.00], gpt=[0.56,0.44,0.77], xl=[0.48,0.31,1.00], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_insert_words_5_percent.png")
 # compare_approaches(bert=[0.71,0.55,1.00], gpt=[0.53,0.39,0.81], xl=[0.45,0.29,1.00], plotpath="/Users/haraldott/Development/thesis/detector/results_qualitative/multiclass/multiclass_insert_words_10_percent.png")
