@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
 import torch
+from matplotlib.ticker import MaxNLocator
 from sklearn.metrics import ConfusionMatrixDisplay
 from torch import optim
 from torch.utils.data import DataLoader
@@ -252,6 +253,8 @@ class AnomalyDetection:
         # plot metrics every 5 epochs
         this_x_axis = np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval)
         plt.figure()
+        fig, ax = plt.subplots()
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         plt.ylim(bottom=0.0, top=1.0)
         plt.plot(this_x_axis, [x.f1 for x in results], 'o-', label='F1')
         plt.plot(this_x_axis, [x.precision for x in results], 'o-', label='Precision')
