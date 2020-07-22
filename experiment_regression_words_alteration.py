@@ -8,7 +8,7 @@ makedirs(results_folder, exist_ok=True)
 # experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
 #                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
 #                                    embeddings_model='xl', epochs=60)
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'bert_regression_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
@@ -21,7 +21,7 @@ with open(results_folder + 'bert_regression_insert_words_results_anomaly_ratio_0
 
 ########################
 
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'bert_regression_remove_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='remove_words', anomaly_amount=1, mode="regression",
@@ -33,7 +33,7 @@ with open(results_folder + 'bert_regression_remove_words_results_anomaly_ratio_0
 
 ########################
 
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'bert_regression_replace_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='replace_words', anomaly_amount=1, mode="regression",
@@ -49,7 +49,7 @@ with open(results_folder + 'bert_regression_replace_words_results_anomaly_ratio_
 # ######################
 # ######################
 #
-# alteration_ratio = 0.05
+# alteration_ratio = 0.15
 # with open(results_folder + 'gpt2_regression_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
 #     while alteration_ratio <= 0.15:
 #         f1, precision, recall = experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
@@ -62,7 +62,7 @@ with open(results_folder + 'bert_regression_replace_words_results_anomaly_ratio_
 #
 # ########################
 #
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'gpt2_regression_remove_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='remove_words', anomaly_amount=1, mode="regression",
@@ -74,7 +74,7 @@ with open(results_folder + 'gpt2_regression_remove_words_results_anomaly_ratio_0
 #
 # ########################
 #
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'gpt2_regression_replace_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='replace_words', anomaly_amount=1, mode="regression",
@@ -95,7 +95,7 @@ with open(results_folder + 'gpt2_regression_replace_words_results_anomaly_ratio_
 # experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
 #                                    prediction_only=False, anomaly_ratio=0.05, alteration_ratio=0.05,
 #                                    embeddings_model='xl', epochs=60)
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'xl_regression_insert_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='insert_words', anomaly_amount=1, mode="regression",
@@ -108,7 +108,7 @@ with open(results_folder + 'xl_regression_insert_words_results_anomaly_ratio_0.0
 
 ########################
 
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'xl_regression_remove_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='remove_words', anomaly_amount=1, mode="regression",
@@ -120,7 +120,7 @@ with open(results_folder + 'xl_regression_remove_words_results_anomaly_ratio_0.0
 
 ########################
 
-alteration_ratio = 0.05
+alteration_ratio = 0.15
 with open(results_folder + 'xl_regression_replace_words_results_anomaly_ratio_0.05.txt', 'w') as results:
     while alteration_ratio <= 0.15:
         f1, precision, recall = experiment(anomaly_type='replace_words', anomaly_amount=1, mode="regression",
