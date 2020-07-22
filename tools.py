@@ -171,10 +171,10 @@ def transfer_results(target_path, *files):
     for percentage, language_model in vals.items():
         compare_approaches(bert=language_model["bert"], gpt=language_model["gpt2"], xl=language_model["xl"], plotpath= target_path + "/transfer_" + method + "_" + str(percentage) + "_ratio.png")
 
-transfer_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass",
-                 "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/bert/bert_multiclass_transfer_results_anomaly_ratio_0.05.txt",
-                 "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/gpt2/gpt2_multiclass_transfer_results_anomaly_ratio_0.05.txt",
-                 "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/xl/xl_multiclass_transfer_results_anomaly_ratio_0.05.txt")
+# transfer_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass",
+#                  "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/bert/bert_multiclass_transfer_results_anomaly_ratio_0.05.txt",
+#                  "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/gpt2/gpt2_multiclass_transfer_results_anomaly_ratio_0.05.txt",
+#                  "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/xl/xl_multiclass_transfer_results_anomaly_ratio_0.05.txt")
 
 # compare_approaches(bert=[0.83,1.00,0.71], xl=[0.82,1.00,0.69], gpt=[0.88,1.00,0.79], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_reverse.png")
 ########################################################################
