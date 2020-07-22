@@ -193,10 +193,24 @@ def experiment(epochs=60,
                              alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
+        if anomaly_type != "reverse_order":
+            # INJECT ANOMALIES in test ds
+            test_ds_anomaly_lines, _, _ = \
+                    inject_anomalies(anomaly_type="random_lines",
+                                     corpus_input=corpus_test_2,
+                                     corpus_output=corpus_test_injected,
+                                     anomaly_indices_output_path=test_anomaly_indeces,
+                                     instance_information_in=test_instance_information_2,
+                                     instance_information_out=test_instance_information_injected_2,
+                                     anomaly_amount=anomaly_amount,
+                                     results_dir=results_dir_experiment,
+                                     alteration_ratio=alteration_ratio,
+                                     anomaly_ratio=anomaly_ratio)
 
-        # INJECT ANOMALIES in test ds
-        test_ds_anomaly_lines, _, _ = \
-                inject_anomalies(anomaly_type="random_lines",
+        else:
+            # INJECT ANOMALIES in test ds
+            test_ds_anomaly_lines, _, _ = \
+                inject_anomalies(anomaly_type="reverse_order",
                                  corpus_input=corpus_test_2,
                                  corpus_output=corpus_test_injected,
                                  anomaly_indices_output_path=test_anomaly_indeces,

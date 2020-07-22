@@ -4,7 +4,7 @@ from collections import defaultdict
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import StrMethodFormatter
+from matplotlib.ticker import StrMethodFormatter, MaxNLocator
 from sklearn.metrics import roc_curve
 from typing import Dict, List
 from os import listdir
@@ -121,92 +121,62 @@ def compare_approaches(bert: List, xl: List, gpt: List, plotpath):
     plt.close()
 
 
-def read_in_values(*files):
-    # bert_vals = defaultdict(dict)
-    bert_vals = {{"regression":
-                      {"sequential": {"delete_lines": {}, "duplicate_lines": {}, "shuffle_lines": {}},
-                       "qualitative": {"insert_words": {}, "remove_words": {}, "replace_words": {}}}},
-                 {"multiclass":
-                      {"sequential": {"delete_lines": {}, "duplicate_lines": {}, "shuffle_lines": {}},
-                       "qualitative": {"insert_words": {}, "remove_words": {}, "replace_words": {}}}}}
-    gpt_vals = defaultdict(dict)
-    # gpt_vals = {{"regression":
-    #                   {"sequential": {"delete_lines": {}, "duplicate_lines": {}, "shuffle_lines": {}},
-    #                    "qualitative": {"insert_words": {}, "remove_words": {}, "replace_words": {}}}},
-    #              {"multiclass":
-    #                   {"sequential": {"delete_lines": {}, "duplicate_lines": {}, "shuffle_lines": {}},
-    #                    "qualitative": {"insert_words": {}, "remove_words": {}, "replace_words": {}}}}}
-    xl_vals = defaultdict(dict)
-    # xl_vals = {{"regression":
-    #                   {"sequential": {"delete_lines": {}, "duplicate_lines": {}, "shuffle_lines": {}},
-    #                    "qualitative": {"insert_words": {}, "remove_words": {}, "replace_words": {}}}},
-    #              {"multiclass":
-    #                   {"sequential": {"delete_lines": {}, "duplicate_lines": {}, "shuffle_lines": {}},
-    #                    "qualitative": {"insert_words": {}, "remove_words": {}, "replace_words": {}}}}}
-
+def seq_len_experiment_plots(*files):
+    vals = {}
+    method = None
+    this_path = None
 
     for file in files:
+        language_model = os.path.basename(file).split("_")[0].capitalize()
+        method = os.path.basename(file).split("_")[1]
+        this_path = os.path.dirname(os.path.abspath(file))
+        scores_per_length = {}
         with open(file, "r") as f:
-            line = f.readline()
-            split_line = [float(v) for v in line.split(",")]
+            lines = f.readlines()
+            for line in lines:
+                split_line = [float(v) for v in line.split(",")]
+                scores_per_length[int(split_line[0])] = split_line[1]
+        vals[language_model] = scores_per_length
 
-            classification = os.path.splitext(file)[0].split("_")[1]
+    fig, ax = plt.subplots()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.ylim(bottom=0.0, top=1.0)
+    for language_model, results in vals.items():
+        ax.plot(list(results.keys()), list(results.values()), 'o-', label=language_model)
+    plt.xlabel('Sequence Length')
+    plt.ylabel('F1-Score')
+    plt.legend()
 
-            if "delete_lines" in file:
-                if "bert" in file:
-                    bert_vals[classification]["sequential"]["delete_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["sequential"]["delete_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["sequential"]["delete_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-            elif "duplicate_lines" in file:
-                if "bert" in file:
-                    bert_vals[classification]["sequential"]["duplicate_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["sequential"]["duplicate_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["sequential"]["duplicate_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-            elif "shuffle" in file:
-                if "bert" in file:
-                    bert_vals[classification]["sequential"]["shuffle_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["sequential"]["shuffle_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["sequential"]["shuffle_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-            elif "shuffle" in file:
-                if "bert" in file:
-                    bert_vals[classification]["sequential"]["shuffle_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["sequential"]["shuffle_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["sequential"]["shuffle_lines"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-            elif "insert" in file:
-                if "bert" in file:
-                    bert_vals[classification]["qualitative"]["insert_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["qualitative"]["insert_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["qualitative"]["insert_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-            elif "remove" in file:
-                if "bert" in file:
-                    bert_vals[classification]["qualitative"]["remove_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["qualitative"]["remove_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["qualitative"]["remove_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-            elif "replace" in file:
-                if "bert" in file:
-                    bert_vals[classification]["qualitative"]["replace_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "gpt" in file:
-                    gpt_vals[classification]["qualitative"]["replace_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
-                elif "xl" in file:
-                    xl_vals[classification]["qualitative"]["replace_words"][split_line[0]] = [split_line[1], split_line[2], split_line[3]]
+    plt.savefig(this_path + "/" + method + ".png", dpi=300)
+    plt.close('all')
+
+def transfer_results(target_path, *files):
+    vals = defaultdict(dict)
+    method = None
+
+    for file in files:
+        language_model = os.path.basename(file).split("_")[0]
+        method = os.path.basename(file).split("_")[1]
+        with open(file, "r") as f:
+            lines = f.readlines()
+            results = {}
+            for line in lines:
+                split_line = [float(v) for v in line.split(",")]
+                if split_line[0] in [0.05, 0.10, 0.15]:
+                    results[split_line[0]] = [split_line[1], split_line[2], split_line[3]]
+            for percentage, metrics in results.items():
+                vals[percentage][language_model] = metrics
 
 
-    val = 1+1
+    for percentage, language_model in vals.items():
+        compare_approaches(bert=language_model["bert"], gpt=language_model["gpt2"], xl=language_model["xl"], plotpath= target_path + "/transfer_" + method + "_" + str(percentage) + "_ratio.png")
 
+transfer_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass",
+                 "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/bert/bert_multiclass_transfer_results_anomaly_ratio_0.05.txt",
+                 "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/gpt2/gpt2_multiclass_transfer_results_anomaly_ratio_0.05.txt",
+                 "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/xl/xl_multiclass_transfer_results_anomaly_ratio_0.05.txt")
 
-
+# compare_approaches(bert=[0.83,1.00,0.71], xl=[0.82,1.00,0.69], gpt=[0.88,1.00,0.79], plotpath="/Users/haraldott/Downloads/results/results_sequential/multiclass/multiclass_reverse.png")
 ########################################################################
 # EINZELN REGRESSION
 ########################################################################
@@ -271,7 +241,7 @@ def read_in_values(*files):
 # compare_approaches(bert=[round((0.72+0.69+0.59)/3, 2), round((0.56+0.52+0.42) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.49+0.47+0.35) / 3, 2),round((0.36+0.36+0.24) / 3, 2),round((0.75 +0.68 +0.65 )/3,2)], xl=[round((0.52+0.53+0.47) / 3,2), round((0.36+0.36+0.31) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.05.png")
 #
 # # sequential 10 percent average
-# compare_approaches(bert=[round((0.61+0.57+0.60)/3, 2), round((0.44+0.40+0.43) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.38 + 0.41 + 0.39) / 3, 2),round((0.26+0.29+0.27) / 3),round((0.76 +0.71 +0.70 )/3,2)], xl=[round((0.45+0.44+0.47) / 3, 2), round((0.29+0.29 + 0.30) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.10.png")
+# compare_approaches(bert=[round((0.61+0.57+0.60)/3, 2), round((0.44+0.40+0.43) / 3, 2), round((1.00 +1.00+ 1.00)/3,2)], gpt=[round((0.38 + 0.41 + 0.39) / 3, 2),round((0.26+0.29+0.27) / 3, 2),round((0.76 +0.71 +0.70 )/3,2)], xl=[round((0.45+0.44+0.47) / 3, 2), round((0.29+0.29 + 0.30) / 3, 2),round((1.00+1.00+1.00) / 3, 2)], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.10.png")
 #
 # # sequential 15 percent average
 # compare_approaches(bert=[round((0.51+0.49+0.61)/3, 2), round((0.34 +0.33 + 0.44)/3,2) ,round((1.00 +1.00+ 1.00)/3,2) ], gpt=[round((0.32 +0.38 + 0.37)/3,2) ,round((0.21 +0.26 + 0.25)/3,2) ,round((0.69 +0.72 +0.68 )/3,2) ], xl=[round((0.40 +0.39 + 0.45)/3,2) ,round((0.25 + 0.24+0.29)/3,2) ,round((1.00 + 1.00+1.00)/3,2) ], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_sequential_average_ratio_0.15.png")
