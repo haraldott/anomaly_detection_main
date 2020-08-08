@@ -7,12 +7,12 @@ import numpy as np
 from collections import defaultdict, Counter
 
 utah_new_random_line = "Timeout for executing the request.\n"
-utah_new_random_line = ".\n"
+# utah_new_random_line = ".\n"
 
 ins_del_dup_anomalies_per_block = 3
 words_for_random_insert = ["time", "for", "when", "during", "deleted", "access", "this", "after",
                            "cell"]
-words_for_random_replace = ["time", "during", "causing", "replace"]
+words_for_random_replace = ["time", "during", "causing", "replace", "crashed"]
 
 
 #########################
@@ -173,7 +173,7 @@ def insert_words(corpus_input, corpus_output, anomaly_indices_output_path, insta
 
 
 def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
-                  instance_information_out, alteration_ratio, number_of_words_to_be_replaced=1):
+                  instance_information_out, alteration_ratio, number_of_words_to_be_replaced=1, replace_half=False):
     if instance_information_in != instance_information_out:
         copyfile(instance_information_in, instance_information_out)
     total_lines_file = open(corpus_input, 'r')
@@ -193,7 +193,10 @@ def replace_words(corpus_input, corpus_output, anomaly_indices_output_path, inst
         line = line.split()
         if len(line) < number_of_words_to_be_replaced:
             raise Exception ("Line is shorter than number of words to be replaced. Quitting.")
-        indeces_to_be_replaced = random.sample(range(len(line)), number_of_words_to_be_replaced)
+        if number_of_words_to_be_replaced == 0 and replace_half:
+            indeces_to_be_replaced = random.sample(range(len(line)), math.ceil(len(line) / 2))
+        else:
+            indeces_to_be_replaced = random.sample(range(len(line)), number_of_words_to_be_replaced)
         for replace in indeces_to_be_replaced:
             line[replace] = random.choice(words_for_random_replace)
         # re-insert altered line

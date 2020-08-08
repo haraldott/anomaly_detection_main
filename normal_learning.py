@@ -19,7 +19,7 @@ from shared_functions import get_embeddings
 
 def experiment(epochs=60,
                mode="regression",
-               anomaly_type='insert_words',
+               anomaly_type='replace_half',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
@@ -105,8 +105,8 @@ def experiment(epochs=60,
     pre_process_log_events(corpus_test, corpus_train, templates_normal, templates_pre_anomaly)
 
     ### INJECT ALTERATIONS in test ds
-    if not anomaly_type in ["random_lines", "reverse_order"]:
-        _, test_ds_liens_before_injection, train_ds_lines_after_injection = \
+    if not anomaly_type in ["random_lines", "reverse_order", "replace_half"]:
+        _, test_ds_lines_before_injection, train_ds_lines_after_injection = \
                 inject_anomalies(anomaly_type=anomaly_type,
                                  corpus_input=corpus_test,
                                  corpus_output=corpus_test_injected,
@@ -146,9 +146,10 @@ def experiment(epochs=60,
                              alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
-    elif anomaly_type == "reverse_order":
-        test_ds_anomaly_lines, _, _ = \
-            inject_anomalies(anomaly_type=anomaly_type,
+    elif anomaly_type == "replace_half":
+        # INJECT ANOMALIES in test ds
+        test_ds_anomaly_lines, test_ds_lines_before_injection, train_ds_lines_after_injection = \
+            inject_anomalies(anomaly_type="replace_half",
                              corpus_input=corpus_test,
                              corpus_output=corpus_test_injected,
                              anomaly_indices_output_path=test_anomaly_indeces,
@@ -158,19 +159,6 @@ def experiment(epochs=60,
                              results_dir=results_dir_experiment,
                              alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
-
-    ### if in binary mode, inject anomalies also in train ds
-    if mode == "binary":
-        train_ds_anomaly_lines, train_ds_lines_before_injection, train_ds_lines_after_injection = \
-            inject_anomalies(
-                anomaly_type=anomaly_type,
-                corpus_input=corpus_train,
-                corpus_output=corpus_train_injected,
-                anomaly_indices_output_path=train_anomaly_indeces,
-                instance_information_in=train_instance_information,
-                instance_information_out=train_instance_information_injected,
-                anomaly_amount=anomaly_amount,
-                results_dir=results_dir_experiment)
 
 
     # produce templates out of the corpuses that we have from the anomaly file
@@ -192,8 +180,8 @@ def experiment(epochs=60,
 
     embeddings_dim = list(sentence_to_embeddings_mapping.values())[0].size()[0]
 
-    if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
-        get_cosine_distance(test_ds_liens_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
+    if anomaly_type in ["insert_words", "remove_words", "replace_words", "replace_half"]:
+        get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
 
     # transform output of bert into numpy word embedding vectors
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train, outputfile=embeddings_train)

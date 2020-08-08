@@ -281,6 +281,11 @@ def transfer_results(target_path, *files):
 # compare_approaches(bert=[0.66,0.50,1.00], gpt=[0.21,0.15,0.37], xl=[0.63,0.49,0.88], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_shuffle_lines_words_10_percent.png")
 # compare_approaches(bert=[0.69,0.53,1.00], gpt=[0.25,0.18,0.43], xl=[0.59,0.42,0.98], plotpath="/Users/haraldott/Development/thesis/detector/results_sequential/multiclass/multiclass_shuffle_lines_words_15_percent.png")
 
+# TRANSFER REVERSE
+# regression
+compare_approaches(bert=[0.79,1.00,0.66], gpt=[0.23,1.00,0.13], xl=[0.89,1.00,0.80], plotpath="/Users/haraldott/Downloads/transfer_regression_reverse.png")
 
+# classification
+compare_approaches(bert=[1.00,1.00,1.00], gpt=[1.00,1.00,1.00], xl=[1.00,1.00,1.00], plotpath="/Users/haraldott/Downloads/transfer_classification_reverse.png")
 
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")

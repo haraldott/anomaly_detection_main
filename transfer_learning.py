@@ -18,7 +18,7 @@ from shared_functions import get_embeddings
 
 def experiment(epochs=60,
                mode="multiclass",
-               anomaly_type='insert_words',
+               anomaly_type='replace_half',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
@@ -193,7 +193,7 @@ def experiment(epochs=60,
                              alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
 
-        if anomaly_type != "reverse_order":
+        if anomaly_type != "replace_half":
             # INJECT ANOMALIES in test ds
             test_ds_anomaly_lines, _, _ = \
                     inject_anomalies(anomaly_type="random_lines",
@@ -210,7 +210,7 @@ def experiment(epochs=60,
         else:
             # INJECT ANOMALIES in test ds
             test_ds_anomaly_lines, _, _ = \
-                inject_anomalies(anomaly_type="reverse_order",
+                inject_anomalies(anomaly_type="replace_half",
                                  corpus_input=corpus_test_2,
                                  corpus_output=corpus_test_injected,
                                  anomaly_indices_output_path=test_anomaly_indeces,
@@ -234,30 +234,6 @@ def experiment(epochs=60,
                              results_dir=results_dir_experiment,
                              alteration_ratio=alteration_ratio,
                              anomaly_ratio=anomaly_ratio)
-
-    ### if in binary mode, inject anomalies also in train ds
-    if mode == "binary":
-        train_ds_anomaly_lines, train_ds_lines_before_injection, train_ds_lines_after_injection = \
-            inject_anomalies(
-                anomaly_type=anomaly_type,
-                corpus_input=corpus_train_1,
-                corpus_output=BINARY_corpus_train_injected,
-                anomaly_indices_output_path=BINARY_train_anomaly_indeces,
-                instance_information_in=train_instance_information_1,
-                instance_information_out=BINARY_train_instance_information_injected_1,
-                anomaly_amount=anomaly_amount,
-                results_dir=results_dir_experiment)
-
-        train_ds_2_anomaly_lines, train_ds_2_lines_before_injection, train_ds_2_lines_after_injection = \
-            inject_anomalies(
-                anomaly_type=anomaly_type,
-                corpus_input=corpus_train_2,
-                corpus_output=BINARY_corpus_train_injected,
-                anomaly_indices_output_path=BINARY_train_anomaly_indeces,
-                instance_information_in=train_instance_information_2,
-                instance_information_out=BINARY_train_instance_information_injected_2,
-                anomaly_amount=anomaly_amount,
-                results_dir=results_dir_experiment)
 
 
     # produce templates out of the corpuses that we have from the anomaly file

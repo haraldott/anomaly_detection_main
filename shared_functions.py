@@ -84,7 +84,7 @@ def write_lines_to_file(file_path, content, new_line=False):
 
 def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_output_path, instance_information_in,
                      instance_information_out, anomaly_amount, results_dir, alteration_ratio, anomaly_ratio):
-    if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
+    if anomaly_type in ["insert_words", "remove_words", "replace_words", "replace_half"]:
         if anomaly_type == "insert_words":
             lines_before_alter, lines_after_alter, anomalies_true_label = insert_words(corpus_input, corpus_output,
                                                                                        anomaly_indices_output_path,
@@ -106,6 +106,14 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
                                                                                         instance_information_out,
                                                                                         alteration_ratio,
                                                                                         anomaly_amount)
+        elif anomaly_type == "replace_half":
+            lines_before_alter, lines_after_alter, anomalies_true_label = replace_words(corpus_input, corpus_output,
+                                                                                        anomaly_indices_output_path,
+                                                                                        instance_information_in,
+                                                                                        instance_information_out,
+                                                                                        alteration_ratio,
+                                                                                        number_of_words_to_be_replaced=0,
+                                                                                        replace_half=True)
 
         write_lines_to_file(results_dir + "lines_before_altering.txt", lines_before_alter)
         write_lines_to_file(results_dir + "lines_after_altering.txt", lines_after_alter)
