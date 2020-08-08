@@ -283,9 +283,9 @@ def transfer_results(target_path, *files):
 
 # TRANSFER REVERSE
 # regression
-compare_approaches(bert=[0.79,1.00,0.66], gpt=[0.23,1.00,0.13], xl=[0.89,1.00,0.80], plotpath="/Users/haraldott/Downloads/transfer_regression_reverse.png")
+# compare_approaches(bert=[0.79,1.00,0.66], gpt=[0.23,1.00,0.13], xl=[0.89,1.00,0.80], plotpath="/Users/haraldott/Downloads/transfer_regression_reverse.png")
 
 # classification
-compare_approaches(bert=[1.00,1.00,1.00], gpt=[1.00,1.00,1.00], xl=[1.00,1.00,1.00], plotpath="/Users/haraldott/Downloads/transfer_classification_reverse.png")
+# compare_approaches(bert=[1.00,1.00,1.00], gpt=[1.00,1.00,1.00], xl=[1.00,1.00,1.00], plotpath="/Users/haraldott/Downloads/transfer_classification_reverse.png")
 
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")
