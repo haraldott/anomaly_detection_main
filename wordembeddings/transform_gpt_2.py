@@ -42,7 +42,7 @@ def _prepare_vectors(templates, pretrained_weights, tokenizer_class, model_class
     input_ids = [tokenizer.convert_tokens_to_ids(sentence) for sentence in tokenized_text]
     tokens_tensors = [torch.tensor([idx_tokens]).to(device) for idx_tokens in input_ids]
     with torch.no_grad():
-        encoded_layers = [model(t)[0] for t in tokens_tensors]
+        encoded_layers = [model(t)[0].cpu() for t in tokens_tensors]
 
     return tokenized_text, encoded_layers
 
