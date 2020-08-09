@@ -247,23 +247,26 @@ def experiment(epochs=60,
     # if finetuning:
     #     if not os.path.exists(finetuning_model_dir):
     #         finetune(templates=templates_train_1, output_dir=finetuning_model_dir)
-
+    print("getting word embeddings")
     sentence_to_embeddings_mapping = get_embeddings(embeddings_model, merged_templates)
 
     write_to_tsv_files_bert_sentences(word_embeddings=sentence_to_embeddings_mapping,
                                       tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
                                       tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
-
+    print("get tsv files")
     embeddings_dim = list(sentence_to_embeddings_mapping.values())[0].size()[0]
 
     # if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
     #     get_cosine_distance(test_ds_lines_before_injection, train_ds_lines_after_injection, results_dir_experiment, sentence_to_embeddings_mapping)
 
     # transform output of bert into numpy word embedding vectors
+    print("transform 1")
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_1, outputfile=embeddings_train_1)
 
+    print("transform 2")
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_2, outputfile=embeddings_train_2)
 
+    print("transform 3")
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_test_injected, outputfile=embeddings_test_2)
 
     ############################

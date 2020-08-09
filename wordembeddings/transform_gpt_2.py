@@ -29,13 +29,19 @@ def _prepare_vectors(templates, pretrained_weights, tokenizer_class, model_class
         print("templates must be either a list of templates or a path str")
         raise
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
     model = model_class.from_pretrained(pretrained_weights)
 
+    model.eval()
     tokenized_text = [tokenizer.tokenize(sentence) for sentence in lines]
+
+    model.to(device)
+
 
     input_ids = [tokenizer.convert_tokens_to_ids(sentence) for sentence in tokenized_text]
     tokens_tensors = [torch.tensor([idx_tokens]) for idx_tokens in input_ids]
+    tokens_tensors.to(device)
     with torch.no_grad():
         encoded_layers = [model(t)[0] for t in tokens_tensors]
 
