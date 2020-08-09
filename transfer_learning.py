@@ -1,3 +1,5 @@
+import time
+
 import matplotlib
 
 from logparser.anomaly_injector import transfer_train_log
@@ -248,12 +250,15 @@ def experiment(epochs=60,
     #     if not os.path.exists(finetuning_model_dir):
     #         finetune(templates=templates_train_1, output_dir=finetuning_model_dir)
     print("getting word embeddings")
+    start_time = time.time()
     sentence_to_embeddings_mapping = get_embeddings(embeddings_model, merged_templates)
-
+    print("took {:5.2f}s".format(time.time() - start_time))
+    print("get tsv files")
+    start_time = time.time()
     write_to_tsv_files_bert_sentences(word_embeddings=sentence_to_embeddings_mapping,
                                       tsv_file_vectors=results_dir_experiment + "visualisation/vectors.tsv",
                                       tsv_file_sentences=results_dir_experiment + "visualisation/sentences.tsv")
-    print("get tsv files")
+    print("took {:5.2f}s".format(time.time() - start_time))
     embeddings_dim = list(sentence_to_embeddings_mapping.values())[0].size()[0]
 
     # if anomaly_type in ["insert_words", "remove_words", "replace_words"]:
@@ -261,13 +266,19 @@ def experiment(epochs=60,
 
     # transform output of bert into numpy word embedding vectors
     print("transform 1")
+    start_time = time.time()
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_1, outputfile=embeddings_train_1)
+    print("took {:5.2f}s".format(time.time() - start_time))
 
     print("transform 2")
+    start_time = time.time()
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_train_2, outputfile=embeddings_train_2)
+    print("took {:5.2f}s".format(time.time() - start_time))
 
     print("transform 3")
+    start_time = time.time()
     transform_bert.transform(sentence_embeddings=sentence_to_embeddings_mapping, logfile=corpus_test_injected, outputfile=embeddings_test_2)
+    print("took {:5.2f}s".format(time.time() - start_time))
 
     ############################
     ###### MULTICLASS

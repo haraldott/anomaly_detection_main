@@ -38,7 +38,7 @@ class Regression(AnomalyDetection):
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
         try:
             loss_values = []
-            intermediate_results = []
+            # intermediate_results = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
             for epoch in range(1, self.num_epochs + 1):
                 eval_loss = 0
@@ -56,12 +56,12 @@ class Regression(AnomalyDetection):
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                if epoch % self.log_frequency_interval == 0 and not self.transfer_learning_initial_training:
-                    normal_loss_values = self.predict(self.train_data_x, self.train_data_y, self.distance)
-                    anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
-                    result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
-                                                    self.lines_that_have_anomalies, self.no_anomaly, self.results_dir)
-                    intermediate_results.append(result)
+                # if epoch % self.log_frequency_interval == 0 and not self.transfer_learning_initial_training:
+                #     normal_loss_values = self.predict(self.train_data_x, self.train_data_y, self.distance)
+                #     anomaly_loss_values = self.predict(self.test_data_x, self.test_data_y, self.distance)
+                #     result = calculate_anomaly_loss(anomaly_loss_values, normal_loss_values, self.target_indices,
+                #                                     self.lines_that_have_anomalies, self.no_anomaly, self.results_dir)
+                #     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
                     .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds) \
                          + '-' * 89
@@ -74,9 +74,9 @@ class Regression(AnomalyDetection):
                 loss_values.append(eval_loss / self.folds)
             # training done, do final prediction
             log_output.close()
-            if self.test_vectors is not None and self.log_frequency_interval < self.num_epochs:
-                self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
-                                            intermediate_results, loss_values)
+            # if self.test_vectors is not None and self.log_frequency_interval < self.num_epochs:
+            #     self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
+            #                                 intermediate_results, loss_values)
 
         except KeyboardInterrupt:
             print('-' * 89)

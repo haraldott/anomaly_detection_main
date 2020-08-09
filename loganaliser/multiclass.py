@@ -48,7 +48,7 @@ class Multiclass(AnomalyDetection):
         loss_over_time = open(self.results_dir + 'loss_over_time.txt', 'w')
         try:
             loss_values = []
-            intermediate_results = []
+            # intermediate_results = []
             train_and_eval_indices = self.split(self.train_indices, self.folds)
             for epoch in range(1, self.num_epochs + 1):
                 loss_this_epoch = []
@@ -66,10 +66,10 @@ class Multiclass(AnomalyDetection):
                     self.scheduler.step(this_eval_loss)
                     eval_loss += this_eval_loss
                     train_loss += this_train_loss
-                if epoch % self.log_frequency_interval == 0 and not self.transfer_learning_initial_training:
-                    predicted_labels = self.predict()
-                    result = self.determine_anomalies.determine(predicted_labels, self.no_anomaly)
-                    intermediate_results.append(result)
+                # if epoch % self.log_frequency_interval == 0 and not self.transfer_learning_initial_training:
+                #     predicted_labels = self.predict()
+                #     result = self.determine_anomalies.determine(predicted_labels, self.no_anomaly)
+                #     intermediate_results.append(result)
                 output = '-' * 89 + "\n" + 'LSTM: | end of epoch {:3d} | time: {:5.2f}s | loss {} |\n' \
                     .format(epoch, (time.time() - epoch_start_time), eval_loss / self.folds) \
                          + '-' * 89
@@ -82,9 +82,9 @@ class Multiclass(AnomalyDetection):
                 loss_values.append(eval_loss / self.folds)
             # training done, write results
             log_output.close()
-            if self.test_vectors is not None and self.log_frequency_interval < self.num_epochs:
-                self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
-                                                intermediate_results, loss_values)
+            # if self.test_vectors is not None and self.log_frequency_interval < self.num_epochs:
+            #     self.write_intermediate_metrics(self.log_frequency_interval, self.num_epochs, self.results_dir,
+            #                                     intermediate_results, loss_values)
         except KeyboardInterrupt:
             print('-' * 89)
             print('Exiting from training early')
