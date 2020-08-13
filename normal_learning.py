@@ -17,14 +17,14 @@ from wordembeddings.visualisation import write_to_tsv_files_bert_sentences
 from shared_functions import get_embeddings
 
 
-def experiment(epochs=60,
+def experiment(epochs=1,
                mode="regression",
                anomaly_type='replace_half',
                anomaly_amount=1,
                clip=1.0,
                attention=False,
                prediction_only=False,
-               alteration_ratio=0.15,
+               alteration_ratio=0.05,
                anomaly_ratio=0.05,
                option='Normal', seq_len=7, n_layers=1, n_hidden_units=512, batch_size=64, finetuning=False,
                embeddings_model='xl', experiment='x', label_encoder=None, finetune_epochs=4):
@@ -243,26 +243,6 @@ def experiment(epochs=60,
                           prediction_only=prediction_only,
                           mode=mode)
 
-    elif mode == "binary":
-        lstm = BinaryClassification(num_epochs=epochs,
-                                    n_layers=n_layers,
-                                    n_hidden_units=n_hidden_units,
-                                    seq_length=seq_len,
-                                    batch_size=batch_size,
-                                    clip=clip,
-                                    train_vectors=embeddings_train,
-                                    train_instance_information_file=train_instance_information,
-                                    train_anomaly_lines=train_ds_anomaly_lines,
-                                    test_vectors=embeddings_test,
-                                    test_instance_information_file=test_instance_information_injected,
-                                    test_anomaly_lines=test_ds_anomaly_lines,
-                                    no_anomaly=no_anomaly,
-                                    n_input=embeddings_dim,
-                                    results_dir=cwd + results_dir_experiment,
-                                    embeddings_model='bert',
-                                    savemodelpath=lstm_model_save_path,
-                                    transfer_learning=False,
-                                    prediction_only=prediction_only)
 
     if not prediction_only:
         lstm.start_training()
