@@ -111,7 +111,7 @@ def inject_anomalies(anomaly_type, corpus_input, corpus_output, anomaly_indices_
                                                                                         anomaly_indices_output_path,
                                                                                         instance_information_in,
                                                                                         instance_information_out,
-                                                                                        alteration_ratio,
+                                                                                        anomaly_ratio,
                                                                                         number_of_words_to_be_replaced=0,
                                                                                         replace_half=True)
 

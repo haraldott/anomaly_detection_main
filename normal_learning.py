@@ -18,7 +18,7 @@ from shared_functions import get_embeddings
 
 
 def experiment(epochs=1,
-               mode="regression",
+               mode="multiclass",
                anomaly_type='replace_half',
                anomaly_amount=1,
                clip=1.0,
