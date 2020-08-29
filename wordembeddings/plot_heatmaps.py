@@ -27,9 +27,9 @@ utah_templates_location = '/Users/haraldott/Development/thesis/detector/data/ope
 # sasho_finetune = get_sentence_vectors(templates_location=sasho_templates_location,
 #                                       bert_model='wordembeddings/finetuning-models/Sasho/')
 utah_cleansing = get_sentence_vectors(templates=open(utah_templates_location, 'r').readlines(),
-                                      pretrained_weights="finetuning-models/18k_spr_templates_cleansed",
-                                      tokenizer_class=BertTokenizer,
-                                      model_class=BertModel)
+                                      pretrained_weights="gpt2",
+                                      tokenizer_class=GPT2Tokenizer,
+                                      model_class=GPT2Model)
 
 
 
@@ -42,6 +42,8 @@ for i, outer_template_vector in enumerate(utah_cleansing):
     temp_cosine_distances[0:i] = i * [0]
     for inner_ind in range(i, len(utah_cleansing)):
         dist = cosine(outer_template_vector, utah_cleansing[inner_ind])
+        if dist == 0.0:
+            continue
         temp_cosine_distances.append(dist)
         number_of_vals += 1
         sum_of_distances = sum_of_distances + dist

@@ -99,6 +99,7 @@ def compare_approaches(bert: List, xl: List, gpt: List, plotpath):
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
+    plt.ylim(bottom=0.0, top=1.05)
 
     def autolabel(rects):
         """Attach a text label above each bar in *rects*, displaying its height."""
@@ -170,6 +171,49 @@ def transfer_results(target_path, *files):
 
     for percentage, language_model in vals.items():
         compare_approaches(bert=language_model["bert"], gpt=language_model["gpt2"], xl=language_model["xl"], plotpath= target_path + "/transfer_" + method + "_" + str(percentage) + "_ratio.png")
+
+
+def write_transfer_epoch_results(*files):
+
+    for file in files:
+        results = defaultdict(list)
+        folder = os.path.dirname(file) + "/"
+        with open(file + "/metrics.csv", 'r') as f:
+            lines = f.readlines()
+            for i in range(1, len(lines)):
+                split_line = [float(v) for v in lines[i].split(",")]
+                results["F1"].append(split_line[1])
+                results["Precision"].append(split_line[2])
+                results["Recall"].append(split_line[3])
+        write_intermediate_metrics(1, 5, folder, results)
+
+
+def write_intermediate_metrics(log_frequency_interval, num_epochs, results_dir, results):
+    # plot metrics every 5 epochs
+    this_x_axis = np.arange(log_frequency_interval,num_epochs+1,log_frequency_interval)
+    plt.figure()
+    fig, ax = plt.subplots()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.ylim(bottom=0.0, top=1.05)
+    plt.plot(this_x_axis, results["F1"], 'o-', label='F1')
+    plt.plot(this_x_axis, results["Precision"], 'v-', label='Precision')
+    plt.plot(this_x_axis, results["Recall"], 's-', label='Recall')
+    plt.xlabel('Epochs')
+    plt.ylabel('Scores')
+    plt.legend()
+    plt.savefig(results_dir + 'metrics_new.png', dpi=300)
+    plt.close('all')
+
+
+    plt.close('all')
+
+# write_transfer_epoch_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/regression/bert/regression_bert_epochs_60_seq_len_7_anomaly_type_duplicate_lines_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.15_anomaly_ratio_0.05")
+# write_transfer_epoch_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/regression/gpt2/regression_gpt2_epochs_60_seq_len_7_anomaly_type_duplicate_lines_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.15_anomaly_ratio_0.05")
+# write_transfer_epoch_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/regression/xl/regression_xl_epochs_60_seq_len_7_anomaly_type_duplicate_lines_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.15_anomaly_ratio_0.05")
+#
+# write_transfer_epoch_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/bert/multiclass_bert_epochs_60_seq_len_7_anomaly_type_duplicate_lines_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.15_anomaly_ratio_0.05")
+# write_transfer_epoch_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/gpt2/multiclass_gpt2_epochs_60_seq_len_7_anomaly_type_duplicate_lines_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.15_anomaly_ratio_0.05")
+# write_transfer_epoch_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/xl/multiclass_xl_epochs_60_seq_len_7_anomaly_type_duplicate_lines_1_hidden_512_layers_1_clip_1.0_experiment_x_alteration_ratio_0.15_anomaly_ratio_0.05")
 
 # transfer_results("/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass",
 #                  "/Users/haraldott/Google Drive/Masterarbeit/results/results_transfer/multiclass/bert/bert_multiclass_transfer_results_anomaly_ratio_0.05.txt",
@@ -289,3 +333,12 @@ def transfer_results(target_path, *files):
 # compare_approaches(bert=[1.00,1.00,1.00], gpt=[1.00,1.00,1.00], xl=[1.00,1.00,1.00], plotpath="/Users/haraldott/Downloads/transfer_classification_reverse.png")
 
 #show_f1_score_injection_ratio("/Users/haraldott/Downloads/anomaly_only_results.txt")
+
+
+# REPLACE HALF EXPERIMENT
+
+# compare_approaches(bert=[0.94,0.90,1.00], gpt=[0.71,0.73,0.68], xl=[0.81,0.68,1.00], plotpath="/Users/haraldott/Development/thesis/detector/results_replace_half/multiclass_replace_half.png")
+# compare_approaches(bert=[0.71,0.61,0.86], gpt=[0.09,0.13,0.07], xl=[0.60,0.50,0.75], plotpath="/Users/haraldott/Development/thesis/detector/results_replace_half/regression_replace_half.png")
+#
+# compare_approaches(bert=[0.75,0.61,1.00], gpt=[0.43,0.27,1.00], xl=[0.69,0.53,1.00], plotpath="/Users/haraldott/Development/thesis/detector/results_replace_half_transfer/transfer_multiclass_replace_half.png")
+# compare_approaches(bert=[0.63,0.58,0.70], gpt=[0.08,0.23,0.05], xl=[0.55,0.45,0.70], plotpath="/Users/haraldott/Development/thesis/detector/results_replace_half_transfer/transfer_regression_replace_half.png")
